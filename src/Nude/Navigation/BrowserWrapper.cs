@@ -6,6 +6,8 @@ namespace Nude.Navigation;
 
 public class BrowserWrapper : IBrowserWrapper
 {
+    private bool _isDisposed;
+    
     private readonly IBrowser _browser;
     private readonly BrowserOptions _options;
     private readonly HtmlParser _htmlParser;
@@ -16,6 +18,14 @@ public class BrowserWrapper : IBrowserWrapper
         _browser = browser;
         _options = options;
         _htmlParser = new HtmlParser();
+    }
+
+    ~BrowserWrapper()
+    {
+        if (!_isDisposed)
+        {
+            Dispose();
+        }
     }
 
     public static async Task<IBrowserWrapper> CreateAsync(BrowserOptions options)
@@ -91,8 +101,13 @@ public class BrowserWrapper : IBrowserWrapper
 
     public void Dispose()
     {
+        if (_isDisposed) return;
+        
         _page?.Dispose();
         _browser.Disconnect();
+        _browser.Process.Kill();
         _browser.Dispose();
+
+        _isDisposed = true;
     }
 }

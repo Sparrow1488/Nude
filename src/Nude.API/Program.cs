@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Repositories;
+using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Jobs;
 using Nude.API.Services.Manga;
 using Nude.API.Services.Parsing;
@@ -44,6 +45,8 @@ builder.Services.AddEndpointsApiExplorer();
 var app = builder.Build();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ErrorsMiddleware>();
 
 app.MapControllers();
 
