@@ -31,19 +31,27 @@
 
 **Nude**
 
-* Correct dispose PuppeterSharp
+* ~~Correct dispose PuppeterSharp~~
 
-* More manga information parsing
+* More manga information parsing (Author)
 
 * Search by name
 
 * Search by tags
 
+* Search by author
+
+* Search all linked manga
+
 **Nude.API**
 
-* MangaProvider (that return stored in database manga, if not exists -> add to queue, parse and add to db)
+* ~~MangaProvider (that return stored in database manga, if not exists -> add to queue, parse and add to db)~~
 
-* MangaQueueController (stay in queue to get parsed page (used callback))
+* ~~MangaQueueController (stay in queue to get parsed page (used callback))~~
+
+* TagNormalizeConfiguration
+
+* RuntimeQueryableFilter
 
 **Nude.Tg.Bot**:
 
@@ -55,14 +63,12 @@
 
 **Database**:
 
-* Postgres in Docker
+* ~~Postgres in Docker~~
 
 **CI/CD**:
 
-* But VPS
+* Buy VPS
 
 * Install Docker
 
 * Configure Docker Compose
-
-* 

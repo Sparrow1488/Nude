@@ -39,7 +39,7 @@ public sealed class ParsingBackgroundService : IJob
                 _context = await _dbContextFactory.CreateDbContextAsync();
 
                 await Execute();
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(10));
             }
             catch (Exception ex)
             {

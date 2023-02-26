@@ -26,11 +26,9 @@ public class MangaParsingService : IMangaParsingService
     
     public async Task<ParsingResponse> CreateRequestAsync(string mangaUrl)
     {
-        var uniqueId = Guid.NewGuid().ToString();
         var exMangaId = _parser.Helper.GetIdFromUrl(mangaUrl);
         var request = new ParsingRequest
         {
-            UniqueId = uniqueId,
             Url = mangaUrl,
             Status = Status.Failed
         };
@@ -51,9 +49,19 @@ public class MangaParsingService : IMangaParsingService
             throw new NotFoundException("External manga not found", exMangaId, "Manga");
         }
 
+        request.UniqueId = Guid.NewGuid().ToString();
         request.Status = Status.Processing;        
         await _context.ParsingRequests.AddAsync(request);
         await _context.SaveChangesAsync();
+
+        return _mapper.Map<ParsingResponse>(request);
+    }
+
+    public async Task<ParsingResponse> GetRequestAsync(string uniqueId)
+    {
+        var request = await _context.ParsingRequests
+            .FirstOrDefaultAsync(x => x.UniqueId == uniqueId)
+            ?? throw new NotFoundException("Request not found", uniqueId, "ParsingRequest");
 
         return _mapper.Map<ParsingResponse>(request);
     }

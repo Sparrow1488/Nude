@@ -14,8 +14,11 @@ public class ParsingController : ControllerBase
         _service = service;
     }
 
+    [HttpGet("requests/{uniqueId}")]
+    public Task<ParsingResponse> GetRequestByUniqueId(string uniqueId)
+        => _service.GetRequestAsync(uniqueId);
 
     [HttpPost("requests/new")]
-    public Task<ParsingResponse> CreateRequests(string mangaUrl)
+    public Task<ParsingResponse> CreateRequest(string mangaUrl)
         => _service.CreateRequestAsync(mangaUrl);
 }
