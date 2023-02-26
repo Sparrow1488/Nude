@@ -53,7 +53,11 @@ builder.Services.AddQuartz(q =>
         .WithSchedule(SimpleScheduleBuilder.RepeatSecondlyForever(20))
     );
 });
-builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+builder.Services.AddQuartzHostedService(q =>
+{
+    q.WaitForJobsToComplete = true;
+    q.StartDelay = TimeSpan.FromSeconds(5);
+});
 
 #endregion
 

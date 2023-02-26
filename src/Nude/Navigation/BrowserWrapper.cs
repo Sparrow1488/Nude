@@ -11,6 +11,7 @@ public class BrowserWrapper : IBrowserWrapper
     private readonly IBrowser _browser;
     private readonly BrowserOptions _options;
     private readonly HtmlParser _htmlParser;
+    private readonly WaitForSelectorOptions _waitForSelectorOptions;
     private IPage? _page;
 
     private BrowserWrapper(IBrowser browser, BrowserOptions options)
@@ -18,6 +19,10 @@ public class BrowserWrapper : IBrowserWrapper
         _browser = browser;
         _options = options;
         _htmlParser = new HtmlParser();
+        _waitForSelectorOptions = new WaitForSelectorOptions
+        {
+            Timeout = 13 * 1000 // 13 seconds
+        };
     }
 
     ~BrowserWrapper()
@@ -39,6 +44,7 @@ public class BrowserWrapper : IBrowserWrapper
         
         var browser = await Puppeteer.LaunchAsync(new LaunchOptions
         {
+            Timeout = 13 * 1000, // 13 seconds
             Headless = true, 
             Devtools = false
         });
@@ -77,7 +83,7 @@ public class BrowserWrapper : IBrowserWrapper
     {
         var page = await GetOrCreatePageAsync();
         var response = await page.GoToAsync(url);
-        await page.WaitForSelectorAsync(waitSelector);
+        await page.WaitForSelectorAsync(waitSelector, _waitForSelectorOptions);
         return await response.TextAsync()
                ?? throw new Exception("Empty response");
     }
