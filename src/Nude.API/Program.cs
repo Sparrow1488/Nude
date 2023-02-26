@@ -1,3 +1,5 @@
+using System.Reflection;
+using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Repositories;
@@ -5,6 +7,8 @@ using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Jobs;
 using Nude.API.Services.Manga;
 using Nude.API.Services.Parsing;
+using Nude.Mapping.Profiles;
+using Nude.Mapping.Utils;
 using Nude.Providers;
 using Quartz;
 
@@ -24,6 +28,16 @@ builder.Services.AddDbContext<AppDbContext>(
 
 builder.Services.AddScoped<IMangaRepository, MangaRepository>();
 
+#region Mappers
+
+var profilesAssembly = typeof(MangaProfile).Assembly;
+MapperInitializer.AssertConfigurationIsValid(profilesAssembly);
+builder.Services.AddAutoMapper(x => x.AddMaps(profilesAssembly));
+
+#endregion
+
+#region Quartz
+
 builder.Services.AddQuartz(q =>
 {
     q.UseMicrosoftDependencyInjectionScopedJobFactory();
@@ -39,8 +53,9 @@ builder.Services.AddQuartz(q =>
 });
 builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
+#endregion
+
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
 
 var app = builder.Build();
 

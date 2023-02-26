@@ -14,6 +14,15 @@ public class NudeMoonController : ControllerBase
         _service = service;
     }
 
+    // TODO: IRuntimeQueryableFilter
+    // [HttpGet("manga")]
+    // public Task<MangaResponse> GetById(int id)
+    //     => _service.GetByIdAsync(id);
+    //
+    // [HttpGet("manga")]
+    // public Task<MangaResponse> GetByExternalId(string externalId)
+    //     => _service.GetByExternalIdAsync(externalId);
+    
     [HttpGet("manga")]
     public Task<MangaResponse> GetByUrl(string url)
         => _service.GetByUrlAsync(url);

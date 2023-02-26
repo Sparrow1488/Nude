@@ -43,6 +43,10 @@ public class ErrorsMiddleware
                 context.Response.ContentType = "application/json; charset=utf-8";
                 await context.Response.WriteAsync(json);
             }
+            else
+            {
+                throw;
+            }
         }
     }
 }

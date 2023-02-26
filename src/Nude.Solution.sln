@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Data", "Nude.API.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Infrastructure", "Nude.API.Infrastructure\Nude.API.Infrastructure.csproj", "{5CC02743-B560-45CC-B7B3-D204BB281B68}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Mappers", "Nude.Mappers\Nude.Mappers.csproj", "{D42E1761-9E9D-486B-881A-6ACC6D481B25}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{5CC02743-B560-45CC-B7B3-D204BB281B68}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5CC02743-B560-45CC-B7B3-D204BB281B68}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5CC02743-B560-45CC-B7B3-D204BB281B68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D42E1761-9E9D-486B-881A-6ACC6D481B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D42E1761-9E9D-486B-881A-6ACC6D481B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D42E1761-9E9D-486B-881A-6ACC6D481B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D42E1761-9E9D-486B-881A-6ACC6D481B25}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

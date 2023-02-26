@@ -1,6 +1,8 @@
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
+using Nude.API.Infrastructure.Exceptions;
 using Nude.Models.Requests;
 using Nude.Providers;
 
@@ -10,49 +12,49 @@ public class MangaParsingService : IMangaParsingService
 {
     private readonly AppDbContext _context;
     private readonly INudeParser _parser;
+    private readonly IMapper _mapper;
 
-    public MangaParsingService(AppDbContext context, INudeParser parser)
+    public MangaParsingService(
+        AppDbContext context, 
+        INudeParser parser,
+        IMapper mapper)
     {
         _context = context;
         _parser = parser;
+        _mapper = mapper;
     }
     
     public async Task<ParsingResponse> CreateRequestAsync(string mangaUrl)
     {
-        // Check in Database
-        var mangaId = _parser.Helper.GetIdFromUrl(mangaUrl);
-        var dbExists = await _context.Mangas.FirstOrDefaultAsync(x => x.ExternalId == mangaId);
-        if (dbExists is not null)
+        var uniqueId = Guid.NewGuid().ToString();
+        var exMangaId = _parser.Helper.GetIdFromUrl(mangaUrl);
+        var request = new ParsingRequest
         {
-            return new ParsingResponse
-            {
-                UniqueId = Guid.NewGuid().ToString(),
-                MangaUrl = mangaUrl,
-                IsAlreadyExists = true,
-                Status = Status.Success.ToString()
-            };
+            UniqueId = uniqueId,
+            Url = mangaUrl,
+            Status = Status.Failed
+        };
+        
+        // Check in Database
+        var isExists = await _context.Mangas.AnyAsync(x => x.ExternalId == exMangaId);
+        if (isExists)
+        {
+            request.Status = Status.Success;
+            var response = _mapper.Map<ParsingResponse>(request);
+            return response;
         }
 
         // Get from external source
         var externalExists = await _parser.ExistsAsync(mangaUrl);
         if (!externalExists)
         {
-            throw new Exception("Not found exception");
+            throw new NotFoundException("External manga not found", exMangaId, "Manga");
         }
-        
-        var uniqueId = Guid.NewGuid().ToString();
-        await _context.ParsingRequests.AddAsync(new ParsingRequest
-        {
-            UniqueId = uniqueId,
-            Url = mangaUrl
-        });
+
+        request.Status = Status.Processing;        
+        await _context.ParsingRequests.AddAsync(request);
         await _context.SaveChangesAsync();
 
-        return new ParsingResponse
-        {
-            UniqueId = uniqueId,
-            MangaUrl = mangaUrl,
-            Status = Status.Processing.ToString()
-        };
+        return _mapper.Map<ParsingResponse>(request);
     }
 }

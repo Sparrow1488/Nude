@@ -9,4 +9,5 @@ public struct MangaResponse
     public List<string> Tags { get; set; }
     public List<string> Images { get; set; }
     public int Likes { get; set; }
+    public string Author { get; set; }
 }
