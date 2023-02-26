@@ -55,6 +55,14 @@ public class BrowserWrapper : IBrowserWrapper
             ?? throw new Exception("Empty response");
     }
 
+    public async Task<(string? html, int status)> GetTextWithStatusAsync(string url)
+    {
+        var page = await GetOrCreatePageAsync();
+        var response = await page.GoToAsync(url);
+        var text = await response.TextAsync();
+        return (text, (int)response.Status);
+    }
+
     public async Task<string> GetTextAsync(string url, string waitSelector)
     {
         var page = await GetOrCreatePageAsync();

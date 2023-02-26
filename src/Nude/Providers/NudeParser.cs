@@ -71,6 +71,7 @@ public class NudeParser : INudeParser
 
     public async Task<Manga> GetByUrlAsync(string url)
     {
+        // TODO: check exists
         using var document = await _browser.GetDocumentAsync(url, "table.tbl");
         return new Manga
         {
@@ -80,6 +81,12 @@ public class NudeParser : INudeParser
             Tags = GetTagsRequired(document),
             Likes = GetLikes(document)
         };
+    }
+
+    public async Task<bool> ExistsAsync(string url)
+    {
+        var (_, status) =  await _browser.GetTextWithStatusAsync(url);
+        return status != 404;
     }
 
     private static string GetTitleRequired(IDocument mangaPageDocument)

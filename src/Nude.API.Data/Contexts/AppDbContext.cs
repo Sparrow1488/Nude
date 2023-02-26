@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.Models.Authors;
 using Nude.Models.Mangas;
+using Nude.Models.Requests;
 using Nude.Models.Sources;
 using Nude.Models.Tags;
 using Nude.Models.Urls;
@@ -17,6 +18,7 @@ public sealed class AppDbContext : DbContext
         Tags = Set<Tag>();
         Urls = Set<Url>();
         Sources = Set<Source>();
+        ParsingRequests = Set<ParsingRequest>();
     }
 
     public DbSet<Manga> Mangas { get; }
@@ -25,4 +27,5 @@ public sealed class AppDbContext : DbContext
     public DbSet<Tag> Tags { get; }
     public DbSet<Url> Urls { get; }
     public DbSet<Source> Sources { get; }
+    public DbSet<ParsingRequest> ParsingRequests { get; }
 }
