@@ -7,5 +7,6 @@ public class ParsingRequest : IEntity
     public int Id { get; set; }
     public string UniqueId { get; set; }
     public string Url { get; set; }
+    public string? Message { get; set; }
     public Status Status { get; set; }
 }

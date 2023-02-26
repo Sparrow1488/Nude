@@ -15,7 +15,7 @@ public sealed class ParsingJob : IJob
     private readonly IMangaRepository _repository;
     private readonly ILogger<ParsingJob> _logger;
 
-    private ParsingRequest? _request;
+    private List<ParsingRequest>? _requests;
 
     public ParsingJob(
         AppDbContext context, 
@@ -39,9 +39,13 @@ public sealed class ParsingJob : IJob
         {
             _logger.LogError(ex, "Failure process request");
 
-            if (_request is not null)
+            if (_requests is not null)
             {
-                _request.Status = Status.Failed;
+                _requests.ForEach(x =>
+                {
+                    x.Status = Status.Failed;
+                    x.Message = ex.Message;
+                });
                 await _context.SaveChangesAsync();
             }
 
@@ -53,25 +57,25 @@ public sealed class ParsingJob : IJob
     {
         _logger.LogInformation("Parsing started");
         
-        _request = await _context.ParsingRequests
+        var request = await _context.ParsingRequests
             .FirstOrDefaultAsync(x => x.Status == Status.Processing);
 
-        if (_request is null)
+        if (request is null)
         {
             _logger.LogInformation("No Requests");
             return;
         }
         
-        var similarRequests = await _context.ParsingRequests
-            .Where(x => x.Url == _request.Url)
+        _requests = await _context.ParsingRequests
+            .Where(x => x.Url == request.Url)
             .ToListAsync();
         
         _logger.LogInformation(
             "Found similar url ({url}) requests: {similarCount}",
-            _request.Url,
-            similarRequests.Count);
+            request.Url,
+            _requests.Count);
 
-        var exManga = await _parser.GetByUrlAsync(_request.Url);
+        var exManga = await _parser.GetByUrlAsync(request.Url);
 
         await _repository.AddAsync(
             exManga.ExternalId,
@@ -82,15 +86,14 @@ public sealed class ParsingJob : IJob
             exManga.Likes, 
             "Unknown",
             SourceType.NudeMoon, 
-            _request.Url);
+            request.Url);
         await _repository.SaveAsync();
 
-        _request.Status = Status.Success;
-        similarRequests.ForEach(x => x.Status = Status.Success);
+        _requests.ForEach(x => x.Status = Status.Success);
         await _context.SaveChangesAsync();
         
         _logger.LogInformation(
             "Success parsed items: {count}",
-            similarRequests.Count + 1);
+            _requests.Count);
     }
 }
