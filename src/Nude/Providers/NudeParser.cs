@@ -1,5 +1,6 @@
 using System.Net;
 using AngleSharp.Dom;
+using Nude.Helpers;
 using Nude.Models;
 using Nude.Navigation;
 
@@ -19,10 +20,12 @@ public class NudeParser : INudeParser
     {
         _browser = browser;
         Info = new NudeInfo();
+        Helper = new NudeHelper();
     }
     
     public NudeInfo Info { get; }
-    
+    public INudeHelper Helper { get; }
+
     public static Task<NudeParser> CreateAsync(string fusionUser, string phpSessionId)
     {
         return CreateAsync(new BrowserOptions
@@ -69,12 +72,15 @@ public class NudeParser : INudeParser
         return list;
     }
 
-    public async Task<Manga> GetByUrlAsync(string url)
+    public async Task<Manga> GetByUrlAsync(string urlString)
     {
         // TODO: check exists
-        using var document = await _browser.GetDocumentAsync(url, "table.tbl");
+        var mangaId = Helper.GetIdFromUrl(urlString);
+        using var document = await _browser.GetDocumentAsync(urlString, "table.tbl");
+        
         return new Manga
         {
+            ExternalId = mangaId,
             Title = GetTitleRequired(document),
             Description = GetDescription(document),
             Images = await ParseMangaImagesAsync(GetReadUrlRequired(document)),

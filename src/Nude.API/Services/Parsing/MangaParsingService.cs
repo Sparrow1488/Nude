@@ -20,7 +20,8 @@ public class MangaParsingService : IMangaParsingService
     public async Task<ParsingResponse> CreateRequestAsync(string mangaUrl)
     {
         // Check in Database
-        var dbExists = await _context.Mangas.FirstOrDefaultAsync(x => x.OriginUrl.Value == mangaUrl);
+        var mangaId = _parser.Helper.GetIdFromUrl(mangaUrl);
+        var dbExists = await _context.Mangas.FirstOrDefaultAsync(x => x.ExternalId == mangaId);
         if (dbExists is not null)
         {
             return new ParsingResponse

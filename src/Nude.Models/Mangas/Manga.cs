@@ -9,6 +9,7 @@ namespace Nude.Models.Mangas;
 public class Manga : IEntity
 {
     public int Id { get; set; }
+    public string? ExternalId { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
     public ICollection<Tag> Tags { get; set; }

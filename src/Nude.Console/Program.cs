@@ -19,7 +19,8 @@ var fusionUser = configuration.GetValue<string>($"{section}:FusionUser")!;
 var sessionId = configuration.GetValue<string>($"{section}:PhpSessionId")!;
 using INudeParser parser = await NudeParser.CreateAsync(fusionUser, sessionId);
 
-var result = await parser.GetAsync(0, 5);
+// var result = await parser.GetAsync(0, 5);
+var result = await parser.GetByUrlAsync("https://nude-moon.org/3833--.html");
 var jsonResult = JsonConvert.SerializeObject(result, new JsonSerializerSettings
 {
     Formatting = Formatting.Indented

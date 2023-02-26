@@ -2,6 +2,7 @@ namespace Nude.Models;
 
 public class Manga
 {
+    public string ExternalId { get; set; }
     public string Title { get; set; } = "Untitled";
     public string Description { get; set; } = "";
     public List<string> Tags { get; set; } = new();
