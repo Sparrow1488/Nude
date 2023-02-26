@@ -6,24 +6,25 @@ using Nude.Models.Sources;
 using Nude.Providers;
 using Quartz;
 
-namespace Nude.API.Jobs;
+namespace Nude.API.Background;
 
-public sealed class ParsingJob : IJob
+public sealed class ParsingBackgroundService : IJob
 {
-    private readonly AppDbContext _context;
+    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
+    private AppDbContext _context = null!;
     private readonly INudeParser _parser;
     private readonly IMangaRepository _repository;
-    private readonly ILogger<ParsingJob> _logger;
+    private readonly ILogger<ParsingBackgroundService> _logger;
 
     private List<ParsingRequest>? _requests;
 
-    public ParsingJob(
-        AppDbContext context, 
+    public ParsingBackgroundService(
+        IDbContextFactory<AppDbContext> dbContextFactory,
         INudeParser parser, 
         IMangaRepository repository,
-        ILogger<ParsingJob> logger)
+        ILogger<ParsingBackgroundService> logger)
     {
-        _context = context;
+        _dbContextFactory = dbContextFactory;
         _parser = parser;
         _repository = repository;
         _logger = logger;
@@ -31,32 +32,40 @@ public sealed class ParsingJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        try
+        while (true)
         {
-            await Execute();
-        }
-        catch(Exception ex)
-        {
-            _logger.LogError(ex, "Failure process request");
-
-            if (_requests is not null)
+            try
             {
-                _requests.ForEach(x =>
-                {
-                    x.Status = Status.Failed;
-                    x.Message = ex.Message;
-                });
-                await _context.SaveChangesAsync();
-            }
+                _context = await _dbContextFactory.CreateDbContextAsync();
 
-            throw;
+                await Execute();
+                await Task.Delay(TimeSpan.FromSeconds(5));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failure process request");
+
+                if (_requests is not null)
+                {
+                    _requests.ForEach(x =>
+                    {
+                        x.Status = Status.Failed;
+                        x.Message = ex.Message;
+                    });
+                    await _context.SaveChangesAsync();
+                }
+            }
+            finally
+            {
+                await _context.DisposeAsync();
+            }
         }
     }
     
     private async Task Execute()
     {
         _logger.LogInformation("Parsing started");
-        
+
         var request = await _context.ParsingRequests
             .FirstOrDefaultAsync(x => x.Status == Status.Processing);
 
@@ -79,7 +88,7 @@ public sealed class ParsingJob : IJob
 
         await _repository.AddAsync(
             exManga.ExternalId,
-            exManga.Title, 
+            exManga.Title,
             exManga.Description, 
             exManga.Tags, 
             exManga.Images, 
