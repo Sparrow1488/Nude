@@ -43,6 +43,7 @@ public class TelegramHandler : ITelegramHandler
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ctk)
     {
+        _logger.LogError(exception, "Oh shit, I'm so sorry!");
         throw exception;
     }
 }
