@@ -76,6 +76,8 @@ public class NudeParser : INudeParser
 
     public async Task<Manga> GetByUrlAsync(string urlString)
     {
+        RequireDomain(urlString);
+        
         var mangaId = Helper.GetIdFromUrl(urlString);
         using var document = await _browser.GetDocumentAsync(urlString);
 
@@ -94,6 +96,14 @@ public class NudeParser : INudeParser
             Likes = GetLikes(document),
             Author = GetAuthor(document)
         };
+    }
+
+    private static void RequireDomain(string input)
+    {
+        if (!Uri.TryCreate(input, UriKind.Absolute, out var uri))
+            throw new InvalidMangaUrlException($"Input cannot convert to Uri");
+        if (uri.Host != Domain)
+            throw new InvalidMangaUrlException($"Not required domain {Domain}");
     }
 
     private static bool CheckMangaDocumentValidation(IDocument mangaDocument)
