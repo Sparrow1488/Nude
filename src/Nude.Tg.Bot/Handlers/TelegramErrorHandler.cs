@@ -10,7 +10,5 @@ public static class TelegramErrorHandler
         CancellationToken cancellationToken)
     {
         throw exception;
-        Console.WriteLine("Error! Bot exit");
-        return Task.CompletedTask;
     }
 }

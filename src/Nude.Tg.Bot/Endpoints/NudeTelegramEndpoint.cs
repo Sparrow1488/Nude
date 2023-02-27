@@ -31,9 +31,14 @@ public class NudeTelegramEndpoint : TelegramUpdateEndpoint
         }
 
         var manga = mangaResponse.Value;
-        var imagesToConvert = manga.Images.Take(1);
+        if (manga.Images.Count > 40)
+        {
+            await BotClient.SendTextMessageAsync(chatId, "Слишком большая манга! С-сервер может не выдержать...");
+            return;
+        }
+        
         var convertedImages = new List<string>();
-        foreach (var image in imagesToConvert)
+        foreach (var image in manga.Images)
         {
             var tghImage = await _telegraph.UploadFileAsync(image);
             convertedImages.Add(tghImage);
@@ -41,7 +46,6 @@ public class NudeTelegramEndpoint : TelegramUpdateEndpoint
 
         manga.Images = convertedImages;
         var url = await _telegraph.CreatePageAsync(manga);
-        // var mangaMessage = $"Title: {manga.Title}\nImages: {manga.Images.Count}\nAuthor: {manga.Author}";
         var mangaMessage = url;
         await BotClient.SendTextMessageAsync(chatId, mangaMessage);
     }
