@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nude.API.Data.Contexts;
+using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
 using Nude.Tg.Bot.Constants;
 using Nude.Tg.Bot.Endpoints;
@@ -39,6 +40,7 @@ public class NudeBotContext
             .CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
+                services.AddScoped<INudeClient, NudeClient>();
                 services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
                 services.AddSingleton(x =>
                 {

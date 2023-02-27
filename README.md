@@ -31,23 +31,15 @@
 
 **Nude**
 
-* ~~Correct dispose PuppeterSharp~~
+* PuppeterSharp optimization requests
 
-* ~~More manga information parsing (Author)~~
+* Handle exceptions and retry requests
 
-* Search by name
-
-* Search by tags
-
-* Search by author
+* More searching patterns (by name, tags, author)
 
 * Search all linked manga
 
 **Nude.API**
-
-* ~~MangaProvider (that return stored in database manga, if not exists -> add to queue, parse and add to db)~~
-
-* ~~MangaQueueController (stay in queue to get parsed page (used callback))~~
 
 * (потом) TagNormalizeConfiguration
 
@@ -57,19 +49,13 @@
 
 * (потом) IParsingCallbackService.SendAsync(request)
 
-**Nude.Tg.Bot**:
+**Nude.Tg.Bot**
 
-* Telegraph converter
+* Callback endpoint to receive avilable manga
 
-* Nude.API.Client
+* Convert images background service
 
-* Callback to receive parsed manga
-
-**Database**:
-
-* ~~Postgres in Docker~~
-
-**CI/CD**:
+**CI/CD**
 
 * Buy VPS
 

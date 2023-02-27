@@ -21,12 +21,13 @@ public class NudeTgEndpoint : TelegramUpdateEndpoint
     public NudeTgEndpoint(
         ITelegraphClient telegraph, 
         BotDbContext context,
+        INudeClient nudeClient,
         ILogger<NudeTgEndpoint> logger)
     {
         _telegraph = telegraph;
         _context = context;
         _logger = logger;
-        _nudeClient = new NudeClient();
+        _nudeClient = nudeClient;
     }
     
     public override async Task HandleAsync()
