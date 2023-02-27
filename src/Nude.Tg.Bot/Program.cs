@@ -1,20 +1,24 @@
-﻿using Microsoft.Extensions.Configuration;
-using Nude.Tg.Bot.Constants;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Nude.Tg.Bot;
 using Nude.Tg.Bot.Handlers;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
-var configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-var accessToken = configuration[BotDefaults.TelegramAccessTokenSection];
+var nudeBotContext = NudeBotContext.CreateDefault();
+var services = nudeBotContext.Services;
 
-var bot = new TelegramBotClient(accessToken);
-var me = await bot.GetMeAsync();
+var bot = services.GetRequiredService<TelegramBotClient>();
+var botInfo = await bot.GetMeAsync();
 
-Console.WriteLine(me.FirstName + " started");
+var logger = services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation(botInfo.FirstName + " started");
+
+var handler = services.GetRequiredService<ITelegramHandler>();
 
 bot.StartReceiving(
-    TelegramUpdateHandler.HandleAsync, 
-    TelegramErrorHandler.HandleErrorAsync, 
+    handler.HandleUpdateAsync, 
+    handler.HandleErrorAsync, 
     new ReceiverOptions()
 );
 

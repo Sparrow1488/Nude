@@ -40,7 +40,7 @@ public sealed class ParsingBackgroundService : IJob
 
                 await Execute();
                 // TODO: send callback
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                await Task.Delay(TimeSpan.FromSeconds(5));
             }
             catch (Exception ex)
             {

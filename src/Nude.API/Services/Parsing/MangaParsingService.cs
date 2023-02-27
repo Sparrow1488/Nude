@@ -48,7 +48,7 @@ public class MangaParsingService : IMangaParsingService
         #region Check similar requests
 
         var isSimilarRequestExists = await _context.ParsingRequests
-            .AnyAsync(x => x.ExternalId == exMangaId);
+            .AnyAsync(x => x.ExternalId == exMangaId && x.Status == Status.Processing);
         if (isSimilarRequestExists)
         {
             request.Status = Status.Processing;
