@@ -1,28 +1,48 @@
-using Newtonsoft.Json;
+using Nude.API.Contracts.Parsing.Responses;
 using Nude.Tg.Bot.Clients;
+using Nude.Tg.Bot.Clients.Nude;
+using Nude.Tg.Bot.Clients.Telegraph;
 using Telegram.Bot;
 
 namespace Nude.Tg.Bot.Endpoints;
 
 public class NudeTelegramEndpoint : TelegramUpdateEndpoint
 {
+    private readonly ITelegraphClient _telegraph;
+
+    public NudeTelegramEndpoint(ITelegraphClient telegraph)
+    {
+        _telegraph = telegraph;
+    }
+    
     public override async Task HandleAsync()
     {
         var client = new NudeClient();
         var messageText = Update.Message!.Text ?? "";
         var chatId = Update.Message!.Chat.Id;
-        var manga = await client.GetMangaByUrlAsync(messageText);
+        var mangaResponse = await client.GetMangaByUrlAsync(messageText);
             
-        if (manga is null)
+        if (mangaResponse is null)
         {
-            await BotClient.SendTextMessageAsync(chatId, "Нам не удалось найти эту мангу у себя. Но не переживайте, когда она появится мы сообщим Вам об этом!");
-            var parsingResponse = await client.CreateParsingRequestAsync(messageText, "");
-            var parsingMessage = $"Id:{parsingResponse.UniqueId}\nStatus: {parsingResponse.Status}\nIsExists: {parsingResponse.IsAlreadyExists}\nMessage: {parsingResponse.Message}";
-            await BotClient.SendTextMessageAsync(chatId, parsingMessage);
+            await BotClient.SendTextMessageAsync(chatId, NoContentMessage());
+            var parsingResponse = await client.CreateParsingRequestAsync(messageText, string.Empty);
+            await BotClient.SendTextMessageAsync(chatId, GetParsingMessage(parsingResponse));
             return;
         }
 
-        var mangaMessage = $"Title: {manga?.Title}\nImages: {manga?.Images.Count}\nAuthor: {manga?.Author}";
+        var manga = mangaResponse.Value;
+        var imagesToConvert = manga.Images.Take(1);
+        var convertedImages = new List<string>();
+        foreach (var image in imagesToConvert)
+        {
+            var tghImage = await _telegraph.UploadFileAsync(image);
+            convertedImages.Add(tghImage);
+        }
+
+        manga.Images = convertedImages;
+        var url = await _telegraph.CreatePageAsync(manga);
+        // var mangaMessage = $"Title: {manga.Title}\nImages: {manga.Images.Count}\nAuthor: {manga.Author}";
+        var mangaMessage = url;
         await BotClient.SendTextMessageAsync(chatId, mangaMessage);
     }
 
@@ -30,4 +50,11 @@ public class NudeTelegramEndpoint : TelegramUpdateEndpoint
     {
         return Update.Message?.Text?.Contains("nude-moon.org") ?? false;
     }
+
+    private static string NoContentMessage()
+        => "🫣 Ничего нет!\n" +
+           "Но не переживайте, мы уведомим вас, как только манга появится :)";
+
+    private static string GetParsingMessage(ParsingResponse response)
+        => $"Id:{response.UniqueId}\nStatus: {response.Status}\nMessage: {response.Message}";
 }

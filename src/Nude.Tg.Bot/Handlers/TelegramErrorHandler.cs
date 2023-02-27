@@ -9,7 +9,7 @@ public static class TelegramErrorHandler
         Exception exception, 
         CancellationToken cancellationToken)
     {
-        // Console.WriteLine(JsonConvert.SerializeObject(exception));
+        throw exception;
         Console.WriteLine("Error! Bot exit");
         return Task.CompletedTask;
     }

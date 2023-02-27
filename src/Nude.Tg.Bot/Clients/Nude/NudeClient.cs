@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Parsing.Responses;
 
-namespace Nude.Tg.Bot.Clients;
+namespace Nude.Tg.Bot.Clients.Nude;
 
 public class NudeClient : INudeClient
 {
