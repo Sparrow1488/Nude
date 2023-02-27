@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Nude.Tg.Bot.Endpoints.Base;
 using Nude.Tg.Bot.Endpoints.Update;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -30,6 +31,6 @@ public class EndpointsResolver
         if (handler != null)
             return handler;
         
-        return ActivatorUtilities.CreateInstance<TelegramDefaultUpdateEndpoint>(_services);
+        return ActivatorUtilities.CreateInstance<DefaultTgUpdateEndpoint>(_services);
     }
 }

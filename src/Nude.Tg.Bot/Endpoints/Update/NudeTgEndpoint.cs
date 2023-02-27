@@ -1,21 +1,30 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Parsing.Responses;
+using Nude.API.Data.Contexts;
+using Nude.Models.Mangas;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
+using Nude.Tg.Bot.Endpoints.Base;
 using Telegram.Bot;
 
 namespace Nude.Tg.Bot.Endpoints.Update;
 
-public class NudeTelegramEndpoint : TelegramUpdateEndpoint
+public class NudeTgEndpoint : TelegramUpdateEndpoint
 {
     private readonly ITelegraphClient _telegraph;
-    private readonly ILogger<NudeTelegramEndpoint> _logger;
+    private readonly BotDbContext _context;
+    private readonly ILogger<NudeTgEndpoint> _logger;
     private readonly INudeClient _nudeClient;
 
-    public NudeTelegramEndpoint(ITelegraphClient telegraph, ILogger<NudeTelegramEndpoint> logger)
+    public NudeTgEndpoint(
+        ITelegraphClient telegraph, 
+        BotDbContext context,
+        ILogger<NudeTgEndpoint> logger)
     {
         _telegraph = telegraph;
+        _context = context;
         _logger = logger;
         _nudeClient = new NudeClient();
     }
@@ -62,6 +71,18 @@ public class NudeTelegramEndpoint : TelegramUpdateEndpoint
 
     private async Task OnSendMangaResponseAsync(MangaResponse manga)
     {
+        // TODO: check in db, if start converting - message about it
+        var tghExists = await _context.TghMangas
+            .FirstOrDefaultAsync(x => x.ExternalId == manga.ExternalId);
+
+        if (tghExists is not null)
+        {
+            await BotClient.SendTextMessageAsync(ChatId, tghExists.TghUrl);
+            return;
+        }
+        
+        await BotClient.SendTextMessageAsync(ChatId, "Манга найдена, однако потребуется какое-то время, чтобы перевести ее в формат статьи\nСпасибо за ожидание!");
+        
         var convertedImages = new List<string>();
         foreach (var image in manga.Images)
         {
@@ -72,6 +93,13 @@ public class NudeTelegramEndpoint : TelegramUpdateEndpoint
         manga.Images = convertedImages;
         var tghUrl = await _telegraph.CreatePageAsync(manga);
         await BotClient.SendTextMessageAsync(ChatId, tghUrl);
+
+        await _context.AddAsync(new TghManga
+        {
+            ExternalId = manga.ExternalId,
+            TghUrl = tghUrl
+        });
+        await _context.SaveChangesAsync();
     }
 
     public override bool CanHandle()

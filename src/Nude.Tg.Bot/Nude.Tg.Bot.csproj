@@ -10,10 +10,15 @@
 
     <ItemGroup>
       <PackageReference Include="Kvyk.Telegraph" Version="1.1.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.14">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.8" />
       <PackageReference Include="Polly" Version="7.2.3" />
       <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
       <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
@@ -22,6 +27,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Nude.API.Contracts\Nude.API.Contracts.csproj" />
+      <ProjectReference Include="..\Nude.API.Data\Nude.API.Data.csproj" />
     </ItemGroup>
 
     <ItemGroup>

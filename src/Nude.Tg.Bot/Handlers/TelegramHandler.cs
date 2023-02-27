@@ -28,11 +28,11 @@ public class TelegramHandler : ITelegramHandler
 
         var handleSuccess = false;
         
-        if(update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
+        if(update!.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
         {
             var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient);
             await endpoint.HandleAsync();
-            if (endpoint.GetType() != typeof(TelegramDefaultUpdateEndpoint))
+            if (endpoint.GetType() != typeof(DefaultTgUpdateEndpoint))
             {
                 handleSuccess = true;
             }

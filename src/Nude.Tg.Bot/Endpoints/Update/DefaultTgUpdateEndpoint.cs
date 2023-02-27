@@ -1,8 +1,9 @@
+using Nude.Tg.Bot.Endpoints.Base;
 using Telegram.Bot;
 
 namespace Nude.Tg.Bot.Endpoints.Update;
 
-public class TelegramDefaultUpdateEndpoint : TelegramUpdateEndpoint
+public class DefaultTgUpdateEndpoint : TelegramUpdateEndpoint
 {
     public override async Task HandleAsync()
     {

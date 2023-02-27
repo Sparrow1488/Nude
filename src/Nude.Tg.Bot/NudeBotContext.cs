@@ -1,9 +1,12 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nude.API.Data.Contexts;
 using Nude.Tg.Bot.Clients.Telegraph;
 using Nude.Tg.Bot.Constants;
 using Nude.Tg.Bot.Endpoints;
+using Nude.Tg.Bot.Endpoints.Base;
 using Nude.Tg.Bot.Endpoints.Update;
 using Nude.Tg.Bot.Handlers;
 using Nude.Tg.Bot.Resolvers;
@@ -47,13 +50,24 @@ public class NudeBotContext
 
                 services.AddSingleton<EndpointsResolver>();
                 
-                services.AddSingleton<TelegramUpdateEndpoint, NudeTelegramEndpoint>();
-                services.AddSingleton<TelegramUpdateEndpoint, TelegramDefaultUpdateEndpoint>();
+                services.AddSingleton<TelegramUpdateEndpoint, NudeTgEndpoint>();
+                services.AddSingleton<TelegramUpdateEndpoint, DefaultTgUpdateEndpoint>();
 
                 #endregion
 
                 services.AddSingleton<ITelegramHandler, TelegramHandler>();
                 services.AddSingleton(_ => this);
+
+                #region Database
+
+                services.AddDbContext<BotDbContext>((provider, opt) =>
+                {
+                    var connection = provider.GetRequiredService<IConfiguration>()
+                        .GetConnectionString("Database");
+                    opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Tg.Bot"));
+                });
+
+                #endregion
 
             }).UseSerilog(Log.Logger);
         
