@@ -1,5 +1,6 @@
 using System.Net;
 using AngleSharp.Dom;
+using Nude.Exceptions;
 using Nude.Helpers;
 using Nude.Models;
 using Nude.Navigation;
@@ -16,6 +17,7 @@ public class NudeParser : INudeParser
     private const string MangaCardsSelector = "table.news_pic2 tbody td.bg_style1 a";
     private const string ReadButtonSelector = "td span.button a";
 
+    // TODO: logger
     private NudeParser(IBrowserWrapper browser)
     {
         _browser = browser;
@@ -47,10 +49,10 @@ public class NudeParser : INudeParser
     public async Task<List<Manga>> GetAsync(int offset, int take)
     {
         if (offset < 0 || take < 0)
-            throw new ArgumentException("Offset or Take should be greater than zero!");
+            throw new NudeArgumentException("Offset or Take should be greater than zero!");
         
         if(take > Info.ItemsOnPage)
-            throw new ArgumentException("Take should be lower than max items on page (see Info)!");
+            throw new NudeArgumentException("Take should be lower than max items on page (see Info)!");
         
         var mangaUrl = $"{UrlBase}/all_manga?rowstart={offset}";
         using var allMangaDocument = await _browser.GetDocumentAsync(mangaUrl);
@@ -74,9 +76,13 @@ public class NudeParser : INudeParser
 
     public async Task<Manga> GetByUrlAsync(string urlString)
     {
-        // TODO: check exists
         var mangaId = Helper.GetIdFromUrl(urlString);
-        using var document = await _browser.GetDocumentAsync(urlString, "table.tbl");
+        using var document = await _browser.GetDocumentAsync(urlString);
+
+        if (!CheckMangaDocumentValidation(document))
+        {
+            throw new InvalidMangaUrlException("Found invalid manga page. Check input url correct");
+        }
         
         return new Manga
         {
@@ -90,6 +96,13 @@ public class NudeParser : INudeParser
         };
     }
 
+    private static bool CheckMangaDocumentValidation(IDocument mangaDocument)
+    {
+        const string mangaTitleSelector = "tr td .bg_style1 center h1";
+        var titleElement = mangaDocument.QuerySelector(mangaTitleSelector);
+        return titleElement is not null;
+    }
+
     public async Task<bool> ExistsAsync(string url)
     {
         var (_, status) =  await _browser.GetTextWithStatusAsync(url);
@@ -101,8 +114,7 @@ public class NudeParser : INudeParser
         var titleElement = mangaPageDocument.QuerySelector("td h1");
         if (titleElement is null)
         {
-            // TODO: или залоггировать или дать выбор: исключение или логинг
-            throw new Exception("Failed to parse manga title");
+            throw new ParsingException("Failed to parse title");
         }
         return titleElement.InnerHtml;
     }
@@ -112,7 +124,7 @@ public class NudeParser : INudeParser
         var readButton = mangaPageDocument.QuerySelector(ReadButtonSelector);
         if (!readButton?.InnerHtml.ToUpper().Contains("ЧИТАТЬ") ?? true)
         {
-            throw new Exception("Failed to parse ReadButton");
+            throw new ParsingException("Failed to parse read button");
         }
         return UrlBase + readButton.GetAttribute("href") + "?row";
     }
