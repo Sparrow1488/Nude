@@ -32,28 +32,43 @@ public class MangaParsingService : IMangaParsingService
             Url = mangaUrl,
             Status = Status.Failed
         };
-        
-        // Check in Database
-        var isExists = await _context.Mangas.AnyAsync(x => x.ExternalId == exMangaId);
-        if (isExists)
+
+        #region Check manga exists
+
+        var isMangaExists = await _context.Mangas.AnyAsync(x => x.ExternalId == exMangaId);
+        if (isMangaExists)
         {
             request.Status = Status.Success;
             var response = _mapper.Map<ParsingResponse>(request);
             return response;
         }
 
-        // Get from external source
-        var externalExists = await _parser.ExistsAsync(mangaUrl);
-        if (!externalExists)
+        #endregion
+
+        #region Check similar requests
+
+        var isSimilarRequestExists = await _context.ParsingRequests
+            .AnyAsync(x => x.ExternalId == exMangaId);
+        if (isSimilarRequestExists)
         {
-            throw new NotFoundException("External manga not found", exMangaId, "Manga");
+            request.Status = Status.Processing;
+            request.Message = "Similar request waiting for processing";
+            var response = _mapper.Map<ParsingResponse>(request);
+            return response;
         }
 
+        #endregion
+
+        #region Save request
+
         request.UniqueId = Guid.NewGuid().ToString();
-        request.Status = Status.Processing;        
-        await _context.ParsingRequests.AddAsync(request);
+        request.Status = Status.Processing;
+        request.ExternalId = exMangaId;
+        await _context.AddAsync(request);
         await _context.SaveChangesAsync();
 
+        #endregion
+        
         return _mapper.Map<ParsingResponse>(request);
     }
 

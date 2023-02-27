@@ -17,7 +17,7 @@ public class NudeTelegramEndpoint : TelegramUpdateEndpoint
         {
             await BotClient.SendTextMessageAsync(chatId, "Нам не удалось найти эту мангу у себя. Но не переживайте, когда она появится мы сообщим Вам об этом!");
             var parsingResponse = await client.CreateParsingRequestAsync(messageText, "");
-            var parsingMessage = $"Id:{parsingResponse.UniqueId}\nStatus: {parsingResponse.Status}\nIsExists: {parsingResponse.IsAlreadyExists}";
+            var parsingMessage = $"Id:{parsingResponse.UniqueId}\nStatus: {parsingResponse.Status}\nIsExists: {parsingResponse.IsAlreadyExists}\nMessage: {parsingResponse.Message}";
             await BotClient.SendTextMessageAsync(chatId, parsingMessage);
             return;
         }
