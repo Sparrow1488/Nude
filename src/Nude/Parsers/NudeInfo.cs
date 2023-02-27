@@ -1,4 +1,4 @@
-namespace Nude.Providers;
+namespace Nude.Parsers;
 
 public class NudeInfo
 {

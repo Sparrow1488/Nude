@@ -1,6 +1,6 @@
-namespace Nude.Exceptions;
+namespace Nude.Exceptions.Abstractions;
 
-public class NudeException : Exception
+public abstract class NudeException : Exception
 {
     public NudeException()
     {

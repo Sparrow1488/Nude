@@ -1,11 +1,11 @@
 using System.Net;
 using AngleSharp.Dom;
-using Nude.Exceptions;
+using Nude.Exceptions.Parsing;
 using Nude.Helpers;
 using Nude.Models;
 using Nude.Navigation;
 
-namespace Nude.Providers;
+namespace Nude.Parsers;
 
 public class NudeParser : INudeParser
 {

@@ -3,7 +3,7 @@ using Nude.API.Data.Contexts;
 using Nude.API.Data.Repositories;
 using Nude.Models.Requests;
 using Nude.Models.Sources;
-using Nude.Providers;
+using Nude.Parsers;
 using Quartz;
 
 namespace Nude.API.Background;

@@ -1,7 +1,7 @@
 using Nude.Helpers;
 using Nude.Models;
 
-namespace Nude.Providers;
+namespace Nude.Parsers;
 
 public interface INudeParser : IDisposable
 {

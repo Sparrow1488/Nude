@@ -1,4 +1,5 @@
 using AngleSharp.Dom;
+using Nude.Exceptions.Parsing;
 
 namespace Nude.Helpers;
 
@@ -10,7 +11,7 @@ public class NudeHelper : INudeHelper
         var mangaId = string.Join("", url.Path.TakeWhile(char.IsDigit));
         if (string.IsNullOrWhiteSpace(mangaId))
         {
-            throw new Exception("No MangaId in url");
+            throw new NoMangaIdException($"Not found manga id in url {mangaUrl}");
         }
 
         return mangaId;

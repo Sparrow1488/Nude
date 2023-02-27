@@ -4,7 +4,7 @@ using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.Models.Requests;
-using Nude.Providers;
+using Nude.Parsers;
 
 namespace Nude.API.Services.Parsing;
 

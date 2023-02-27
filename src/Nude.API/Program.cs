@@ -11,7 +11,7 @@ using Nude.API.Services.Manga;
 using Nude.API.Services.Parsing;
 using Nude.Mapping.Profiles;
 using Nude.Mapping.Utils;
-using Nude.Providers;
+using Nude.Parsers;
 using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);

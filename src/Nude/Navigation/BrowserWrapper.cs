@@ -1,5 +1,6 @@
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
+using Nude.Exceptions.Navigation;
 using PuppeteerSharp;
 
 namespace Nude.Navigation;
@@ -14,6 +15,7 @@ public class BrowserWrapper : IBrowserWrapper
     private readonly WaitForSelectorOptions _waitForSelectorOptions;
     private IPage? _page;
 
+    // TODO: logger
     private BrowserWrapper(IBrowser browser, BrowserOptions options)
     {
         _browser = browser;
@@ -51,10 +53,9 @@ public class BrowserWrapper : IBrowserWrapper
         return new BrowserWrapper(browser, options);
     }
 
-    public async Task<IDocument> GetDocumentAsync(string url)
+    public Task<IDocument> GetDocumentAsync(string url)
     {
-        var text = await GetTextAsync(url);
-        return await _htmlParser.ParseDocumentAsync(text);
+        return GetDocumentAsync(url, string.Empty);
     }
 
     public async Task<IDocument> GetDocumentAsync(string url, string waitSelector)
@@ -63,29 +64,35 @@ public class BrowserWrapper : IBrowserWrapper
         return await _htmlParser.ParseDocumentAsync(text);
     }
 
-    public async Task<string> GetTextAsync(string url)
+    public Task<string> GetTextAsync(string url)
     {
-        var page = await GetOrCreatePageAsync();
-        var response = await page.GoToAsync(url);
+        return GetTextAsync(url, string.Empty);
+    }
+    
+    public async Task<string> GetTextAsync(string url, string waitSelector)
+    {
+        var response = await GoToAsync(url, waitSelector);
         return await response.TextAsync()
-            ?? throw new Exception("Empty response");
+               ?? throw new EmptyResponseException($"Empty text response on request to {url}");
     }
 
     public async Task<(string? html, int status)> GetTextWithStatusAsync(string url)
     {
-        var page = await GetOrCreatePageAsync();
-        var response = await page.GoToAsync(url);
+        var response = await GoToAsync(url, string.Empty);
         var text = await response.TextAsync();
         return (text, (int)response.Status);
     }
 
-    public async Task<string> GetTextAsync(string url, string waitSelector)
+    private async Task<IResponse> GoToAsync(string url, string? waitForSelector = null)
     {
+        // TODO: retry policy
         var page = await GetOrCreatePageAsync();
-        var response = await page.GoToAsync(url);
-        await page.WaitForSelectorAsync(waitSelector, _waitForSelectorOptions);
-        return await response.TextAsync()
-               ?? throw new Exception("Empty response");
+        var response = await page.GoToAsync(url, WaitUntilNavigation.DOMContentLoaded);
+        if (!string.IsNullOrWhiteSpace(waitForSelector))
+        {
+            await page.WaitForSelectorAsync(waitForSelector, _waitForSelectorOptions);
+        }
+        return response;
     }
 
     private async Task<IPage> GetOrCreatePageAsync()

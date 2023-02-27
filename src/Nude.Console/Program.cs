@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Nude.Models;
-using Nude.Providers;
+using Nude.Parsers;
 using Serilog;
 
 #region Configuration
