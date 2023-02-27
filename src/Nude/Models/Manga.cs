@@ -8,4 +8,5 @@ public class Manga
     public List<string> Tags { get; set; } = new();
     public List<string> Images { get; set; } = new();
     public int Likes { get; set; }
+    public string Author { get; set; }
 }

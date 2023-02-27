@@ -39,6 +39,7 @@ public sealed class ParsingBackgroundService : IJob
                 _context = await _dbContextFactory.CreateDbContextAsync();
 
                 await Execute();
+                // TODO: send callback
                 await Task.Delay(TimeSpan.FromSeconds(10));
             }
             catch (Exception ex)
@@ -93,7 +94,7 @@ public sealed class ParsingBackgroundService : IJob
             exManga.Tags, 
             exManga.Images, 
             exManga.Likes, 
-            "Unknown",
+            exManga.Author,
             SourceType.NudeMoon, 
             request.Url);
         await _repository.SaveAsync();

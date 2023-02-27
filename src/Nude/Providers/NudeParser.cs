@@ -85,7 +85,8 @@ public class NudeParser : INudeParser
             Description = GetDescription(document),
             Images = await ParseMangaImagesAsync(GetReadUrlRequired(document)),
             Tags = GetTagsRequired(document),
-            Likes = GetLikes(document)
+            Likes = GetLikes(document),
+            Author = GetAuthor(document)
         };
     }
 
@@ -134,6 +135,16 @@ public class NudeParser : INudeParser
         var likesString = mangaPageDocument.QuerySelector(likesSelector)?.InnerHtml ?? "";
         likesString = likesString.Replace("(", "").Replace(")", "");
         return int.TryParse(likesString, out var likes) ? likes : -1;
+    }
+    
+    private static string GetAuthor(IDocument mangaPageDocument)
+    {
+        const string authorBlockSelector = "div.tbl2";
+        var authorElement = mangaPageDocument
+            .QuerySelectorAll(authorBlockSelector)
+            .FirstOrDefault(x => x.InnerHtml.Contains("Автор"))
+            ?.QuerySelector("a");
+        return authorElement?.InnerHtml ?? "";
     }
 
     private async Task<List<string>> ParseMangaImagesAsync(string readMangaUrl)

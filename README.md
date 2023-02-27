@@ -33,7 +33,7 @@
 
 * ~~Correct dispose PuppeterSharp~~
 
-* More manga information parsing (Author)
+* ~~More manga information parsing (Author)~~
 
 * Search by name
 
@@ -49,9 +49,13 @@
 
 * ~~MangaQueueController (stay in queue to get parsed page (used callback))~~
 
-* TagNormalizeConfiguration
+* (потом) TagNormalizeConfiguration
 
-* RuntimeQueryableFilter
+* (потом) RuntimeQueryableFilter
+
+* (потом) ParsingRequest.CallbackUrl
+
+* (потом) IParsingCallbackService.SendAsync(request)
 
 **Nude.Tg.Bot**:
 
