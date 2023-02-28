@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nude.API.Data.Contexts;
@@ -11,9 +12,10 @@ using Nude.API.Data.Contexts;
 namespace Nude.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230228191645_0.0.8")]
+    partial class _008
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -189,6 +191,12 @@ namespace Nude.API.Migrations
                     b.Property<int>("EntityType")
                         .HasColumnType("integer");
 
+                    b.Property<int>("ParsingTicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ParsingTicketId1")
+                        .HasColumnType("integer");
+
                     b.Property<string>("SourceItemId")
                         .HasColumnType("text");
 
@@ -196,13 +204,12 @@ namespace Nude.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TicketId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TicketId")
+                    b.HasIndex("ParsingTicketId")
                         .IsUnique();
+
+                    b.HasIndex("ParsingTicketId1");
 
                     b.ToTable("ParsingMetas");
                 });
@@ -222,17 +229,22 @@ namespace Nude.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("ParsingTicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ParsingTicketId1")
+                        .HasColumnType("integer");
+
                     b.Property<string>("StatusCode")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TicketId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TicketId")
+                    b.HasIndex("ParsingTicketId")
                         .IsUnique();
+
+                    b.HasIndex("ParsingTicketId1");
 
                     b.ToTable("ParsingResults");
                 });
@@ -372,24 +384,36 @@ namespace Nude.API.Migrations
 
             modelBuilder.Entity("Nude.Models.Tickets.ParsingMeta", b =>
                 {
-                    b.HasOne("Nude.Models.Tickets.ParsingTicket", "Ticket")
+                    b.HasOne("Nude.Models.Tickets.ParsingTicket", null)
                         .WithOne("Meta")
-                        .HasForeignKey("Nude.Models.Tickets.ParsingMeta", "TicketId")
+                        .HasForeignKey("Nude.Models.Tickets.ParsingMeta", "ParsingTicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Ticket");
+                    b.HasOne("Nude.Models.Tickets.ParsingTicket", "ParsingTicket")
+                        .WithMany()
+                        .HasForeignKey("ParsingTicketId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParsingTicket");
                 });
 
             modelBuilder.Entity("Nude.Models.Tickets.ParsingResult", b =>
                 {
-                    b.HasOne("Nude.Models.Tickets.ParsingTicket", "Ticket")
+                    b.HasOne("Nude.Models.Tickets.ParsingTicket", null)
                         .WithOne("Result")
-                        .HasForeignKey("Nude.Models.Tickets.ParsingResult", "TicketId")
+                        .HasForeignKey("Nude.Models.Tickets.ParsingResult", "ParsingTicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Ticket");
+                    b.HasOne("Nude.Models.Tickets.ParsingTicket", "ParsingTicket")
+                        .WithMany()
+                        .HasForeignKey("ParsingTicketId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParsingTicket");
                 });
 
             modelBuilder.Entity("Nude.Models.Tickets.Subscriber", b =>

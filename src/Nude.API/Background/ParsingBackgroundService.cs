@@ -48,12 +48,12 @@ public sealed class ParsingBackgroundService : IJob
 
                 if (_requests is not null)
                 {
-                    _requests.ForEach(x =>
-                    {
-                        x.Status = Status.Failed;
-                        x.Message = ex.Message;
-                    });
-                    await _context.SaveChangesAsync();
+                    // _requests.ForEach(x =>
+                    // {
+                    //     x.Status = ParsingStatus.Failed;
+                    //     x.Message = ex.Message;
+                    // });
+                    // await _context.SaveChangesAsync();
                 }
             }
             finally
@@ -68,7 +68,7 @@ public sealed class ParsingBackgroundService : IJob
         _logger.LogInformation("Parsing started");
 
         var request = await _context.ParsingTickets
-            .FirstOrDefaultAsync(x => x.Status == Status.Processing);
+            .FirstOrDefaultAsync(x => x.Status == ParsingStatus.Processing);
 
         if (request is null)
         {
@@ -76,34 +76,34 @@ public sealed class ParsingBackgroundService : IJob
             return;
         }
         
-        _requests = await _context.ParsingTickets
-            .Where(x => x.Url == request.Url)
-            .ToListAsync();
-        
-        _logger.LogInformation(
-            "Found similar url ({url}) requests: {similarCount}",
-            request.Url,
-            _requests.Count);
-
-        var exManga = await _parser.GetByUrlAsync(request.Url);
-
-        await _repository.AddAsync(
-            exManga.ExternalId,
-            exManga.Title,
-            exManga.Description, 
-            exManga.Tags, 
-            exManga.Images, 
-            exManga.Likes, 
-            exManga.Author,
-            SourceType.NudeMoon, 
-            request.Url);
-        await _repository.SaveAsync();
-
-        _requests.ForEach(x => x.Status = Status.Success);
-        await _context.SaveChangesAsync();
-        
-        _logger.LogInformation(
-            "Success parsed items: {count}",
-            _requests.Count);
+        // _requests = await _context.ParsingTickets
+        //     .Where(x => x.Url == request.Url)
+        //     .ToListAsync();
+        //
+        // _logger.LogInformation(
+        //     "Found similar url ({url}) requests: {similarCount}",
+        //     request.Url,
+        //     _requests.Count);
+        //
+        // var exManga = await _parser.GetByUrlAsync(request.Url);
+        //
+        // await _repository.AddAsync(
+        //     exManga.ExternalId,
+        //     exManga.Title,
+        //     exManga.Description, 
+        //     exManga.Tags, 
+        //     exManga.Images, 
+        //     exManga.Likes, 
+        //     exManga.Author,
+        //     SourceType.NudeMoon, 
+        //     request.Url);
+        // await _repository.SaveAsync();
+        //
+        // _requests.ForEach(x => x.Status = ParsingStatus.Success);
+        // await _context.SaveChangesAsync();
+        //
+        // _logger.LogInformation(
+        //     "Success parsed items: {count}",
+        //     _requests.Count);
     }
 }

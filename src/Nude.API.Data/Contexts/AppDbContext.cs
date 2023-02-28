@@ -14,22 +14,34 @@ public sealed class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions options) : base(options)
     {
-        Mangas = Set<Manga>();
-        MangaImages = Set<MangaImage>();
-        Authors = Set<Author>();
-        Tags = Set<Tag>();
-        Urls = Set<Url>();
-        Sources = Set<Source>();
-        ParsingTickets = Set<ParsingTicket>();
     }
 
-    public DbSet<Manga> Mangas { get; }
-    public DbSet<MangaImage> MangaImages { get; }
-    public DbSet<Author> Authors { get; }
-    public DbSet<Tag> Tags { get; }
-    public DbSet<Url> Urls { get; }
-    public DbSet<Source> Sources { get; }
-    public DbSet<ParsingTicket> ParsingTickets { get; }
+    public DbSet<Manga> Mangas { get; set; }
+    public DbSet<MangaImage> MangaImages { get; set; }
+    public DbSet<Author> Authors { get; set; }
+    public DbSet<Tag> Tags { get; set; }
+    public DbSet<Url> Urls { get; set; }
+    public DbSet<Source> Sources { get; set; }
+    public DbSet<ParsingTicket> ParsingTickets { get; set; }
+    public DbSet<ParsingResult> ParsingResults { get; set; }
+    public DbSet<ParsingMeta> ParsingMetas { get; set; }
+    public DbSet<Subscriber> Subscribers { get; set; }
+    public DbSet<FeedBackInfo> FeedBackInfos { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ParsingTicket>()
+            .HasOne(x => x.Meta)
+            .WithOne(x => x.Ticket)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<ParsingTicket>()
+            .HasOne(x => x.Result)
+            .WithOne(x => x.Ticket)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        base.OnModelCreating(modelBuilder);
+    }
 
     public override Task<int> SaveChangesAsync(CancellationToken ctk = default)
     {

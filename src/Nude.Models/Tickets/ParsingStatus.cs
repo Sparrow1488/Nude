@@ -1,6 +1,6 @@
 namespace Nude.Models.Tickets;
 
-public enum Status
+public enum ParsingStatus
 {
     Processing = 0,
     Success = 1,

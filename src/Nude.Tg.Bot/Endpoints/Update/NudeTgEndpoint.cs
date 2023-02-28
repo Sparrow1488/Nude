@@ -62,7 +62,7 @@ public class NudeTgEndpoint : TelegramUpdateEndpoint
     {
         await BotClient.SendTextMessageAsync(ChatId, NoContentMessage());
         var parsingResponse = await _nudeClient.CreateParsingRequestAsync(MessageText, string.Empty);
-        await BotClient.SendTextMessageAsync(ChatId, GetParsingMessage(parsingResponse));
+        // await BotClient.SendTextMessageAsync(ChatId, GetParsingMessage(parsingResponse));
     }
 
     private async Task OnMangaTooLongAsync()
@@ -112,6 +112,6 @@ public class NudeTgEndpoint : TelegramUpdateEndpoint
         => "🫣 Ничего нет!\n" +
            "Но не переживайте, мы уведомим вас, как только манга появится :)";
 
-    private static string GetParsingMessage(ParsingResponse response)
-        => $"Id:{response.UniqueId}\nStatus: {response.Status}\nMessage: {response.Message}";
+    // private static string GetParsingMessage(ParsingResponse response)
+    //     => $"Id:{response.UniqueId}\nStatus: {response.Status}\nMessage: {response.Message}";
 }

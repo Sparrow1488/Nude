@@ -27,57 +27,70 @@ public class ParsingTicketsService : IParsingTicketsService
     
     public async Task<ParsingResponse> CreateTicketAsync(ParsingCreateRequest request)
     {
-        var externalMangaId = _parser.Helper.GetIdFromUrl(request.MangaUrl);
+        // Now I can parse only from this source
+        if (!request.SourceUrl.Contains("nude-moon.org"))
+        {
+            throw new BadRequestException("Data from this source cannot be retrieved");
+        }
+        
+        var externalSourceId = _parser.Helper.GetIdFromUrl(request.SourceUrl);
         var ticket = new ParsingTicket
         {
-            Url = request.MangaUrl,
-            Status = Status.Failed
+            Meta = new ParsingMeta
+            {
+                SourceUrl = request.SourceUrl,
+                SourceItemId = externalSourceId,
+                EntityType = ParsingEntityType.Manga
+            },
+            Result = new ParsingResult
+            {
+                StatusCode = "parsing.waiting",
+                Message = "Wait to process"
+            },
+            Status = ParsingStatus.Processing,
+            Subscribers = new List<Subscriber>()
         };
-
-        #region Check manga exists
-
-        var isMangaExists = await _context.Mangas.AnyAsync(x => x.ExternalId == externalMangaId);
-        if (isMangaExists)
-        {
-            ticket.Status = Status.Success;
-            var response = _mapper.Map<ParsingResponse>(ticket);
-            return response;
-        }
-
-        #endregion
-
-        #region Check similar requests
-
-        var isSimilarRequestExists = await _context.ParsingTickets
-            .AnyAsync(x => x.ExternalId == externalMangaId && x.Status == Status.Processing);
-        if (isSimilarRequestExists)
-        {
-            ticket.Status = Status.Processing;
-            ticket.Message = "Similar request waiting for processing";
-            var response = _mapper.Map<ParsingResponse>(ticket);
-            return response;
-        }
-
-        #endregion
-
-        #region Save request
-
-        ticket.UniqueId = Guid.NewGuid().ToString();
-        ticket.Status = Status.Processing;
-        ticket.ExternalId = externalMangaId;
-        await _context.AddAsync(ticket);
-        await _context.SaveChangesAsync();
-
-        #endregion
         
-        return _mapper.Map<ParsingResponse>(ticket);
+        if(!string.IsNullOrWhiteSpace(request.CallbackUrl))
+            AddSubscriber(ticket, request.CallbackUrl);
+
+        var similarTicket = await _context.ParsingTickets
+            .Include(x => x.Meta)
+            .Include(x => x.Result)
+            .Include(x => x.Subscribers)
+            .ThenInclude(x => x.FeedBackInfo)
+            .FirstOrDefaultAsync(x => 
+                x.Meta.EntityType == ticket.Meta.EntityType &&
+                x.Meta.SourceItemId == ticket.Meta.SourceItemId);
+
+        if (similarTicket is null)
+        {
+            await _context.ParsingTickets.AddAsync(ticket);
+            await _context.SaveChangesAsync();
+            
+            return _mapper.Map<ParsingResponse>(ticket);
+        }
+        
+        return _mapper.Map<ParsingResponse>(similarTicket);
     }
 
-    public async Task<ParsingResponse> GetRequestAsync(string uniqueId)
+    private static void AddSubscriber(ParsingTicket ticket, string callbackUrl)
+    {
+        ticket.Subscribers.Add(new Subscriber
+        {
+            NotifyStatus = NotifyStatus.OnSuccess,
+            FeedBackInfo = new FeedBackInfo
+            {
+                CallbackUrl = callbackUrl
+            }
+        });
+    }
+
+    public async Task<ParsingResponse> GetTicketAsync(string id)
     {
         var request = await _context.ParsingTickets
-            .FirstOrDefaultAsync(x => x.UniqueId == uniqueId)
-            ?? throw new NotFoundException("Request not found", uniqueId, "ParsingRequest");
+            .FirstOrDefaultAsync(x => x.Id.ToString() == id)
+            ?? throw new NotFoundException("Request not found", id, "ParsingRequest");
 
         return _mapper.Map<ParsingResponse>(request);
     }
