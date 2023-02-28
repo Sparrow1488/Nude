@@ -11,6 +11,7 @@ using Nude.Tg.Bot.Endpoints.Base;
 using Nude.Tg.Bot.Endpoints.Update;
 using Nude.Tg.Bot.Handlers;
 using Nude.Tg.Bot.Resolvers;
+using Nude.Tg.Bot.Routes;
 using Serilog;
 using Telegram.Bot;
 
@@ -48,6 +49,8 @@ public class NudeBotContext
                     return new TelegramBotClient(token);
                 });
 
+                services.AddScoped<CallbackRoute>();
+                
                 #region Endpoints
 
                 services.AddSingleton<EndpointsResolver>();
