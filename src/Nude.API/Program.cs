@@ -16,8 +16,22 @@ using Nude.Mapping.Profiles;
 using Nude.Mapping.Utils;
 using Nude.Parsers;
 using Quartz;
+using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+
+#region Logger
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
+    .CreateLogger();
+
+builder.Host.UseSerilog(Log.Logger);
+
+#endregion
 
 #region Controllers
 
@@ -77,7 +91,7 @@ builder.Services.AddQuartz(q =>
     q.UseMicrosoftDependencyInjectionScopedJobFactory();
     
     var jobKey = new JobKey("Nude-Moon Parser");
-    q.AddJob<ParsingBackgroundService>(opts => opts.WithIdentity(jobKey));
+    q.AddJob<ParsingBgService>(opts => opts.WithIdentity(jobKey));
     
     q.AddTrigger(opts => opts
         .ForJob(jobKey)

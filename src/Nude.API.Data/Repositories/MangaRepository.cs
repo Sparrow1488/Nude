@@ -18,42 +18,36 @@ public class MangaRepository : IMangaRepository
         _context = context;
         _tagManager = tagManager;
     }
-
-    public async Task<Manga> AddAsync(
-        string externalId,
-        string title, 
-        string desc, 
-        IEnumerable<string> tags, 
-        IEnumerable<string> images, 
-        int likes, 
-        string authorName,
-        SourceType sourceType, 
-        string originUrl)
+    
+    public async Task<Manga> AddAsync(Models.Manga manga, SourceType sourceType)
     {
-        var author = await _context.Authors.FirstOrDefaultAsync(x => x.Name == authorName) 
-                     ?? new Author { Name = authorName };
+        var author = await _context.Authors.FirstOrDefaultAsync(x => x.Name == manga.Author) 
+                     ?? new Author { Name = manga.Author };
         
         var source = await _context.Sources.FirstOrDefaultAsync(x => x.Type == sourceType)
                      ?? new Source { Type = sourceType };
 
-        var mangaTags = await _tagManager.AddRangeAsync(tags);
+        var mangaTags = await _tagManager.AddRangeAsync(manga.Tags);
         
-        var manga = new Manga
+        var newManga = new Manga
         {
-            ExternalId = externalId,
-            Title = title,
-            Description = desc,
+            ExternalId = manga.ExternalId,
+            Title = manga.Title,
+            Description = manga.Description,
             Tags = mangaTags,
             Author = author,
-            Images = images.Select(x => new MangaImage { Url = new Url { Value = x }}).ToList(),
-            Likes = likes,
+            Images = manga.Images.Select(x => new MangaImage { Url = new Url { Value = x }}).ToList(),
+            Likes = manga.Likes,
             Source = source,
-            OriginUrl = new Url { Value = originUrl }
+            OriginUrl = new Url { Value = manga.OriginUrl }
         };
-        await AddAsync(manga);
-        return manga;
+
+        await AddAsync(newManga);
+        await SaveAsync();
+        
+        return newManga;
     }
-    
+
     public async Task<Manga> AddAsync(Manga manga)
     {
         await _context.Mangas.AddAsync(manga);

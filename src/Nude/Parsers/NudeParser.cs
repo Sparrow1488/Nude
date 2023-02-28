@@ -83,7 +83,7 @@ public class NudeParser : INudeParser
 
         if (!CheckMangaDocumentValidation(document))
         {
-            throw new InvalidMangaUrlException("Found invalid manga page. Check input url correct");
+            throw new InvalidMangaUrlException($"Found invalid manga page ({urlString}). Check input url correct");
         }
         
         return new Manga
@@ -94,7 +94,8 @@ public class NudeParser : INudeParser
             Images = await ParseMangaImagesAsync(GetReadUrlRequired(document)),
             Tags = GetTagsRequired(document),
             Likes = GetLikes(document),
-            Author = GetAuthor(document)
+            Author = GetAuthor(document),
+            OriginUrl = urlString
         };
     }
 

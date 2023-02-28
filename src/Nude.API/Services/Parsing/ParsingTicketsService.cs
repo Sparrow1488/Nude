@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.Models.Tickets;
 using Nude.Parsers;
@@ -44,10 +45,10 @@ public class ParsingTicketsService : IParsingTicketsService
             },
             Result = new ParsingResult
             {
-                StatusCode = "parsing.waiting",
+                StatusCode = ParsingResultCodes.Waiting,
                 Message = "Wait to process"
             },
-            Status = ParsingStatus.Processing,
+            Status = ParsingStatus.WaitToProcess,
             Subscribers = new List<Subscriber>()
         };
         

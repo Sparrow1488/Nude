@@ -12,6 +12,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Nude.Models\Nude.Models.csproj" />
+      <ProjectReference Include="..\Nude\Nude.csproj" />
     </ItemGroup>
 
 </Project>
