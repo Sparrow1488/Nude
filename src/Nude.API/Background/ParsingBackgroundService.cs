@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Repositories;
-using Nude.Models.Requests;
 using Nude.Models.Sources;
+using Nude.Models.Tickets;
 using Nude.Parsers;
 using Quartz;
 
@@ -16,7 +16,7 @@ public sealed class ParsingBackgroundService : IJob
     private readonly IMangaRepository _repository;
     private readonly ILogger<ParsingBackgroundService> _logger;
 
-    private List<ParsingRequest>? _requests;
+    private List<ParsingTicket>? _requests;
 
     public ParsingBackgroundService(
         IDbContextFactory<AppDbContext> dbContextFactory,
@@ -67,7 +67,7 @@ public sealed class ParsingBackgroundService : IJob
     {
         _logger.LogInformation("Parsing started");
 
-        var request = await _context.ParsingRequests
+        var request = await _context.ParsingTickets
             .FirstOrDefaultAsync(x => x.Status == Status.Processing);
 
         if (request is null)
@@ -76,7 +76,7 @@ public sealed class ParsingBackgroundService : IJob
             return;
         }
         
-        _requests = await _context.ParsingRequests
+        _requests = await _context.ParsingTickets
             .Where(x => x.Url == request.Url)
             .ToListAsync();
         

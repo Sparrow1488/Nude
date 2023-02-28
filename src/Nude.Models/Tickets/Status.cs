@@ -1,4 +1,4 @@
-namespace Nude.Models.Requests;
+namespace Nude.Models.Tickets;
 
 public enum Status
 {

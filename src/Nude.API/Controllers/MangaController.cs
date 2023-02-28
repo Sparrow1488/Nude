@@ -4,12 +4,12 @@ using Nude.API.Services.Manga;
 
 namespace Nude.API.Controllers;
 
-[ApiController, Route("nude-moon")]
-public class NudeMoonController : ControllerBase
+[ApiController, Route("manga")]
+public class MangaController : ControllerBase
 {
     private readonly IMangaService _service;
 
-    public NudeMoonController(IMangaService service)
+    public MangaController(IMangaService service)
     {
         _service = service;
     }
@@ -23,7 +23,7 @@ public class NudeMoonController : ControllerBase
     // public Task<MangaResponse> GetByExternalId(string externalId)
     //     => _service.GetByExternalIdAsync(externalId);
     
-    [HttpGet("manga")]
+    [HttpGet]
     public Task<MangaResponse> GetByUrl(string url)
         => _service.GetByUrlAsync(url);
 }

@@ -1,7 +1,10 @@
 using System.Reflection;
+using System.Text.Json;
 using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Nude.API.Background;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Managers;
@@ -16,6 +19,20 @@ using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#region Controllers
+
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.Formatting = Formatting.Indented;
+        options.SerializerSettings.ContractResolver = new DefaultContractResolver
+        {
+            NamingStrategy = new SnakeCaseNamingStrategy()
+        };
+    });
+
+#endregion
+
 #region Services
 
 const string section = "Credentials:NudeMoon";
@@ -26,7 +43,7 @@ var parser = await NudeParser.CreateAsync(fusionUser, sessionId);
 builder.Services.AddSingleton<INudeParser>(_ => parser);
 
 builder.Services.AddScoped<IMangaService, NudeMoonService>();
-builder.Services.AddScoped<IMangaParsingService, MangaParsingService>();
+builder.Services.AddScoped<IParsingTicketsService, ParsingTicketsService>();
 
 #endregion
 

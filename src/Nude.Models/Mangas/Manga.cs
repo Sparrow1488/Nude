@@ -6,7 +6,7 @@ using Nude.Models.Urls;
 
 namespace Nude.Models.Mangas;
 
-public class Manga : IEntity
+public class Manga : IAuditable
 {
     public int Id { get; set; }
     public string? ExternalId { get; set; }
@@ -18,4 +18,7 @@ public class Manga : IEntity
     public Author Author { get; set; }
     public Source Source { get; set; }
     public Url OriginUrl { get; set; }
+    
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 }

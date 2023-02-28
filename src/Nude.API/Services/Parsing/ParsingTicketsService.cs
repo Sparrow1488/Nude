@@ -1,20 +1,21 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Exceptions;
-using Nude.Models.Requests;
+using Nude.Models.Tickets;
 using Nude.Parsers;
 
 namespace Nude.API.Services.Parsing;
 
-public class MangaParsingService : IMangaParsingService
+public class ParsingTicketsService : IParsingTicketsService
 {
     private readonly AppDbContext _context;
     private readonly INudeParser _parser;
     private readonly IMapper _mapper;
 
-    public MangaParsingService(
+    public ParsingTicketsService(
         AppDbContext context, 
         INudeParser parser,
         IMapper mapper)
@@ -24,22 +25,22 @@ public class MangaParsingService : IMangaParsingService
         _mapper = mapper;
     }
     
-    public async Task<ParsingResponse> CreateRequestAsync(string mangaUrl)
+    public async Task<ParsingResponse> CreateTicketAsync(ParsingCreateRequest request)
     {
-        var exMangaId = _parser.Helper.GetIdFromUrl(mangaUrl);
-        var request = new ParsingRequest
+        var externalMangaId = _parser.Helper.GetIdFromUrl(request.MangaUrl);
+        var ticket = new ParsingTicket
         {
-            Url = mangaUrl,
+            Url = request.MangaUrl,
             Status = Status.Failed
         };
 
         #region Check manga exists
 
-        var isMangaExists = await _context.Mangas.AnyAsync(x => x.ExternalId == exMangaId);
+        var isMangaExists = await _context.Mangas.AnyAsync(x => x.ExternalId == externalMangaId);
         if (isMangaExists)
         {
-            request.Status = Status.Success;
-            var response = _mapper.Map<ParsingResponse>(request);
+            ticket.Status = Status.Success;
+            var response = _mapper.Map<ParsingResponse>(ticket);
             return response;
         }
 
@@ -47,13 +48,13 @@ public class MangaParsingService : IMangaParsingService
 
         #region Check similar requests
 
-        var isSimilarRequestExists = await _context.ParsingRequests
-            .AnyAsync(x => x.ExternalId == exMangaId && x.Status == Status.Processing);
+        var isSimilarRequestExists = await _context.ParsingTickets
+            .AnyAsync(x => x.ExternalId == externalMangaId && x.Status == Status.Processing);
         if (isSimilarRequestExists)
         {
-            request.Status = Status.Processing;
-            request.Message = "Similar request waiting for processing";
-            var response = _mapper.Map<ParsingResponse>(request);
+            ticket.Status = Status.Processing;
+            ticket.Message = "Similar request waiting for processing";
+            var response = _mapper.Map<ParsingResponse>(ticket);
             return response;
         }
 
@@ -61,20 +62,20 @@ public class MangaParsingService : IMangaParsingService
 
         #region Save request
 
-        request.UniqueId = Guid.NewGuid().ToString();
-        request.Status = Status.Processing;
-        request.ExternalId = exMangaId;
-        await _context.AddAsync(request);
+        ticket.UniqueId = Guid.NewGuid().ToString();
+        ticket.Status = Status.Processing;
+        ticket.ExternalId = externalMangaId;
+        await _context.AddAsync(ticket);
         await _context.SaveChangesAsync();
 
         #endregion
         
-        return _mapper.Map<ParsingResponse>(request);
+        return _mapper.Map<ParsingResponse>(ticket);
     }
 
     public async Task<ParsingResponse> GetRequestAsync(string uniqueId)
     {
-        var request = await _context.ParsingRequests
+        var request = await _context.ParsingTickets
             .FirstOrDefaultAsync(x => x.UniqueId == uniqueId)
             ?? throw new NotFoundException("Request not found", uniqueId, "ParsingRequest");
 
