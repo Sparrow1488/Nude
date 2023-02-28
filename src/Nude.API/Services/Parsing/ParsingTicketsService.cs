@@ -51,8 +51,8 @@ public class ParsingTicketsService : IParsingTicketsService
             Subscribers = new List<Subscriber>()
         };
         
-        if(!string.IsNullOrWhiteSpace(request.CallbackUrl))
-            AddSubscriber(ticket, request.CallbackUrl);
+        if(WantSubscribe(request))
+            AddSubscriber(ticket, request.CallbackUrl!);
 
         var similarTicket = await _context.ParsingTickets
             .Include(x => x.Meta)
@@ -71,7 +71,21 @@ public class ParsingTicketsService : IParsingTicketsService
             return _mapper.Map<ParsingResponse>(ticket);
         }
         
+        var alreadySubscribed = similarTicket.Subscribers
+            .Any(x => x.FeedBackInfo.CallbackUrl == request.CallbackUrl);
+        if (WantSubscribe(request) && !alreadySubscribed)
+        {
+            AddSubscriber(similarTicket, request.CallbackUrl!);
+            _context.Update(similarTicket);
+            await _context.SaveChangesAsync();
+        }
+        
         return _mapper.Map<ParsingResponse>(similarTicket);
+    }
+
+    private static bool WantSubscribe(ParsingCreateRequest request)
+    {
+        return !string.IsNullOrWhiteSpace(request.CallbackUrl);
     }
 
     private static void AddSubscriber(ParsingTicket ticket, string callbackUrl)
@@ -90,7 +104,7 @@ public class ParsingTicketsService : IParsingTicketsService
     {
         var request = await _context.ParsingTickets
             .FirstOrDefaultAsync(x => x.Id.ToString() == id)
-            ?? throw new NotFoundException("Request not found", id, "ParsingRequest");
+            ?? throw new NotFoundException("Ticket not found", id, "ParsingTicket");
 
         return _mapper.Map<ParsingResponse>(request);
     }
