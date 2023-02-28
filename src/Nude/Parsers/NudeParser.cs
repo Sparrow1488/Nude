@@ -139,10 +139,12 @@ public class NudeParser : INudeParser
         return UrlBase + readButton.GetAttribute("href") + "?row";
     }
 
-    private static List<string> GetTagsRequired(IDocument mangaPageDocument)
+    private List<string> GetTagsRequired(IDocument mangaPageDocument)
     {
         const string tagsSelector = "span.tag-links a";
-        return mangaPageDocument.QuerySelectorAll(tagsSelector).Select(x => x.InnerHtml).ToList();
+        return mangaPageDocument.QuerySelectorAll(tagsSelector)
+            .Select(x => Helper.GetTextInHtmlTagOrInput(x.InnerHtml))
+            .ToList();
     }
 
     private static string GetDescription(IDocument mangaPageDocument)

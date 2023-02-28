@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using Nude.Exceptions.Parsing;
 
@@ -15,5 +16,20 @@ public class NudeHelper : INudeHelper
         }
 
         return mangaId;
+    }
+
+    public string GetTextInHtmlTagOrInput(string input)
+    {
+        const string pattern = "<.*?>(.*?)</.*?>";
+        if (!ContainsHtmlTag(input)) return input;
+        
+        var regex = Regex.Match(input, pattern);
+        var result = regex.Groups.Values.LastOrDefault()?.Value;
+        return string.IsNullOrWhiteSpace(result) ? input : result;
+    }
+
+    private static bool ContainsHtmlTag(string input)
+    {
+        return input.Contains('>') && input.Contains('<') && input.Contains('/');
     }
 }
