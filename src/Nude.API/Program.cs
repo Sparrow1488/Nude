@@ -10,6 +10,7 @@ using Nude.API.Data.Contexts;
 using Nude.API.Data.Managers;
 using Nude.API.Data.Repositories;
 using Nude.API.Infrastructure.Middlewares;
+using Nude.API.Infrastructure.Services.FeedBack;
 using Nude.API.Services.Manga;
 using Nude.API.Services.Parsing;
 using Nude.Mapping.Profiles;
@@ -58,6 +59,8 @@ builder.Services.AddSingleton<INudeParser>(_ => parser);
 
 builder.Services.AddScoped<IMangaService, NudeMoonService>();
 builder.Services.AddScoped<IParsingTicketsService, ParsingTicketsService>();
+
+builder.Services.AddScoped<IFeedBackService, CallbackService>();
 
 #endregion
 

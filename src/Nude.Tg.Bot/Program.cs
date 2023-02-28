@@ -2,6 +2,7 @@
 using System.Text;
 using System.Web;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nude.Models.Tickets;
@@ -30,8 +31,8 @@ bot.StartReceiving(
 
 using var listener = new HttpListener();
 listener.Start();
-listener.Prefixes.Add("http://127.0.0.1:7001/");
-// var callback = new CallbackRoute();
+var config = services.GetRequiredService<IConfiguration>();
+listener.Prefixes.Add(config["Http:Address"]);
 
 while (true)
 {

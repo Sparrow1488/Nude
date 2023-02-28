@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Repositories;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Services.FeedBack;
 using Nude.Models.Mangas;
 using Nude.Models.Sources;
 using Nude.Models.Tickets;
@@ -16,6 +17,7 @@ public sealed class ParsingBgService : IJob
     private AppDbContext _context = null!;
     private readonly INudeParser _parser;
     private readonly IMangaRepository _repository;
+    private readonly IFeedBackService _feedBack;
     private readonly ILogger<ParsingBgService> _logger;
 
     private DateTimeOffset _processStartedAt = DateTimeOffset.Now;
@@ -24,11 +26,13 @@ public sealed class ParsingBgService : IJob
         IDbContextFactory<AppDbContext> dbContextFactory,
         INudeParser parser, 
         IMangaRepository repository,
+        IFeedBackService feedBack,
         ILogger<ParsingBgService> logger)
     {
         _dbContextFactory = dbContextFactory;
         _parser = parser;
         _repository = repository;
+        _feedBack = feedBack;
         _logger = logger;
     }
 
@@ -69,8 +73,11 @@ public sealed class ParsingBgService : IJob
                             "On notify status '{status}' subscribed {subs} users",
                             notifyStatus.ToString(),
                             subs.Count);
-                    
-                        // TODO: Send callback
+
+                        foreach (var sub in subs)
+                        {
+                            await _feedBack.SendAsync(Ticket, sub.FeedBackInfo);
+                        }
                     }
                 }
 
