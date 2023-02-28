@@ -6,5 +6,5 @@ namespace Nude.API.Services.Parsing;
 public interface IParsingTicketsService
 {
     Task<ParsingResponse> CreateTicketAsync(ParsingCreateRequest request);
-    Task<ParsingResponse> GetTicketAsync(string id);
+    Task<ParsingResponse> GetTicketAsync(int id);
 }

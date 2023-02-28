@@ -52,8 +52,8 @@ public class NudeBotContext
 
                 services.AddSingleton<EndpointsResolver>();
                 
-                services.AddSingleton<TelegramUpdateEndpoint, NudeTgEndpoint>();
-                services.AddSingleton<TelegramUpdateEndpoint, DefaultTgUpdateEndpoint>();
+                services.AddScoped<TelegramUpdateEndpoint, NudeTgEndpoint>();
+                services.AddScoped<TelegramUpdateEndpoint, DefaultTgUpdateEndpoint>();
 
                 #endregion
 

@@ -15,9 +15,9 @@ public class ParsingTicketsController : ControllerBase
         _ticketsService = ticketsService;
     }
 
-    [HttpGet("{uniqueId}")]
-    public Task<ParsingResponse> GetTicketByUniqueId(string uniqueId)
-        => _ticketsService.GetTicketAsync(uniqueId);
+    [HttpGet("{id}")]
+    public Task<ParsingResponse> GetTicketByUniqueId(int id)
+        => _ticketsService.GetTicketAsync(id);
 
     [HttpPost]
     public Task<ParsingResponse> CreateTicket(ParsingCreateRequest request)

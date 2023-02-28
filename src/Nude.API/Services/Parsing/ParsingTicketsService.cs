@@ -62,7 +62,8 @@ public class ParsingTicketsService : IParsingTicketsService
             .ThenInclude(x => x.FeedBackInfo)
             .FirstOrDefaultAsync(x => 
                 x.Meta.EntityType == ticket.Meta.EntityType &&
-                x.Meta.SourceItemId == ticket.Meta.SourceItemId);
+                x.Meta.SourceItemId == ticket.Meta.SourceItemId &&
+                x.Status != ParsingStatus.Failed);
 
         if (similarTicket is null)
         {
@@ -101,11 +102,11 @@ public class ParsingTicketsService : IParsingTicketsService
         });
     }
 
-    public async Task<ParsingResponse> GetTicketAsync(string id)
+    public async Task<ParsingResponse> GetTicketAsync(int id)
     {
         var request = await _context.ParsingTickets
-            .FirstOrDefaultAsync(x => x.Id.ToString() == id)
-            ?? throw new NotFoundException("Ticket not found", id, "ParsingTicket");
+            .FirstOrDefaultAsync(x => x.Id == id)
+            ?? throw new NotFoundException("Ticket not found", id.ToString(), "ParsingTicket");
 
         return _mapper.Map<ParsingResponse>(request);
     }
