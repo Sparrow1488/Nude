@@ -36,7 +36,7 @@ public sealed class ParsingBgService : IJob
         _logger = logger;
     }
 
-    public ParsingTicket? Ticket { get; set; }
+    private ParsingTicket? Ticket { get; set; }
 
     public async Task Execute(IJobExecutionContext context)
     {

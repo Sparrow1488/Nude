@@ -51,9 +51,19 @@
 
 **Nude.Tg.Bot**
 
-* Callback endpoint to receive avilable manga
+* ~~Callback endpoint to receive avilable manga~~
+
+* Add ConvertTickets (id, manga_id, chat_id, status)
 
 * Convert images background service
+
+* Get random TghManga
+
+* (?) Get random Manga
+
+* Add tags to tg response message
+
+* Tgh article response as [Read|<tgh>]
 
 **CI/CD**
 
