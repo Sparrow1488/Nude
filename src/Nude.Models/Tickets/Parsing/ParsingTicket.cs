@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Nude.Models.Abstractions;
 
-namespace Nude.Models.Tickets;
+namespace Nude.Models.Tickets.Parsing;
 
 public sealed class ParsingTicket : IEntity<int>
 {

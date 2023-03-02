@@ -7,6 +7,7 @@ using Nude.API.Infrastructure.Services.FeedBack;
 using Nude.Models.Mangas;
 using Nude.Models.Sources;
 using Nude.Models.Tickets;
+using Nude.Models.Tickets.Parsing;
 using Nude.Parsers;
 
 namespace Nude.API.Background;

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Nude.Models.Tickets;
+using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot;
 using Nude.Tg.Bot.Handlers;
 using Nude.Tg.Bot.Routes;
@@ -13,9 +13,12 @@ using Telegram.Bot;
 using Telegram.Bot.Polling;
 
 var nudeBotContext = NudeBotContext.CreateDefault();
+var host = nudeBotContext.GetHost();
+await host.StartAsync();
+
 var services = nudeBotContext.Services;
 
-var bot = services.GetRequiredService<TelegramBotClient>();
+var bot = services.GetRequiredService<ITelegramBotClient>();
 var botInfo = await bot.GetMeAsync();
 
 var logger = services.GetRequiredService<ILogger<Program>>();
@@ -32,39 +35,46 @@ bot.StartReceiving(
 using var listener = new HttpListener();
 listener.Start();
 var config = services.GetRequiredService<IConfiguration>();
-listener.Prefixes.Add(config["Http:Address"]);
+listener.Prefixes.Add(config["Http:BaseUrl"] + "/");
 
 while (true)
 {
-    var context = await listener.GetContextAsync();
-    var request = context.Request;
-    
-    if (request.Url?.AbsolutePath.StartsWith("/callback") ?? false)
+    try
     {
-        logger.LogInformation("Get request to '{url}'", request.Url.PathAndQuery);
-        
-        var queryString = new Uri(request.Url.ToString()).Query;
-        var query = HttpUtility.ParseQueryString(queryString);
-        var ticketId = query["ticket_id"];
-        var status = query["status"];
+        var context = await listener.GetContextAsync();
+        var request = context.Request;
 
-        if (string.IsNullOrWhiteSpace(ticketId) || string.IsNullOrWhiteSpace(status))
+        if (request.Url?.AbsolutePath.StartsWith("/callback") ?? false)
         {
-            logger.LogWarning("Received empty ticket_id or status from server");
-        }
-        else
-        {
-            var cb = services.GetRequiredService<CallbackRoute>();
-            var enumStatus = Enum.Parse<ParsingStatus>(status);
-            await cb.OnCallbackAsync(int.Parse(ticketId), enumStatus);
-        }
-        
-        context.Response.StatusCode = StatusCodes.Status202Accepted;
-        context.Response.ContentType = "application/text";
+            logger.LogInformation("Get request to '{url}'", request.Url.PathAndQuery);
 
-        var responseData = Encoding.UTF8.GetBytes("OK");
-        await context.Response.OutputStream.WriteAsync(responseData);
+            var queryString = new Uri(request.Url.ToString()).Query;
+            var query = HttpUtility.ParseQueryString(queryString);
+            var ticketId = query["ticket_id"];
+            var status = query["status"];
+
+            if (string.IsNullOrWhiteSpace(ticketId) || string.IsNullOrWhiteSpace(status))
+            {
+                logger.LogWarning("Received empty ticket_id or status from server");
+            }
+            else
+            {
+                var cb = services.GetRequiredService<CallbackRoute>();
+                var enumStatus = Enum.Parse<ParsingStatus>(status);
+                await cb.OnCallbackAsync(int.Parse(ticketId), enumStatus);
+            }
+
+            context.Response.StatusCode = StatusCodes.Status202Accepted;
+            context.Response.ContentType = "application/text";
+
+            var responseData = Encoding.UTF8.GetBytes("OK");
+            await context.Response.OutputStream.WriteAsync(responseData);
+        }
+
+        context.Response.Close();
     }
-    
-    context.Response.Close();
+    catch(Exception ex)
+    {
+        logger.LogError(ex, "In Http Listener error");
+    }
 }

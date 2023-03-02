@@ -26,7 +26,20 @@ public class NudeClient : INudeClient
             }
         };
     }
-    
+
+    public async Task<MangaResponse?> GetMangaByIdAsync(int id)
+    {
+        using var client = CreateHttpClient();
+        var response = await client.GetAsync($"{_baseUrl}/manga/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<MangaResponse>(json, _jsonSerializerSettings);
+        }
+
+        return null;
+    }
+
     public async Task<MangaResponse?> GetMangaByUrlAsync(string url)
     {
         using var client = CreateHttpClient();
@@ -35,6 +48,19 @@ public class NudeClient : INudeClient
         {
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<MangaResponse>(json, _jsonSerializerSettings);
+        }
+
+        return null;
+    }
+
+    public async Task<ParsingResponse?> GetParsingTicketAsync(int id)
+    {
+        using var client = CreateHttpClient();
+        var response = await client.GetAsync($"{_baseUrl}/parsing/tickets/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<ParsingResponse>(json, _jsonSerializerSettings);
         }
 
         return null;

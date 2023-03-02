@@ -28,6 +28,7 @@
     <ItemGroup>
       <ProjectReference Include="..\Nude.API.Contracts\Nude.API.Contracts.csproj" />
       <ProjectReference Include="..\Nude.API.Data\Nude.API.Data.csproj" />
+      <ProjectReference Include="..\Nude.API.Infrastructure\Nude.API.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

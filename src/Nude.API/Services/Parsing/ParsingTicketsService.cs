@@ -6,6 +6,7 @@ using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.Models.Tickets;
+using Nude.Models.Tickets.Parsing;
 using Nude.Parsers;
 
 namespace Nude.API.Services.Parsing;
@@ -105,6 +106,9 @@ public class ParsingTicketsService : IParsingTicketsService
     public async Task<ParsingResponse> GetTicketAsync(int id)
     {
         var request = await _context.ParsingTickets
+            .Include(x => x.Meta)
+            .Include(x => x.Result)
+            .Include(x => x.Subscribers)
             .FirstOrDefaultAsync(x => x.Id == id)
             ?? throw new NotFoundException("Ticket not found", id.ToString(), "ParsingTicket");
 

@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nude.API.Data.Contexts;
+using Nude.API.Infrastructure.Extensions;
+using Nude.Tg.Bot.Background;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
 using Nude.Tg.Bot.Constants;
@@ -13,6 +15,7 @@ using Nude.Tg.Bot.Handlers;
 using Nude.Tg.Bot.Resolvers;
 using Nude.Tg.Bot.Routes;
 using Serilog;
+using Serilog.Events;
 using Telegram.Bot;
 
 namespace Nude.Tg.Bot;
@@ -29,27 +32,34 @@ public class NudeBotContext
     public IServiceProvider Services => _host.Services;
 
     public static NudeBotContext CreateDefault() => new();
+
+    public IHost GetHost() => _host;
     
     private IHost CreateHost()
     {
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
-            .MinimumLevel.Debug()
+            .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
             .CreateLogger();
         
-        var host = Host
+        var builder = Host
             .CreateDefaultBuilder()
             .ConfigureServices(services =>
             {
                 services.AddScoped<INudeClient, NudeClient>();
                 services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
-                services.AddSingleton(x =>
+                services.AddSingleton<ITelegramBotClient>(x =>
                 {
                     var token = x.GetRequiredService<IConfiguration>()[BotDefaults.TelegramAccessTokenSection];
                     return new TelegramBotClient(token);
                 });
 
+                #region Http Routes
+
                 services.AddScoped<CallbackRoute>();
+
+                #endregion
                 
                 #region Endpoints
 
@@ -60,12 +70,23 @@ public class NudeBotContext
 
                 #endregion
 
+                #region Telegram Handlers
+
                 services.AddSingleton<ITelegramHandler, TelegramHandler>();
                 services.AddSingleton(_ => this);
 
+                #endregion
+
                 #region Database
 
+                // TODO: refactor
                 services.AddDbContext<BotDbContext>((provider, opt) =>
+                {
+                    var connection = provider.GetRequiredService<IConfiguration>()
+                        .GetConnectionString("Database");
+                    opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Tg.Bot"));
+                });
+                services.AddDbContextFactory<BotDbContext>((provider, opt) =>
                 {
                     var connection = provider.GetRequiredService<IConfiguration>()
                         .GetConnectionString("Database");
@@ -74,8 +95,14 @@ public class NudeBotContext
 
                 #endregion
 
+                #region Background
+
+                services.AddBgService<ConvertBgService>("Converting Background Service");
+
+                #endregion
+
             }).UseSerilog(Log.Logger);
-        
-        return host.Build();
+
+        return builder.Build();
     }
 }

@@ -1,4 +1,4 @@
-namespace Nude.Models.Tickets;
+namespace Nude.Models.Tickets.Parsing;
 
 public enum ParsingStatus
 {
