@@ -2,16 +2,16 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Repositories;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Infrastructure.Services.FeedBack;
 using Nude.Models.Mangas;
 using Nude.Models.Sources;
 using Nude.Models.Tickets;
 using Nude.Parsers;
-using Quartz;
 
 namespace Nude.API.Background;
 
-public sealed class ParsingBgService : IJob
+public sealed class ParsingBgService : BgService
 {
     private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
     private AppDbContext _context = null!;
@@ -38,7 +38,7 @@ public sealed class ParsingBgService : IJob
 
     private ParsingTicket? Ticket { get; set; }
 
-    public async Task Execute(IJobExecutionContext context)
+    protected override async Task ExecuteAsync()
     {
         while (true)
         {
