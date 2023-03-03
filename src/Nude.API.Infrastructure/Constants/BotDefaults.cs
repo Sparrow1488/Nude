@@ -1,4 +1,4 @@
-namespace Nude.Tg.Bot.Constants;
+namespace Nude.API.Infrastructure.Constants;
 
 public static class BotDefaults
 {

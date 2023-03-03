@@ -1,7 +1,7 @@
-using Nude.Tg.Bot.Endpoints.Base;
+using Nude.Tg.Bot.Telegram.Endpoints.Base;
 using Telegram.Bot;
 
-namespace Nude.Tg.Bot.Endpoints.Update;
+namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
 
 public class DefaultTgUpdateEndpoint : TelegramUpdateEndpoint
 {

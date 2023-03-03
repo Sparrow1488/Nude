@@ -7,8 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot;
-using Nude.Tg.Bot.Handlers;
-using Nude.Tg.Bot.Routes;
+using Nude.Tg.Bot.Http.Routes;
+using Nude.Tg.Bot.Telegram.Handlers;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 

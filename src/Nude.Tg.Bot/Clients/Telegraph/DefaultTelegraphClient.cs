@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Nude.API.Contracts.Manga.Responses;
-using Nude.Tg.Bot.Constants;
+using Nude.API.Infrastructure.Constants;
 using Polly;
 
 namespace Nude.Tg.Bot.Clients.Telegraph;

@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Logging;
-using Nude.Tg.Bot.Endpoints.Update;
-using Nude.Tg.Bot.Resolvers;
+using Nude.Tg.Bot.Services.Resolvers;
+using Nude.Tg.Bot.Telegram.Endpoints.Update;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Nude.Tg.Bot.Handlers;
+namespace Nude.Tg.Bot.Telegram.Handlers;
 
 public class TelegramHandler : ITelegramHandler
 {
@@ -28,7 +28,7 @@ public class TelegramHandler : ITelegramHandler
 
         var handleSuccess = false;
         
-        if(update!.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
+        if(update!.Type == global::Telegram.Bot.Types.Enums.UpdateType.Message)
         {
             var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient);
             await endpoint.HandleAsync();

@@ -4,13 +4,11 @@ using Nude.API.Data.Repositories;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Infrastructure.Services.FeedBack;
-using Nude.Models.Mangas;
 using Nude.Models.Sources;
-using Nude.Models.Tickets;
 using Nude.Models.Tickets.Parsing;
 using Nude.Parsers;
 
-namespace Nude.API.Background;
+namespace Nude.API.Services.Background;
 
 public sealed class ParsingBgService : BgService
 {
@@ -138,7 +136,7 @@ public sealed class ParsingBgService : BgService
         await UpdateTicketAsync(ticket);
     }
 
-    private async Task OnSuccessProcessTicketAsync(ParsingTicket ticket, Manga manga)
+    private async Task OnSuccessProcessTicketAsync(ParsingTicket ticket, Models.Mangas.Manga manga)
     {
         var processTime = DateTimeOffset.UtcNow - _processStartedAt;
         _logger.LogInformation(

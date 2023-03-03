@@ -1,11 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nude.API.Data.Contexts;
-using Nude.Models.Tickets;
 using Nude.Models.Tickets.Converting;
 using Nude.Models.Tickets.Parsing;
 
-namespace Nude.Tg.Bot.Routes;
+namespace Nude.Tg.Bot.Http.Routes;
 
 public class CallbackRoute
 {

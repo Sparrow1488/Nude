@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
-using Nude.Tg.Bot.Endpoints.Base;
-using Nude.Tg.Bot.Endpoints.Update;
+using Nude.Tg.Bot.Telegram.Endpoints.Base;
+using Nude.Tg.Bot.Telegram.Endpoints.Update;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Nude.Tg.Bot.Resolvers;
+namespace Nude.Tg.Bot.Services.Resolvers;
 
 public class EndpointsResolver
 {

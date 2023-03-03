@@ -9,7 +9,7 @@ using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
 using Telegram.Bot;
 
-namespace Nude.Tg.Bot.Background;
+namespace Nude.Tg.Bot.Services.Background;
 
 public sealed class ConvertBgService : BgService
 {

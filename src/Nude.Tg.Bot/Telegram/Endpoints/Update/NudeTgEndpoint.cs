@@ -4,15 +4,13 @@ using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
-using Nude.Models.Mangas;
 using Nude.Models.Tickets.Converting;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
-using Nude.Tg.Bot.Endpoints.Base;
+using Nude.Tg.Bot.Telegram.Endpoints.Base;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 
-namespace Nude.Tg.Bot.Endpoints.Update;
+namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
 
 public class NudeTgEndpoint : TelegramUpdateEndpoint
 {

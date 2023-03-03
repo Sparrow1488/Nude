@@ -1,6 +1,6 @@
 using Telegram.Bot;
 
-namespace Nude.Tg.Bot.Endpoints.Base;
+namespace Nude.Tg.Bot.Telegram.Endpoints.Base;
 
 public abstract class TelegramEndpoint
 {

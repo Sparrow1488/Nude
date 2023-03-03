@@ -1,7 +1,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Nude.Tg.Bot.Handlers;
+namespace Nude.Tg.Bot.Telegram.Handlers;
 
 public interface ITelegramHandler
 {

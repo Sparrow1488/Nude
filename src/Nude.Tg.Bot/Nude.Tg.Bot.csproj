@@ -37,4 +37,10 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Http" />
+      <Folder Include="Services" />
+      <Folder Include="Telegram" />
+    </ItemGroup>
+
 </Project>
