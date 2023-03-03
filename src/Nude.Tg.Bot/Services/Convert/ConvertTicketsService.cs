@@ -33,4 +33,15 @@ public class ConvertTicketsService : IConvertTicketsService
 
         return ticket;
     }
+
+    public async Task<IEnumerable<ConvertingTicket>> GetAllByChatIdAsync(long chatId)
+    {
+        var tickets = await _context.ConvertingTickets
+            .Where(x => 
+                (x.Status == ConvertingStatus.WaitToProcess || 
+                 x.Status == ConvertingStatus.Frozen) &&
+                x.ChatId == chatId)
+            .ToListAsync();
+        return tickets;
+    }
 }

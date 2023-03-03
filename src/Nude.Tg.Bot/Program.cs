@@ -61,6 +61,7 @@ builder.ConfigureServices(services =>
 
     services.AddSingleton<EndpointsResolver>();
     
+    services.AddScoped<TelegramUpdateEndpoint, MyTicketsEndpoint>();
     services.AddScoped<TelegramUpdateEndpoint, NudeTgEndpoint>();
     services.AddScoped<TelegramUpdateEndpoint, DefaultTgUpdateEndpoint>();
 

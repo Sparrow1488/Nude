@@ -67,9 +67,4 @@ public class NudeTgEndpoint : TelegramUpdateEndpoint
 
         return false;
     }
-
-    private Task<Message> MessageAsync(string message)
-    {
-        return BotClient.SendTextMessageAsync(ChatId, message);
-    }
 }
