@@ -1,4 +1,5 @@
 using Nude.Models.Tickets;
+using Nude.Models.Tickets.Parsing;
 
 namespace Nude.API.Infrastructure.Services.FeedBack;
 

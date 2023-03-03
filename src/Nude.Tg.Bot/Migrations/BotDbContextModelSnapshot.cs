@@ -41,6 +41,28 @@ namespace Nude.Tg.Bot.Migrations
 
                     b.ToTable("TghMangas");
                 });
+
+            modelBuilder.Entity("Nude.Models.Tickets.Converting.ConvertingTicket", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<long>("ChatId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ParsingId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConvertingTickets");
+                });
 #pragma warning restore 612, 618
         }
     }

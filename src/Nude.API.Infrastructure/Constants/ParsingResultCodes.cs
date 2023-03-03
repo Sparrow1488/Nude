@@ -1,6 +1,6 @@
 namespace Nude.API.Infrastructure.Constants;
 
-public class ParsingResultCodes
+public static class ParsingResultCodes
 {
     public const string Ok = "parsing.ok";
     public const string Error = "parsing.error";

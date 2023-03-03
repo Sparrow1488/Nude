@@ -6,6 +6,7 @@ using Nude.Models.Mangas;
 using Nude.Models.Sources;
 using Nude.Models.Tags;
 using Nude.Models.Tickets;
+using Nude.Models.Tickets.Parsing;
 using Nude.Models.Urls;
 
 namespace Nude.API.Data.Contexts;

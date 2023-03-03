@@ -5,18 +5,18 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Nude.API.Background;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Managers;
 using Nude.API.Data.Repositories;
+using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.FeedBack;
+using Nude.API.Services.Background;
 using Nude.API.Services.Manga;
 using Nude.API.Services.Parsing;
 using Nude.Mapping.Profiles;
 using Nude.Mapping.Utils;
 using Nude.Parsers;
-using Quartz;
 using Serilog;
 using Serilog.Events;
 
@@ -62,6 +62,9 @@ builder.Services.AddScoped<IParsingTicketsService, ParsingTicketsService>();
 
 builder.Services.AddScoped<IFeedBackService, CallbackService>();
 
+builder.Services.AddScoped<IMangaRepository, MangaRepository>();
+builder.Services.AddScoped<ITagManager, TagManager>();
+
 #endregion
 
 #region Database
@@ -76,9 +79,6 @@ builder.Services.AddDbContext<AppDbContext>(configureAction);
 
 #endregion
 
-builder.Services.AddScoped<IMangaRepository, MangaRepository>();
-builder.Services.AddScoped<ITagManager, TagManager>();
-
 #region Mappers
 
 var profilesAssembly = typeof(MangaProfile).Assembly;
@@ -87,30 +87,11 @@ builder.Services.AddAutoMapper(x => x.AddMaps(profilesAssembly));
 
 #endregion
 
-#region Quartz
+#region Background Service
 
-builder.Services.AddQuartz(q =>
-{
-    q.UseMicrosoftDependencyInjectionScopedJobFactory();
-    
-    var jobKey = new JobKey("Nude-Moon Parser");
-    q.AddJob<ParsingBgService>(opts => opts.WithIdentity(jobKey));
-    
-    q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithIdentity("Nude-Moon Parser Identity")
-        .WithSchedule(SimpleScheduleBuilder.Create())
-    );
-});
-builder.Services.AddQuartzHostedService(q =>
-{
-    q.WaitForJobsToComplete = false;
-    // q.StartDelay = TimeSpan.FromSeconds(5);
-});
+builder.Services.AddBgService<ParsingBgService>(name: "Manga Background Parsing Service");
 
 #endregion
-
-builder.Services.AddControllers();
 
 var app = builder.Build();
 
