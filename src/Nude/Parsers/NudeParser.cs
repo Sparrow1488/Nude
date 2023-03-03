@@ -77,6 +77,7 @@ public class NudeParser : INudeParser
     public async Task<Manga> GetByUrlAsync(string urlString)
     {
         RequireDomain(urlString);
+        urlString = MapUrl(urlString);
         
         var mangaId = Helper.GetIdFromUrl(urlString);
         using var document = await _browser.GetDocumentAsync(urlString);
@@ -105,6 +106,17 @@ public class NudeParser : INudeParser
             throw new InvalidMangaUrlException($"Input cannot convert to Uri");
         if (uri.Host != Domain)
             throw new InvalidMangaUrlException($"Not required domain {Domain}");
+    }
+
+    private static string MapUrl(string url)
+    {
+        var onlineStartIndex = url.IndexOf("-online--", StringComparison.Ordinal);
+        if (onlineStartIndex != -1)
+        {
+            url = url.Remove(onlineStartIndex, "-online".Length).Replace("?row", "");
+        }
+
+        return url;
     }
 
     private static bool CheckMangaDocumentValidation(IDocument mangaDocument)

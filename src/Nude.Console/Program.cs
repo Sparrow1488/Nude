@@ -28,6 +28,7 @@ var mangaUrls = new List<string>
 {
     // "https://nude-moon.org/383345-.html",
     "https://nude-moon.org/3833--.html",
+    "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row"
     // "https://nude-moon.org/20904--simon-a-helluva-summer--adskoe-leto.html",
     // "https://nude-moon.org/20908--simon-westhard-academy--akademia-uusthard.html"
 };
