@@ -9,12 +9,10 @@ namespace Nude.Tg.Bot.Services.Resolvers;
 public class EndpointsResolver
 {
     private readonly IServiceProvider _services;
-    private readonly NudeBotContext _botContext;
 
-    public EndpointsResolver(IServiceProvider services, NudeBotContext botContext)
+    public EndpointsResolver(IServiceProvider services)
     {
         _services = services;
-        _botContext = botContext;
     }
 
     public TelegramUpdateEndpoint GetUpdateHandler(Update update, ITelegramBotClient botClient)
@@ -24,7 +22,6 @@ public class EndpointsResolver
         {
             x.Update = update;
             x.BotClient = botClient;
-            x.Context = _botContext;
         });
         
         var handler = endpoints.FirstOrDefault(x => x.CanHandle());

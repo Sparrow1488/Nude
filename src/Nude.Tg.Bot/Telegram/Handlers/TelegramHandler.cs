@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using Nude.Tg.Bot.Services.Resolvers;
-using Nude.Tg.Bot.Telegram.Endpoints.Update;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
@@ -26,19 +25,22 @@ public class TelegramHandler : ITelegramHandler
             update?.Message?.Text ?? "no_message",
             update?.Message?.Chat.Username);
 
-        var handleSuccess = false;
-        
         if(update!.Type == global::Telegram.Bot.Types.Enums.UpdateType.Message)
         {
-            var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient);
-            await endpoint.HandleAsync();
-            if (endpoint.GetType() != typeof(DefaultTgUpdateEndpoint))
+            try
             {
-                handleSuccess = true;
+                var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient);
+                await endpoint.HandleAsync();
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, "Что-то пошло не так");
+                await botClient.SendTextMessageAsync(
+                    update.Message!.Chat.Id, 
+                    "😓 Упс! Что-то пошло не так", 
+                    cancellationToken: ctk);
             }
         }
-        
-        _logger.LogInformation("Handle success '{handle}'", handleSuccess);
     }
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ctk)

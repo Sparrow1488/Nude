@@ -28,7 +28,7 @@ public class CallbackRoute
         
         var ticket = await _context.ConvertingTickets
             .FirstOrDefaultAsync(x => 
-                x.ParsingTicketId == ticketId.ToString() &&
+                x.ParsingId == ticketId &&
                 x.Status == ConvertingStatus.Frozen);
         
         if (ticket is null)

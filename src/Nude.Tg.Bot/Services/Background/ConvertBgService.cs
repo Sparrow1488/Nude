@@ -71,8 +71,7 @@ public sealed class ConvertBgService : BgService
 
     private async Task OnProcessTicketAsync(ConvertingTicket ticket)
     {
-        var parsingTicketId = int.Parse(ticket.ParsingTicketId); // TODO: review
-        var parsingResponse = await _nudeClient.GetParsingTicketAsync(parsingTicketId);
+        var parsingResponse = await _nudeClient.GetParsingTicketAsync(ticket.ParsingId);
 
         if (parsingResponse is null)
         {
