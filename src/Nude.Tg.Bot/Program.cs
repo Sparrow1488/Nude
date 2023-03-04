@@ -12,6 +12,7 @@ using Nude.Tg.Bot.Initializers;
 using Nude.Tg.Bot.Services.Background;
 using Nude.Tg.Bot.Services.Convert;
 using Nude.Tg.Bot.Services.Manga;
+using Nude.Tg.Bot.Services.Messages;
 using Nude.Tg.Bot.Services.Resolvers;
 using Nude.Tg.Bot.Telegram.Endpoints.Base;
 using Nude.Tg.Bot.Telegram.Endpoints.Update;
@@ -61,8 +62,10 @@ builder.ConfigureServices(services =>
 
     services.AddSingleton<EndpointsResolver>();
     
+    services.AddScoped<TelegramUpdateEndpoint, StartEndpoint>();
+    services.AddScoped<TelegramUpdateEndpoint, MenuEndpoint>();
     services.AddScoped<TelegramUpdateEndpoint, MyTicketsEndpoint>();
-    services.AddScoped<TelegramUpdateEndpoint, NudeTgEndpoint>();
+    services.AddScoped<TelegramUpdateEndpoint, MangaEndpoint>();
     services.AddScoped<TelegramUpdateEndpoint, DefaultTgUpdateEndpoint>();
 
     #endregion
@@ -101,6 +104,7 @@ builder.ConfigureServices(services =>
 
     services.AddScoped<ITelegraphMangaService, TelegraphMangaService>();
     services.AddScoped<IConvertTicketsService, ConvertTicketsService>();
+    services.AddScoped<IMessagesStore, MessageStore>();
 
     #endregion
 

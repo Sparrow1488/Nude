@@ -1,3 +1,4 @@
+using System.Security.Policy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Manga.Responses;
@@ -11,20 +12,20 @@ using Telegram.Bot.Types;
 
 namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
 
-public class NudeTgEndpoint : TelegramUpdateEndpoint
+public class MangaEndpoint : TelegramUpdateEndpoint
 {
-    private readonly ILogger<NudeTgEndpoint> _logger;
+    private readonly ILogger<MangaEndpoint> _logger;
     private readonly INudeClient _nudeClient;
     private readonly IConfiguration _configuration;
     private readonly ITelegraphMangaService _mangaService;
     private readonly IConvertTicketsService _ticketsService;
 
-    public NudeTgEndpoint(
+    public MangaEndpoint(
         INudeClient nudeClient,
         IConfiguration configuration,
         ITelegraphMangaService mangaService,
         IConvertTicketsService ticketsService,
-        ILogger<NudeTgEndpoint> logger)
+        ILogger<MangaEndpoint> logger)
     {
         _logger = logger;
         _nudeClient = nudeClient;
@@ -62,7 +63,7 @@ public class NudeTgEndpoint : TelegramUpdateEndpoint
     
     public override bool CanHandle()
     {
-        if (Uri.TryCreate(Update.Message?.Text, UriKind.RelativeOrAbsolute, out var url))
+        if (Uri.TryCreate(Update.Message?.Text, UriKind.Absolute, out var url))
             return url.Host == "nude-moon.org";
 
         return false;
