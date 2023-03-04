@@ -7,6 +7,8 @@ using Nude.Models.Tickets.Converting;
 using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
+using Nude.Tg.Bot.Services.Messages;
+using Nude.Tg.Bot.Services.Utils;
 using Telegram.Bot;
 
 namespace Nude.Tg.Bot.Services.Background;
@@ -14,6 +16,7 @@ namespace Nude.Tg.Bot.Services.Background;
 public sealed class ConvertBgService : BgService
 {
     private readonly IDbContextFactory<BotDbContext> _contextFactory;
+    private readonly IMessagesStore _messages;
     private readonly ITelegraphClient _telegraph;
     private readonly INudeClient _nudeClient;
     private readonly ILogger<ConvertBgService> _logger;
@@ -23,11 +26,13 @@ public sealed class ConvertBgService : BgService
     public ConvertBgService(
         ITelegramBotClient botClient,
         IDbContextFactory<BotDbContext> contextFactory,
+        IMessagesStore messages,
         ITelegraphClient telegraph,
         INudeClient nudeClient,
         ILogger<ConvertBgService> logger)
     {
         _contextFactory = contextFactory;
+        _messages = messages;
         _telegraph = telegraph;
         _nudeClient = nudeClient;
         _logger = logger;
@@ -107,16 +112,18 @@ public sealed class ConvertBgService : BgService
         
         var tghUrl = await _telegraph.CreatePageAsync(manga);
         
-        await _context.AddAsync(new TghManga
+        ticket.Status = ConvertingStatus.Success;
+
+        var tghManga = new TghManga
         {
             ExternalId = manga.ExternalId,
             TghUrl = tghUrl
-        });
+        };
         
-        ticket.Status = ConvertingStatus.Success;
-        
+        await _context.AddAsync(tghManga);
         await _context.SaveChangesAsync();
 
-        await BotClient.SendTextMessageAsync(ticket.ChatId, tghUrl);
+        var message = await _messages.GetTghMessageAsync(tghManga);
+        await BotUtils.MessageAsync(BotClient, ticket.ChatId, message);
     }
 }

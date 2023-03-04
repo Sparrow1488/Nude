@@ -15,7 +15,7 @@ public class MessageStore : IMessagesStore
 
     public Task<MessageItem> GetTghMessageAsync(TghManga manga)
     {
-        var text = $"[Читать без регистрации и смс]({manga.TghUrl})";
+        var text = $"[Читать онлине]({manga.TghUrl})";
         return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 

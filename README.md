@@ -45,25 +45,21 @@
 
 * (потом) RuntimeQueryableFilter
 
-* (потом) ParsingRequest.CallbackUrl
+* ~~ParsingRequest.CallbackUrl~~
 
-* (потом) IParsingCallbackService.SendAsync(request)
+* ~~IParsingCallbackService.SendAsync(request)~~
 
 **Nude.Tg.Bot**
 
 * ~~Callback endpoint to receive avilable manga~~
 
-* Add ConvertTickets (id, manga_id, chat_id, status)
+* ~~Add ConvertTickets (id, manga_id, chat_id, status)~~
 
-* Convert images background service
+* ~~Convert images background service~~
 
-* Get random TghManga
+* ~~Get random TghManga~~
 
-* (?) Get random Manga
-
-* Add tags to tg response message
-
-* Tgh article response as [Read|<tgh>]
+* ~~Tgh article response as [Read|<tgh>]~~
 
 **CI/CD**
 

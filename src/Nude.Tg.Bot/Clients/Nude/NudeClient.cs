@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -29,41 +28,36 @@ public class NudeClient : INudeClient
 
     public async Task<MangaResponse?> GetMangaByIdAsync(int id)
     {
-        using var client = CreateHttpClient();
-        var response = await client.GetAsync($"{_baseUrl}/manga/{id}");
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<MangaResponse>(json, _jsonSerializerSettings);
-        }
+        MangaResponse? result = null;
+        await GetAsync<MangaResponse>(
+            $"/manga/{id}",
+            (_, res) => result = res,
+            _ => result = null);
 
-        return null;
+        return result;
     }
 
     public async Task<MangaResponse?> GetMangaByUrlAsync(string url)
     {
-        using var client = CreateHttpClient();
-        var response = await client.GetAsync($"{_baseUrl}/manga?url={url}");
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<MangaResponse>(json, _jsonSerializerSettings);
-        }
+        MangaResponse? result = null;
+        await GetAsync<MangaResponse>(
+            $"/manga?url={url}",
+            (_, res) => result = res,
+            _ => result = null);
 
-        return null;
+        return result;
     }
 
     public async Task<ParsingResponse?> GetParsingTicketAsync(int id)
     {
         using var client = CreateHttpClient();
-        var response = await client.GetAsync($"{_baseUrl}/parsing/tickets/{id}");
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<ParsingResponse>(json, _jsonSerializerSettings);
-        }
+        ParsingResponse? result = null;
+        await GetAsync<ParsingResponse>(
+            $"/parsing/tickets/{id}",
+            (_, res) => result = res,
+            _ => result = null);
 
-        return null;
+        return result;
     }
 
     public async Task<ParsingResponse> CreateParsingTicketAsync(string mangaUrl, string callback)
@@ -85,6 +79,26 @@ public class NudeClient : INudeClient
         }
 
         throw new Exception($"HttpResponse Status:{response.StatusCode}");
+    }
+
+    private async Task GetAsync<TRes>(
+        string path,
+        Action<HttpResponseMessage, TRes> onSuccess, 
+        Action<HttpResponseMessage> onError)
+    {
+        using var client = CreateHttpClient();
+        var response = await client.GetAsync(_baseUrl + path);
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<TRes>(json, _jsonSerializerSettings)
+                ?? throw new JsonException("Fail to deserialize response object");
+            onSuccess.Invoke(response, result);
+        }
+        else
+        {
+            onError.Invoke(response);
+        }
     }
 
     private static HttpClient CreateHttpClient()

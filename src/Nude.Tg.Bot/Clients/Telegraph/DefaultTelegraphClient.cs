@@ -12,7 +12,7 @@ namespace Nude.Tg.Bot.Clients.Telegraph;
 
 public class DefaultTelegraphClient : ITelegraphClient
 {
-    public const string BaseUrl = "https://telegra.ph";
+    private const string BaseUrl = "https://telegra.ph";
     
     private readonly IConfiguration _configuration;
     private readonly ILogger<DefaultTelegraphClient> _logger;
@@ -44,8 +44,8 @@ public class DefaultTelegraphClient : ITelegraphClient
         var images = manga.Images.Select(x => Node.ImageFigure(x, imagePage++.ToString()));
         var nodes = new List<Node>
         {
-            Node.P("❤️With love by Nude❤️"),
-            Node.P("🤖 Source: nude-moon.org 🤖")
+            Node.P("С любовью от Nude❤️"),
+            Node.P("Сурс: nude-moon.org")
         };
         nodes.AddRange(images);
 
