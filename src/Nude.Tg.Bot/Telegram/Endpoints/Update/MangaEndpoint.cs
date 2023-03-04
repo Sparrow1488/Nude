@@ -51,7 +51,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         
         var manga = mangaResponse.Value;
     
-        var tghExists = await _mangaService.GetByExternalId(manga.ExternalId);
+        var tghExists = await _mangaService.GetByExternalIdAsync(manga.ExternalId);
         if (tghExists is not null)
         {
             await MessageAsync(tghExists.TghUrl);

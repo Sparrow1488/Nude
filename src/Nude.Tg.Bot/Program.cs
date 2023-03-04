@@ -66,6 +66,7 @@ builder.ConfigureServices(services =>
     services.AddScoped<TelegramUpdateEndpoint, MenuEndpoint>();
     services.AddScoped<TelegramUpdateEndpoint, MyTicketsEndpoint>();
     services.AddScoped<TelegramUpdateEndpoint, MangaEndpoint>();
+    services.AddScoped<TelegramUpdateEndpoint, RandomEndpoint>();
     services.AddScoped<TelegramUpdateEndpoint, DefaultTgUpdateEndpoint>();
 
     #endregion
