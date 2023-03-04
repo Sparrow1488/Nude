@@ -4,7 +4,7 @@ using Nude.Tg.Bot.Telegram.Handlers;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
-namespace Nude.Tg.Bot.Initializers;
+namespace Nude.Tg.Bot.Telegram;
 
 public class BotInitializer
 {

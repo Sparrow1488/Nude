@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot.Http.Routes;
 
-namespace Nude.Tg.Bot.Initializers;
+namespace Nude.Tg.Bot.Http;
 
 public class HttpServer
 {
