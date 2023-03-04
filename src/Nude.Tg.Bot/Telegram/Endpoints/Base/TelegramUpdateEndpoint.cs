@@ -1,3 +1,4 @@
+using Nude.Tg.Bot.Services.Messages;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -14,5 +15,10 @@ public abstract class TelegramUpdateEndpoint : TelegramEndpoint
     protected Task<Message> MessageAsync(string message, ParseMode parseMode = ParseMode.Html)
     {
         return BotClient.SendTextMessageAsync(ChatId, message, parseMode);
+    }
+    
+    protected Task<Message> MessageAsync(MessageItem message)
+    {
+        return BotClient.SendTextMessageAsync(ChatId, message.Text, message.ParseMode);
     }
 }

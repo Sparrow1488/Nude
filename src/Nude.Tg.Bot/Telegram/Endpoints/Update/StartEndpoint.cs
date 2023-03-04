@@ -1,6 +1,5 @@
 using Nude.Tg.Bot.Services.Messages;
 using Nude.Tg.Bot.Telegram.Endpoints.Base;
-using Telegram.Bot.Types.Enums;
 
 namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
 
@@ -15,7 +14,7 @@ public class StartEndpoint : TelegramUpdateEndpoint
     
     public override async Task HandleAsync()
     {
-        await MessageAsync(await _messages.GetStartMessageAsync(), ParseMode.MarkdownV2);
+        await MessageAsync(await _messages.GetStartMessageAsync());
     }
 
     public override bool CanHandle()

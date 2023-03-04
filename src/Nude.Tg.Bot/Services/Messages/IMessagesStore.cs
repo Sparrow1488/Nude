@@ -1,7 +1,10 @@
+using Nude.Models.Mangas;
+
 namespace Nude.Tg.Bot.Services.Messages;
 
 public interface IMessagesStore
 {
-    Task<string> GetStartMessageAsync();
-    Task<string> GetMenuMessageAsync();
+    Task<MessageItem> GetTghMessageAsync(TghManga manga);
+    Task<MessageItem> GetStartMessageAsync();
+    Task<MessageItem> GetMenuMessageAsync();
 }

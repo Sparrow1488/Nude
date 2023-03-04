@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Configuration;
+using Nude.Models.Mangas;
+using Telegram.Bot.Types.Enums;
 
 namespace Nude.Tg.Bot.Services.Messages;
 
@@ -10,17 +12,25 @@ public class MessageStore : IMessagesStore
     {
         _configuration = configuration;
     }
-    
-    public Task<string> GetStartMessageAsync()
+
+    public Task<MessageItem> GetTghMessageAsync(TghManga manga)
     {
-        return GetFileMessageTextAsync("/Start.md");
+        var text = $"[Читать без регистрации и смс]({manga.TghUrl})";
+        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 
-    public async Task<string> GetMenuMessageAsync()
+    public async Task<MessageItem> GetStartMessageAsync()
     {
-        var startText = await GetStartMessageAsync();
-        var text = string.Join("", startText.SkipWhile(x => x != '`')); // first command prefix
-        return text;
+        var startText = await GetFileMessageTextAsync("/Start.md");
+        var menuMessage = await GetMenuMessageAsync();
+        var text = startText + menuMessage.Text;
+        return new MessageItem(text, ParseMode.MarkdownV2);
+    }
+
+    public async Task<MessageItem> GetMenuMessageAsync()
+    {
+        var startText = await GetFileMessageTextAsync("/Menu.md");
+        return new MessageItem(startText, ParseMode.MarkdownV2);
     }
 
     private async Task<string> GetFileMessageTextAsync(string name)

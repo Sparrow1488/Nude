@@ -6,9 +6,11 @@ using Nude.API.Contracts.Parsing.Responses;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Services.Convert;
 using Nude.Tg.Bot.Services.Manga;
+using Nude.Tg.Bot.Services.Messages;
 using Nude.Tg.Bot.Telegram.Endpoints.Base;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
 
@@ -17,12 +19,14 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     private readonly ILogger<MangaEndpoint> _logger;
     private readonly INudeClient _nudeClient;
     private readonly IConfiguration _configuration;
+    private readonly IMessagesStore _messages;
     private readonly ITelegraphMangaService _mangaService;
     private readonly IConvertTicketsService _ticketsService;
 
     public MangaEndpoint(
         INudeClient nudeClient,
         IConfiguration configuration,
+        IMessagesStore messages,
         ITelegraphMangaService mangaService,
         IConvertTicketsService ticketsService,
         ILogger<MangaEndpoint> logger)
@@ -30,6 +34,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         _logger = logger;
         _nudeClient = nudeClient;
         _configuration = configuration;
+        _messages = messages;
         _mangaService = mangaService;
         _ticketsService = ticketsService;
     }
@@ -54,7 +59,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         var tghExists = await _mangaService.GetByExternalIdAsync(manga.ExternalId);
         if (tghExists is not null)
         {
-            await MessageAsync(tghExists.TghUrl);
+            await MessageAsync(await _messages.GetTghMessageAsync(tghExists));
             return;
         }
 
