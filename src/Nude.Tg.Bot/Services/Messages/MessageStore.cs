@@ -33,6 +33,17 @@ public class MessageStore : IMessagesStore
         return new MessageItem(startText, ParseMode.MarkdownV2);
     }
 
+    public Task<MessageItem> GetSourcesMessageAsync(List<string> sources)
+    {
+        var formatted = sources
+            .Select(x => $"`{x}`"
+                .Replace("-", "\\-")
+                .Replace(".", "\\."))
+            .ToArray();
+        var text = string.Join("\n", formatted);
+        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
+    }
+
     private async Task<string> GetFileMessageTextAsync(string name)
     {
         var messagesPath = _configuration["Resources:Path"] + "/Messages";
