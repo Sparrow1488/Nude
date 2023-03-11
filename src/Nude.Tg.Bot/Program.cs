@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +24,12 @@ using Serilog.Events;
 using Telegram.Bot;
 
 var builder = Host.CreateDefaultBuilder();
+
+#region Configuration
+
+builder.ConfigureHostConfiguration(x => x.AddUserSecrets(Assembly.GetExecutingAssembly()));
+
+#endregion
 
 #region Logger
 

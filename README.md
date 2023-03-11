@@ -45,6 +45,8 @@
 
 * (потом) RuntimeQueryableFilter
 
+* Users
+
 * ~~ParsingRequest.CallbackUrl~~
 
 * ~~IParsingCallbackService.SendAsync(request)~~
@@ -61,6 +63,8 @@
 
 * ~~Tgh article response as [Read|<tgh>]~~
 
+* TelegramUsers
+
 **CI/CD**
 
 * Buy VPS
@@ -68,3 +72,21 @@
 * Install Docker
 
 * Configure Docker Compose
+
+
+
+Claims
+
+1. `nude.user.default`
+   
+   * Max 3 parallel processing requests
+
+2. `nude.user.premium`
+   
+   * Max 10 parallel processing requests
+   
+   * Create manga
+
+3. `nude.user.admin` 
+   
+   * No limit parallel processing requests

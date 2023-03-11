@@ -60,7 +60,7 @@ public class HttpServer
             }
             catch(Exception ex)
             {
-                logger.LogError(ex, "In Http Listener error");
+                logger.LogError(ex, "Oops.. Something went wrong");
             }
         }
     }
