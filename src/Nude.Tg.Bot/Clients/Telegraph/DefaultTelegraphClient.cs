@@ -56,13 +56,13 @@ public class DefaultTelegraphClient : ITelegraphClient
     
     public async Task<string> UploadFileAsync(string externalFileUrl)
     {
-        _logger.LogInformation("Downloading external file url:{url}", externalFileUrl);
+        _logger.LogDebug("Downloading external file url:{url}", externalFileUrl);
         
         using var httpClient = new HttpClient();
         var bytes = await httpClient.GetByteArrayAsync(externalFileUrl);
         
-        _logger.LogInformation("Downloaded success");
-        _logger.LogInformation("Uploading external file to tgh...");
+        _logger.LogDebug("Downloaded success");
+        _logger.LogDebug("Uploading external file to tgh...");
 
         using var content = new MultipartFormDataContent("Upload----" + DateTime.Now.ToString(CultureInfo.InvariantCulture));
         content.Add(new StreamContent(
@@ -75,7 +75,7 @@ public class DefaultTelegraphClient : ITelegraphClient
             .WaitAndRetryAsync(3, _ => TimeSpan.FromSeconds(3));
 
         var pollingRetryCount = 0;
-        while (pollingRetryCount++ < 5)
+        while (pollingRetryCount++ < 7)
         {
             var result = await retryPolicy.ExecuteAsync(
                 () => httpClient.PostAsync("https://telegra.ph/upload", content));

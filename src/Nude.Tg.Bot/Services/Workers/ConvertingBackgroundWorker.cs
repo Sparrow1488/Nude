@@ -11,27 +11,25 @@ using Nude.Tg.Bot.Services.Messages;
 using Nude.Tg.Bot.Services.Utils;
 using Telegram.Bot;
 
-namespace Nude.Tg.Bot.Services.Background;
+namespace Nude.Tg.Bot.Services.Workers;
 
-public sealed class ConvertBgService : BgService
+public sealed class ConvertingBackgroundWorker : IBackgroundWorker
 {
-    private readonly IDbContextFactory<BotDbContext> _contextFactory;
     private readonly IMessagesStore _messages;
     private readonly ITelegraphClient _telegraph;
     private readonly INudeClient _nudeClient;
-    private readonly ILogger<ConvertBgService> _logger;
-    
-    private BotDbContext _context = null!;
+    private readonly ILogger<ConvertingBackgroundWorker> _logger;
+    private readonly BotDbContext _context;
 
-    public ConvertBgService(
+    public ConvertingBackgroundWorker(
         ITelegramBotClient botClient,
-        IDbContextFactory<BotDbContext> contextFactory,
+        BotDbContext context,
         IMessagesStore messages,
         ITelegraphClient telegraph,
         INudeClient nudeClient,
-        ILogger<ConvertBgService> logger)
+        ILogger<ConvertingBackgroundWorker> logger)
     {
-        _contextFactory = contextFactory;
+        _context = context;
         _messages = messages;
         _telegraph = telegraph;
         _nudeClient = nudeClient;
@@ -41,36 +39,27 @@ public sealed class ConvertBgService : BgService
     
     private ITelegramBotClient BotClient { get; }
     
-    protected override async Task ExecuteAsync()
+    public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
     {
-        while (true)
+        try
         {
-            try
-            {
-                _context = await _contextFactory.CreateDbContextAsync();
+            var ticket = await _context.ConvertingTickets
+                .FirstOrDefaultAsync(x => x.Status == ConvertingStatus.WaitToProcess, cancellationToken: ctk);
 
-                var ticket = await _context.ConvertingTickets
-                    .FirstOrDefaultAsync(x => x.Status == ConvertingStatus.WaitToProcess);
-
-                if (ticket is not null)
-                {
-                    await OnProcessTicketAsync(ticket);
-                }
-                else
-                {
-                    _logger.LogInformation("No converting tickets");
-                }
-
-                await Task.Delay(TimeSpan.FromSeconds(5));
-            }
-            catch (Exception ex)
+            if (ticket is not null)
             {
-                _logger.LogError(ex, "Че то не так");
+                await OnProcessTicketAsync(ticket);
             }
-            finally
+            else
             {
-                await _context.DisposeAsync();
+                _logger.LogInformation("No converting tickets");
             }
+
+            await Task.Delay(TimeSpan.FromSeconds(5), ctk);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Oops.. Something went wrong");
         }
     }
 

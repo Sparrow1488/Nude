@@ -1,8 +1,4 @@
-using System.Reflection;
-using System.Text.Json;
-using AutoMapper.Internal;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Nude.API.Data.Contexts;
@@ -11,9 +7,9 @@ using Nude.API.Data.Repositories;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.FeedBack;
-using Nude.API.Services.Background;
 using Nude.API.Services.Manga;
 using Nude.API.Services.Parsing;
+using Nude.API.Services.Workers;
 using Nude.Mapping.Profiles;
 using Nude.Mapping.Utils;
 using Nude.Parsers;
@@ -89,7 +85,7 @@ builder.Services.AddAutoMapper(x => x.AddMaps(profilesAssembly));
 
 #region Background Service
 
-builder.Services.AddBgService<ParsingBgService>(name: "Manga Background Parsing Service");
+builder.Services.AddBackgroundWorker<ParsingBackgroundWorker>();
 
 #endregion
 

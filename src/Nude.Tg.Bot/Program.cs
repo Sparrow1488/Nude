@@ -9,11 +9,11 @@ using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
 using Nude.Tg.Bot.Http;
 using Nude.Tg.Bot.Http.Routes;
-using Nude.Tg.Bot.Services.Background;
 using Nude.Tg.Bot.Services.Convert;
 using Nude.Tg.Bot.Services.Manga;
 using Nude.Tg.Bot.Services.Messages;
 using Nude.Tg.Bot.Services.Resolvers;
+using Nude.Tg.Bot.Services.Workers;
 using Nude.Tg.Bot.Telegram;
 using Nude.Tg.Bot.Telegram.Endpoints.Base;
 using Nude.Tg.Bot.Telegram.Endpoints.Update;
@@ -99,7 +99,7 @@ builder.ConfigureServices(services =>
 
     #region Background
 
-    services.AddBgService<ConvertBgService>("Converting Background Service");
+    services.AddBackgroundWorker<ConvertingBackgroundWorker>();
 
     #endregion
 

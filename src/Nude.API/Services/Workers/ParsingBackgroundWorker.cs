@@ -8,86 +8,77 @@ using Nude.Models.Sources;
 using Nude.Models.Tickets.Parsing;
 using Nude.Parsers;
 
-namespace Nude.API.Services.Background;
+namespace Nude.API.Services.Workers;
 
-public sealed class ParsingBgService : BgService
+public sealed class ParsingBackgroundWorker : IBackgroundWorker
 {
-    private readonly IDbContextFactory<AppDbContext> _dbContextFactory;
-    private AppDbContext _context = null!;
+    private readonly AppDbContext _context;
     private readonly INudeParser _parser;
     private readonly IMangaRepository _repository;
     private readonly IFeedBackService _feedBack;
-    private readonly ILogger<ParsingBgService> _logger;
+    private readonly ILogger<ParsingBackgroundWorker> _logger;
 
     private DateTimeOffset _processStartedAt = DateTimeOffset.Now;
     
-    public ParsingBgService(
-        IDbContextFactory<AppDbContext> dbContextFactory,
-        INudeParser parser, 
+    public ParsingBackgroundWorker(
         IMangaRepository repository,
         IFeedBackService feedBack,
-        ILogger<ParsingBgService> logger)
+        INudeParser parser,
+        AppDbContext context,
+        ILogger<ParsingBackgroundWorker> logger)
     {
-        _dbContextFactory = dbContextFactory;
-        _parser = parser;
         _repository = repository;
         _feedBack = feedBack;
+        _parser = parser;
+        _context = context;
         _logger = logger;
     }
 
     private ParsingTicket? Ticket { get; set; }
 
-    protected override async Task ExecuteAsync()
+    public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
     {
-        while (true)
+        try
         {
-            try
-            {
-                _processStartedAt = DateTimeOffset.UtcNow;
-                _context = await _dbContextFactory.CreateDbContextAsync();
+            _processStartedAt = DateTimeOffset.UtcNow;
 
-                await Execute();
-                
-                await Task.Delay(TimeSpan.FromSeconds(3));
-            }
-            catch (Exception ex)
+            await Execute();
+        }
+        catch (Exception ex)
+        {
+            await OnErrorProcessTicketAsync(Ticket!, ex);
+        }
+        finally
+        {
+            if (Ticket is not null)
             {
-                await OnErrorProcessTicketAsync(Ticket!, ex);
-            }
-            finally
-            {
-                if (Ticket is not null)
+                var notifyStatus = Ticket.Status == ParsingStatus.Success
+                    ? NotifyStatus.OnSuccess
+                    : NotifyStatus.OnError;
+
+                var subs = Ticket.Subscribers
+                    .Where(x => x.NotifyStatus == notifyStatus)
+                    .ToList();
+            
+                if (subs.Any())
                 {
-                    var notifyStatus = Ticket.Status == ParsingStatus.Success
-                        ? NotifyStatus.OnSuccess
-                        : NotifyStatus.OnError;
+                    _logger.LogInformation(
+                        "On notify status '{status}' subscribed {subs} users",
+                        notifyStatus.ToString(),
+                        subs.Count);
 
-                    var subs = Ticket.Subscribers
-                        .Where(x => x.NotifyStatus == notifyStatus)
-                        .ToList();
-                
-                    if (subs.Any())
+                    foreach (var sub in subs)
                     {
-                        _logger.LogInformation(
-                            "On notify status '{status}' subscribed {subs} users",
-                            notifyStatus.ToString(),
-                            subs.Count);
-
-                        foreach (var sub in subs)
-                        {
-                            await _feedBack.SendAsync(Ticket, sub.FeedBackInfo);
-                        }
+                        await _feedBack.SendAsync(Ticket, sub.FeedBackInfo);
                     }
                 }
-
-                await _context.DisposeAsync();
             }
         }
     }
     
     private async Task Execute()
     {
-        _logger.LogInformation("Check parsing tickets");
+        _logger.LogDebug("Check parsing tickets");
 
         Ticket = await _context.ParsingTickets
             .Include(x => x.Meta)
@@ -98,7 +89,7 @@ public sealed class ParsingBgService : BgService
             
         if (Ticket is null)
         {
-            _logger.LogInformation("No Requests");
+            _logger.LogDebug("No Requests");
             return;
         }
 
