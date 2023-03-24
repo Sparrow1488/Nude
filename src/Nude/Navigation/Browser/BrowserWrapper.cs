@@ -3,7 +3,7 @@ using AngleSharp.Html.Parser;
 using Nude.Exceptions.Navigation;
 using PuppeteerSharp;
 
-namespace Nude.Navigation;
+namespace Nude.Navigation.Browser;
 
 public class BrowserWrapper : IBrowserWrapper
 {

@@ -14,14 +14,9 @@ public class MangaController : ControllerBase
         _service = service;
     }
 
-    // TODO: IRuntimeQueryableFilter
     [HttpGet("{id}")]
     public Task<MangaResponse> GetById(int id)
         => _service.GetByIdAsync(id);
-    //
-    // [HttpGet("manga")]
-    // public Task<MangaResponse> GetByExternalId(string externalId)
-    //     => _service.GetByExternalIdAsync(externalId);
     
     [HttpGet]
     public Task<MangaResponse> GetByUrl(string url)

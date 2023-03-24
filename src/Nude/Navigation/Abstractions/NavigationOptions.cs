@@ -1,8 +1,8 @@
 using System.Net;
 
-namespace Nude.Navigation;
+namespace Nude.Navigation.Abstractions;
 
-public class BrowserOptions
+public class NavigationOptions
 {
     public ICollection<Cookie> Cookies { get; } = new List<Cookie>();
 }

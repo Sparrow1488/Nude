@@ -8,6 +8,7 @@ using Nude.API.Infrastructure.Exceptions;
 using Nude.Models.Tickets;
 using Nude.Models.Tickets.Parsing;
 using Nude.Parsers;
+using Nude.Parsers.NudeMoon;
 
 namespace Nude.API.Services.Parsing;
 

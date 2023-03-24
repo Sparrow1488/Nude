@@ -1,16 +1,11 @@
 using System.Security.Policy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Nude.API.Contracts.Manga.Responses;
-using Nude.API.Contracts.Parsing.Responses;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Services.Convert;
 using Nude.Tg.Bot.Services.Manga;
 using Nude.Tg.Bot.Services.Messages;
 using Nude.Tg.Bot.Telegram.Endpoints.Base;
-using Telegram.Bot;
-using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
 namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
 

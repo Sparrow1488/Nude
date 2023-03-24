@@ -1,8 +1,11 @@
-﻿using System.Reflection;
+﻿using System.Drawing.Text;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Nude.Models;
 using Nude.Parsers;
+using Nude.Parsers.HentaiChan;
+using Nude.Parsers.NudeMoon;
 using Serilog;
 
 #region Configuration
@@ -19,10 +22,7 @@ var configuration = new ConfigurationBuilder()
 
 Log.Information("NudeApp started!");
 
-const string section = "Credentials:NudeMoon";
-var fusionUser = configuration.GetValue<string>($"{section}:FusionUser")!;
-var sessionId = configuration.GetValue<string>($"{section}:PhpSessionId")!;
-using INudeParser parser = await NudeParser.CreateAsync(fusionUser, sessionId);
+using var parser = await CreateNudeParser(); 
 
 #endregion
 
@@ -49,5 +49,25 @@ var jsonResult = JsonConvert.SerializeObject(results, new JsonSerializerSettings
     Formatting = Formatting.Indented
 });
 Console.WriteLine(jsonResult);
+
+#endregion
+
+#region Parsers
+
+async Task<INudeParser> CreateNudeParser()
+{
+    const string section = "Credentials:NudeMoon";
+    var fusionUser = configuration.GetValue<string>($"{section}:FusionUser")!;
+    var sessionId = configuration.GetValue<string>($"{section}:PhpSessionId")!;
+    return await NudeParser.CreateAsync(fusionUser, sessionId);
+}
+
+async Task<IHentaiChanParser> CreateHentaiChanParser()
+{
+    const string section = "Credentials:HentaiChan";
+    var fusionUser = configuration.GetValue<string>($"{section}:Dle")!;
+    var sessionId = configuration.GetValue<string>($"{section}:PhpSessionId")!;
+    return await HentaiChanParser.CreateAsync(null, null, null, null);
+}
 
 #endregion
