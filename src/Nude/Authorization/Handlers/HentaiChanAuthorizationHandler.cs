@@ -1,5 +1,7 @@
 using System.Net;
 using System.Security.Claims;
+using Nude.Authorization.Stores;
+using Nude.Constants;
 using Nude.Exceptions;
 using Nude.Parsers.HentaiChan;
 
@@ -7,7 +9,12 @@ namespace Nude.Authorization.Handlers;
 
 public class HentaiChanAuthorizationHandler : IAuthorizationHandler<IHentaiChanParser>
 {
-    private const string BaseUrl = "https://xxxxx.hentaichan.live";
+    private readonly ICredentialsSecureStore _credentialsStore;
+
+    public HentaiChanAuthorizationHandler(ICredentialsSecureStore credentialsStore)
+    {
+        _credentialsStore = credentialsStore;
+    }
     
     public async Task<UserCredentials> AuthorizeAsync(string login, string password)
     {
@@ -30,7 +37,7 @@ public class HentaiChanAuthorizationHandler : IAuthorizationHandler<IHentaiChanP
                 throw new AuthorizationException("Invalid user credentials");
             }
         
-            return new UserCredentials(claims);
+            return new UserCredentials(claims, Schema.Cookies);
         }
 
         throw new InvalidServerResponseException("Invalid user credentials");
@@ -54,15 +61,8 @@ public class HentaiChanAuthorizationHandler : IAuthorizationHandler<IHentaiChanP
             new("image", "Вход"),
         };
         var data = new FormUrlEncodedContent(values);
-        // var data = new MultipartFormDataContent
-        // {
-        //     new MultipartContent("login", "submit"),
-        //     new MultipartContent("login_name", login),
-        //     new MultipartContent("login_password", password),
-        //     new MultipartContent("image", "%D0%92%D1%85%D0%BE%D0%B4")
-        // };
 
-        var authUrl = BaseUrl;
+        var authUrl = HentaiChanDefaults.BaseUrl;
         var message = new HttpRequestMessage(HttpMethod.Post, authUrl);
         message.Content = data;
         

@@ -1,5 +1,6 @@
-using System.Net;
 using AngleSharp.Dom;
+using Nude.Authorization;
+using Nude.Authorization.Cookies;
 using Nude.Models;
 using Nude.Navigation.Abstractions;
 using Nude.Navigation.Http;
@@ -15,17 +16,14 @@ public class HentaiChanParser : IHentaiChanParser
         _navigator = navigator;
     }
     
-    public static async Task<IHentaiChanParser> CreateAsync(
-        string dleNewPm, 
-        string dlePassword, 
-        string dleUserId, 
-        string phpSessionId)
+    public static async Task<IHentaiChanParser> CreateAsync(UserCredentials credentials)
     {
         var options = new HttpClientOptions();
-        options.Cookies.Add(new Cookie("dle_newpm", dleNewPm));
-        options.Cookies.Add(new Cookie("dle_password", dlePassword));
-        options.Cookies.Add(new Cookie("dle_user_id", dleUserId));
-        options.Cookies.Add(new Cookie("PHPSESSID", phpSessionId));
+        var cookies = new HentaiChanAuthorizationCookies()
+            .CreateFrom(credentials)
+            .ToList();
+        
+        cookies.ForEach(x => options.Cookies.Add(x));
 
         var navigator = await HttpClientNavigator.CreateAsync(options);
         return new HentaiChanParser(navigator);
@@ -49,5 +47,10 @@ public class HentaiChanParser : IHentaiChanParser
     {
         var titleLink = previewDocument.QuerySelector("a.title_top_a");
         return titleLink?.TextContent ?? "null";
+    }
+
+    public void Dispose()
+    {
+        _navigator.Dispose();
     }
 }

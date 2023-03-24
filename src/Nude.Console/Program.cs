@@ -1,10 +1,11 @@
-﻿using System.Drawing.Text;
-using System.Reflection;
+﻿using System.Reflection;
+using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Nude.Authorization;
 using Nude.Authorization.Handlers;
+using Nude.Authorization.Stores;
 using Nude.Models;
-using Nude.Parsers;
 using Nude.Parsers.HentaiChan;
 using Nude.Parsers.NudeMoon;
 using Serilog;
@@ -23,16 +24,14 @@ var configuration = new ConfigurationBuilder()
 
 Log.Information("NudeApp started!");
 
-var authHandler = new HentaiChanAuthorizationHandler();
-var credentials = await authHandler.AuthorizeAsync();
-
-using var parser = await CreateNudeParser();
+using var parser = await CreateHentaiChanParser();
 
 #endregion
 
 var mangaUrls = new List<string>
 {
-    "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row"
+    "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row",
+    "https://y.hentaichan.live/manga/45190-kniga-v-kotoroy-peresekayut-chertu-so-studentkami-benriya-68-hen-.html"
 };
 
 var results = new List<Manga>();
@@ -68,10 +67,26 @@ async Task<INudeParser> CreateNudeParser()
 
 async Task<IHentaiChanParser> CreateHentaiChanParser()
 {
+    var store = new CredentialsSecureStore();
+
     const string section = "Credentials:HentaiChan";
-    var fusionUser = configuration.GetValue<string>($"{section}:Dle")!;
-    var sessionId = configuration.GetValue<string>($"{section}:PhpSessionId")!;
-    return await HentaiChanParser.CreateAsync(null, null, null, null);
+    var login = configuration.GetValue<string>($"{section}:Login")!;
+    var password = configuration.GetValue<string>($"{section}:Password")!;
+
+    UserCredentials? credentials;
+    if (await store.ExistsAsync(login))
+    {
+        credentials = await store.GetAsync(login);
+    }
+    else
+    {
+        var handler = new HentaiChanAuthorizationHandler(store);
+        credentials = await handler.AuthorizeAsync(login, password);
+
+        await store.SaveAsync(login, credentials);
+    }
+    
+    return await HentaiChanParser.CreateAsync(credentials!);
 }
 
 #endregion
