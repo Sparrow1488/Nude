@@ -2,6 +2,7 @@
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Nude.Authorization.Handlers;
 using Nude.Models;
 using Nude.Parsers;
 using Nude.Parsers.HentaiChan;
@@ -22,7 +23,10 @@ var configuration = new ConfigurationBuilder()
 
 Log.Information("NudeApp started!");
 
-using var parser = await CreateNudeParser(); 
+var authHandler = new HentaiChanAuthorizationHandler();
+var credentials = await authHandler.AuthorizeAsync();
+
+using var parser = await CreateNudeParser();
 
 #endregion
 
