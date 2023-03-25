@@ -10,8 +10,12 @@ using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
 using Nude.Tg.Bot.Services.Messages;
+using Nude.Tg.Bot.Services.Messages.Store;
+using Nude.Tg.Bot.Services.Messages.Telegram;
 using Nude.Tg.Bot.Services.Utils;
 using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Nude.Tg.Bot.Services.Workers;
 
@@ -20,6 +24,7 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
     private readonly IMessagesStore _messages;
     private readonly ITelegraphClient _telegraph;
     private readonly INudeClient _nudeClient;
+    private readonly ITelegramMessagesService _tgMessagesService;
     private readonly ILogger<ConvertingBackgroundWorker> _logger;
     private readonly BotDbContext _context;
 
@@ -29,12 +34,14 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
         IMessagesStore messages,
         ITelegraphClient telegraph,
         INudeClient nudeClient,
+        ITelegramMessagesService tgMessagesService,
         ILogger<ConvertingBackgroundWorker> logger)
     {
         _context = context;
         _messages = messages;
         _telegraph = telegraph;
         _nudeClient = nudeClient;
+        _tgMessagesService = tgMessagesService;
         _logger = logger;
         BotClient = botClient;
     }
@@ -80,7 +87,7 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
         var mangaId = int.Parse(parsingTicket.Value.Result.EntityId!);
         var manga = (await _nudeClient.GetMangaByIdAsync(mangaId))!.Value;
 
-        var tghManga = await CreateTghMangaAsync(manga);
+        var tghManga = await CreateTghMangaAsync(manga, ticket.Id);
 
         var similarTickets = await _context.ConvertingTickets
             .Where(x => x.ParsingId == ticket.ParsingId)
@@ -124,11 +131,11 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
         return (parsingTicket, parsingTicket.Status);
     }
 
-    private async Task<TghManga> CreateTghMangaAsync(MangaResponse manga)
+    private async Task<TghManga> CreateTghMangaAsync(MangaResponse manga, int convertTicketId)
     {
         _logger.LogInformation("Converting manga images ({total})", manga.Images.Count);
         
-        manga.Images = await UploadToTelegraphImagesAsync(manga);
+        manga.Images = await UploadToTelegraphImagesAsync(manga, convertTicketId);
         
         var tghUrl = await _telegraph.CreatePageAsync(manga);
         return new TghManga
@@ -138,9 +145,13 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
         };
     }
 
-    private async Task<List<string>> UploadToTelegraphImagesAsync(MangaResponse manga)
+    private async Task<List<string>> UploadToTelegraphImagesAsync(MangaResponse manga, int convertTicketId)
     {
         var convertedImages = new List<string>();
+        var dbMessage = await _tgMessagesService.GetByTicketIdAsync(convertTicketId);
+        
+        var totalImages = manga.Images.Count;
+
         for (var i = 0; i < manga.Images.Count; i++)
         {
             var tghImage = await _telegraph.UploadFileAsync(manga.Images[i]);
@@ -151,8 +162,15 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
                 _logger.LogInformation(
                     "({current}/{total}) Uploading images to telegraph",
                     i,
-                    manga.Images.Count);
+                    totalImages);
             }
+            
+            await BotClient.EditMessageTextAsync(
+                new ChatId(dbMessage!.ChatId),
+                dbMessage!.MessageId,
+                $"Происходит жоски загрузка картинок на сервер: ({i+1}/{totalImages})",
+                ParseMode.Html
+            );
         }
 
         return convertedImages;

@@ -1,12 +1,15 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Infrastructure.Constants;
+using Nude.Models.Messages.Telegram;
 using Nude.Models.Tickets.Converting;
 using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Services.Convert;
 using Nude.Tg.Bot.Services.Manga;
 using Nude.Tg.Bot.Services.Messages;
+using Nude.Tg.Bot.Services.Messages.Store;
+using Nude.Tg.Bot.Services.Messages.Telegram;
 using Nude.Tg.Bot.Telegram.Endpoints.Base;
 
 namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
@@ -19,6 +22,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     private readonly IMessagesStore _messages;
     private readonly ITelegraphMangaService _mangaService;
     private readonly IConvertTicketsService _ticketsService;
+    private readonly ITelegramMessagesService _tgMessagesService;
 
     public MangaEndpoint(
         INudeClient nudeClient,
@@ -26,6 +30,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         IMessagesStore messages,
         ITelegraphMangaService mangaService,
         IConvertTicketsService ticketsService,
+        ITelegramMessagesService tgMessagesService,
         ILogger<MangaEndpoint> logger)
     {
         _logger = logger;
@@ -34,6 +39,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         _messages = messages;
         _mangaService = mangaService;
         _ticketsService = ticketsService;
+        _tgMessagesService = tgMessagesService;
     }
     
     public override async Task HandleAsync()
@@ -59,9 +65,18 @@ public class MangaEndpoint : TelegramUpdateEndpoint
             ? ConvertingStatus.ConvertWaiting
             : ConvertingStatus.ParseWaiting;
         
-        await _ticketsService.CreateAsync(response.Id, ChatId, convertStatus);
+        var ticket = await _ticketsService.CreateAsync(response.Id, ChatId, convertStatus);
 
-        await MessageAsync("Обработка не займет много времени. Я напишу Вам, когда все будет готово:)\n");
+        var message = await MessageAsync("Обработка не займет много времени. Я напишу Вам, когда все будет готово:)\n");
+        
+        var convertingMessage = new TelegramConvertingMessage
+        {
+            MessageId = message.MessageId,
+            Text = message.Text,
+            ChatId = ChatId,
+            ConvertTicketId = ticket.Id
+        };
+        await _tgMessagesService.CreateMessageAsync(convertingMessage);
     }
 
     public override bool CanHandle() => AvailableSources.IsAvailable(Update.Message?.Text ?? "");

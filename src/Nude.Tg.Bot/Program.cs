@@ -13,6 +13,8 @@ using Nude.Tg.Bot.Http.Routes;
 using Nude.Tg.Bot.Services.Convert;
 using Nude.Tg.Bot.Services.Manga;
 using Nude.Tg.Bot.Services.Messages;
+using Nude.Tg.Bot.Services.Messages.Store;
+using Nude.Tg.Bot.Services.Messages.Telegram;
 using Nude.Tg.Bot.Services.Resolvers;
 using Nude.Tg.Bot.Services.Workers;
 using Nude.Tg.Bot.Telegram;
@@ -95,12 +97,12 @@ builder.ConfigureServices(services =>
             .GetConnectionString("Database");
         opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Tg.Bot"));
     });
-    services.AddDbContextFactory<BotDbContext>((provider, opt) =>
-    {
-        var connection = provider.GetRequiredService<IConfiguration>()
-            .GetConnectionString("Database");
-        opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Tg.Bot"));
-    });
+    // services.AddDbContextFactory<BotDbContext>((provider, opt) =>
+    // {
+    //     var connection = provider.GetRequiredService<IConfiguration>()
+    //         .GetConnectionString("Database");
+    //     opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Tg.Bot"));
+    // });
 
     #endregion
 
@@ -115,6 +117,7 @@ builder.ConfigureServices(services =>
     services.AddScoped<ITelegraphMangaService, TelegraphMangaService>();
     services.AddScoped<IConvertTicketsService, ConvertTicketsService>();
     services.AddScoped<IMessagesStore, MessageStore>();
+    services.AddScoped<ITelegramMessagesService, TelegramMessagesService>();
 
     #endregion
 
