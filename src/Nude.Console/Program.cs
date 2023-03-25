@@ -1,11 +1,11 @@
 ﻿using System.Reflection;
-using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Nude.Authorization;
 using Nude.Authorization.Handlers;
 using Nude.Authorization.Stores;
 using Nude.Models;
+using Nude.Parsers.Abstractions;
+using Nude.Parsers.Factories;
 using Nude.Parsers.HentaiChan;
 using Nude.Parsers.NudeMoon;
 using Serilog;
@@ -24,9 +24,10 @@ var configuration = new ConfigurationBuilder()
 
 Log.Information("NudeApp started!");
 
-using var parser = await CreateHentaiChanParser();
 
 #endregion
+
+using IMangaParser parser = await CreateHentaiChanParser();
 
 var mangaUrls = new List<string>
 {
@@ -67,26 +68,15 @@ async Task<INudeParser> CreateNudeParser()
 
 async Task<IHentaiChanParser> CreateHentaiChanParser()
 {
-    var store = new CredentialsSecureStore();
-
     const string section = "Credentials:HentaiChan";
     var login = configuration.GetValue<string>($"{section}:Login")!;
     var password = configuration.GetValue<string>($"{section}:Password")!;
 
-    UserCredentials? credentials;
-    if (await store.ExistsAsync(login))
-    {
-        credentials = await store.GetAsync(login);
-    }
-    else
-    {
-        var handler = new HentaiChanAuthorizationHandler(store);
-        credentials = await handler.AuthorizeAsync(login, password);
-
-        await store.SaveAsync(login, credentials);
-    }
+    var secureStore = new CredentialsSecureStore();
+    var authHandler = new HentaiChanAuthorizationHandler();
+    var factory = new HentaiChanParserParserFactory(secureStore, authHandler);
     
-    return await HentaiChanParser.CreateAsync(credentials!);
+    return await factory.CreateAuthorizedAsync(login, password);
 }
 
 #endregion

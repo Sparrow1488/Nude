@@ -1,6 +1,5 @@
 using System.Net;
 using System.Security.Claims;
-using Nude.Authorization.Stores;
 using Nude.Constants;
 using Nude.Exceptions;
 using Nude.Parsers.HentaiChan;
@@ -9,13 +8,6 @@ namespace Nude.Authorization.Handlers;
 
 public class HentaiChanAuthorizationHandler : IAuthorizationHandler<IHentaiChanParser>
 {
-    private readonly ICredentialsSecureStore _credentialsStore;
-
-    public HentaiChanAuthorizationHandler(ICredentialsSecureStore credentialsStore)
-    {
-        _credentialsStore = credentialsStore;
-    }
-    
     public async Task<UserCredentials> AuthorizeAsync(string login, string password)
     {
         var cookies = new CookieContainer();
