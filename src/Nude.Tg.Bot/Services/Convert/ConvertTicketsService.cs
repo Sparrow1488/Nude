@@ -19,13 +19,13 @@ public class ConvertTicketsService : IConvertTicketsService
             .FirstOrDefaultAsync(x => x.ParsingId == parsingId);
     }
 
-    public async Task<ConvertingTicket> CreateAsync(int parsingId, long chatId)
+    public async Task<ConvertingTicket> CreateAsync(int parsingId, long chatId, ConvertingStatus status)
     {
         var ticket = new ConvertingTicket
         {
             ChatId = chatId,
             ParsingId = parsingId,
-            Status = ConvertingStatus.Frozen
+            Status = status
         };
         
         await _context.AddAsync(ticket);
@@ -38,8 +38,8 @@ public class ConvertTicketsService : IConvertTicketsService
     {
         var tickets = await _context.ConvertingTickets
             .Where(x => 
-                (x.Status == ConvertingStatus.WaitToProcess || 
-                 x.Status == ConvertingStatus.Frozen) &&
+                (x.Status == ConvertingStatus.ConvertWaiting || 
+                 x.Status == ConvertingStatus.ParseWaiting) &&
                 x.ChatId == chatId)
             .ToListAsync();
         return tickets;

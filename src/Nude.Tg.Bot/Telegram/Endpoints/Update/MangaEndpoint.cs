@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Infrastructure.Constants;
+using Nude.Models.Tickets.Converting;
+using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Services.Convert;
 using Nude.Tg.Bot.Services.Manga;
@@ -49,11 +51,15 @@ public class MangaEndpoint : TelegramUpdateEndpoint
                 return;
             }
         }
-        
+
         var callbackUrl = _configuration["Http:BaseUrl"] + "/callback";
-        
+
         var response = await _nudeClient.CreateParsingTicketAsync(MessageText, callbackUrl);
-        await _ticketsService.CreateAsync(response.Id, ChatId);
+        var convertStatus = response.Status == ParsingStatus.Success
+            ? ConvertingStatus.ConvertWaiting
+            : ConvertingStatus.ParseWaiting;
+        
+        await _ticketsService.CreateAsync(response.Id, ChatId, convertStatus);
 
         await MessageAsync("Обработка не займет много времени. Я напишу Вам, когда все будет готово:)\n");
     }

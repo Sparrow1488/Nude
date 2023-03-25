@@ -4,14 +4,12 @@ using Nude.Models.Tickets.Converting;
 
 namespace Nude.API.Data.Contexts;
 
-public sealed class BotDbContext : DbContext
+public sealed class BotDbContext : DatabaseContext
 {
     public BotDbContext(DbContextOptions options) : base(options)
     {
-        TghMangas = Set<TghManga>();
-        ConvertingTickets = Set<ConvertingTicket>();
     }
 
-    public DbSet<TghManga> TghMangas { get; }
-    public DbSet<ConvertingTicket> ConvertingTickets { get; }
+    public DbSet<TghManga> TghMangas => Set<TghManga>();
+    public DbSet<ConvertingTicket> ConvertingTickets => Set<ConvertingTicket>();
 }

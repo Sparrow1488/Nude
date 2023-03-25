@@ -22,14 +22,12 @@ public class CallbackRoute
     public async Task OnCallbackAsync(int ticketId, ParsingStatus status)
     {
         _logger.LogInformation(
-            "Callback received parsing ticket (id:{id}) update event, status:{status}",
+            "Callback received parsing ticket ({id}), status:{status}",
             ticketId,
             status.ToString());
         
         var ticket = await _context.ConvertingTickets
-            .FirstOrDefaultAsync(x => 
-                x.ParsingId == ticketId &&
-                x.Status == ConvertingStatus.Frozen);
+            .FirstOrDefaultAsync(x => x.ParsingId == ticketId);
         
         if (ticket is null)
         {
@@ -38,7 +36,7 @@ public class CallbackRoute
         }
 
         ticket.Status = status == ParsingStatus.Success 
-            ? ConvertingStatus.WaitToProcess 
+            ? ConvertingStatus.ConvertWaiting 
             : ConvertingStatus.Failed;
 
         await _context.SaveChangesAsync();

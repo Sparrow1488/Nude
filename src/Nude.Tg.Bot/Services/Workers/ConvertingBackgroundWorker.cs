@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Nude.API.Contracts.Manga.Responses;
+using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.Models.Mangas;
@@ -44,10 +46,9 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
         try
         {
             var ticket = await _context.ConvertingTickets
+                .OrderByDescending(x => x.CreatedAt)
                 .FirstOrDefaultAsync(x => 
-                    x.Status == ConvertingStatus.WaitToProcess
-                    || x.Status == ConvertingStatus.Frozen, 
-                cancellationToken: ctk);
+                        x.Status == ConvertingStatus.ConvertWaiting, cancellationToken: ctk);
 
             if (ticket is not null)
             {
@@ -68,16 +69,50 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
 
     private async Task OnProcessTicketAsync(ConvertingTicket ticket)
     {
-        var parsingResponse = await _nudeClient.GetParsingTicketAsync(ticket.ParsingId);
+        var (parsingTicket, status) = await GetParsingTicketStatusAsync(ticket.ParsingId);
+
+        if (parsingTicket is null || status != ParsingStatus.Success)
+        {
+            _logger.LogError("Failed to process non-existing or failed ticket");
+            return;
+        }
+
+        var mangaId = int.Parse(parsingTicket.Value.Result.EntityId!);
+        var manga = (await _nudeClient.GetMangaByIdAsync(mangaId))!.Value;
+
+        var tghManga = await CreateTghMangaAsync(manga);
+
+        var similarTickets = await _context.ConvertingTickets
+            .Where(x => x.ParsingId == ticket.ParsingId)
+            .ToListAsync();
+        
+        similarTickets.ForEach(x => x.Status = ConvertingStatus.Success);
+        
+        await _context.AddAsync(tghManga);
+        await _context.SaveChangesAsync();
+
+        var chats = similarTickets
+            .DistinctBy(x => x.ChatId)
+            .Select(x => x.ChatId);
+
+        foreach (var chat in chats)
+        {
+            var message = await _messages.GetTghMessageAsync(tghManga);
+            await BotUtils.MessageAsync(BotClient, chat, message);
+        }
+    }
+
+    private async Task<(ParsingResponse?, ParsingStatus)> GetParsingTicketStatusAsync(int parsingTicketId)
+    {
+        var parsingResponse = await _nudeClient.GetParsingTicketAsync(parsingTicketId);
 
         if (parsingResponse is null)
         {
             _logger.LogError("Parsing Ticket not exists yet");
-            return;
+            return (null, ParsingStatus.Failed);
         }
 
         var parsingTicket = parsingResponse.Value;
-        var status = Enum.Parse<ParsingStatus>(parsingTicket.Status, true);
         
         _logger.LogInformation(
             "[{id}] Parsing Ticket status:{status}, code:{code}, message:{message}",
@@ -86,36 +121,40 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
             parsingTicket.Result.StatusCode,
             parsingTicket.Result.Message);
 
-        if (status != ParsingStatus.Success) return;
+        return (parsingTicket, parsingTicket.Status);
+    }
 
-        var mangaId = int.Parse(parsingTicket.Result.EntityId!);
-        var mangaResponse = await _nudeClient.GetMangaByIdAsync(mangaId);
-
-        var manga = mangaResponse!.Value;
-
-        var convertedImages = new List<string>();
-        foreach (var image in manga.Images)
-        {
-            var tghImage = await _telegraph.UploadFileAsync(image);
-            convertedImages.Add(tghImage);
-        }
+    private async Task<TghManga> CreateTghMangaAsync(MangaResponse manga)
+    {
+        _logger.LogInformation("Converting manga images ({total})", manga.Images.Count);
         
-        manga.Images = convertedImages;
+        manga.Images = await UploadToTelegraphImagesAsync(manga);
         
         var tghUrl = await _telegraph.CreatePageAsync(manga);
-        
-        ticket.Status = ConvertingStatus.Success;
-
-        var tghManga = new TghManga
+        return new TghManga
         {
             ExternalId = manga.ExternalId,
             TghUrl = tghUrl
         };
-        
-        await _context.AddAsync(tghManga);
-        await _context.SaveChangesAsync();
+    }
 
-        var message = await _messages.GetTghMessageAsync(tghManga);
-        await BotUtils.MessageAsync(BotClient, ticket.ChatId, message);
+    private async Task<List<string>> UploadToTelegraphImagesAsync(MangaResponse manga)
+    {
+        var convertedImages = new List<string>();
+        for (var i = 0; i < manga.Images.Count; i++)
+        {
+            var tghImage = await _telegraph.UploadFileAsync(manga.Images[i]);
+            convertedImages.Add(tghImage);
+
+            if (i % 5 == 0 || i == manga.Images.Count - 1)
+            {
+                _logger.LogInformation(
+                    "({current}/{total}) Uploading images to telegraph",
+                    i + 1,
+                    manga.Images.Count);
+            }
+        }
+
+        return convertedImages;
     }
 }
