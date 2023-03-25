@@ -2,6 +2,7 @@ using System.Net;
 using AngleSharp.Dom;
 using Nude.Exceptions.Parsing;
 using Nude.Helpers;
+using Nude.Helpers.Abstractions;
 using Nude.Models;
 using Nude.Navigation.Browser;
 

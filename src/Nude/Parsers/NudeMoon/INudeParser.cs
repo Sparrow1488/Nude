@@ -1,4 +1,4 @@
-using Nude.Helpers;
+using Nude.Helpers.Abstractions;
 using Nude.Parsers.Abstractions;
 
 namespace Nude.Parsers.NudeMoon;
