@@ -4,23 +4,23 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Exceptions;
-using Nude.Parsers.NudeMoon;
+using Nude.API.Services.Resolvers;
 
 namespace Nude.API.Services.Manga;
 
 public class MangaService : IMangaService
 {
     private readonly AppDbContext _context;
-    private readonly INudeParser _nudeParser;
+    private readonly IMangaParserResolver _parserResolver;
     private readonly IMapper _mapper;
 
     public MangaService(
         AppDbContext context, 
-        INudeParser nudeParser,
+        IMangaParserResolver parserResolver,
         IMapper mapper)
     {
         _context = context;
-        _nudeParser = nudeParser;
+        _parserResolver = parserResolver;
         _mapper = mapper;
     }
 
@@ -32,10 +32,11 @@ public class MangaService : IMangaService
         return _mapper.Map<MangaResponse>(manga);
     }
 
-    public Task<MangaResponse> GetByUrlAsync(string url)
+    public async Task<MangaResponse> GetByUrlAsync(string url)
     {
-        var mangaId = _nudeParser.Helper.GetIdFromUrl(url);
-        return GetByExternalIdAsync(mangaId);
+        var parser = await _parserResolver.ResolveByUrlAsync(url);
+        var mangaId = parser.Helper.GetIdFromUrl(url);
+        return await GetByExternalIdAsync(mangaId);
     }
 
     public async Task<MangaResponse> GetByExternalIdAsync(string externalId)

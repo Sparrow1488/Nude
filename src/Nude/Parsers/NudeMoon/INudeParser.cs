@@ -3,7 +3,7 @@ using Nude.Parsers.Abstractions;
 
 namespace Nude.Parsers.NudeMoon;
 
-public interface INudeParser : IMangaParser, IDisposable
+public interface INudeParser : IMangaParser
 {
     NudeInfo Info { get; }
     INudeHelper Helper { get; }

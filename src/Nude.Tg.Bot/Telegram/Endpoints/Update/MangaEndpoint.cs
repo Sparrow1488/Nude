@@ -63,7 +63,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     public override bool CanHandle()
     {
         if (Uri.TryCreate(Update.Message?.Text, UriKind.Absolute, out var url))
-            return url.Host == "nude-moon.org";
+            return url.Host == "nude-moon.org" || url.Host.Contains("hentaichan.live");
 
         return false;
     }

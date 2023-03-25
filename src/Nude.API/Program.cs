@@ -9,9 +9,15 @@ using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.FeedBack;
 using Nude.API.Services.Manga;
 using Nude.API.Services.Parsing;
+using Nude.API.Services.Resolvers;
 using Nude.API.Services.Workers;
+using Nude.Authorization.Handlers;
+using Nude.Authorization.Stores;
 using Nude.Mapping.Profiles;
 using Nude.Mapping.Utils;
+using Nude.Parsers.Abstractions;
+using Nude.Parsers.Factories;
+using Nude.Parsers.HentaiChan;
 using Nude.Parsers.NudeMoon;
 using Serilog;
 using Serilog.Events;
@@ -46,12 +52,15 @@ builder.Services.AddControllers()
 
 #region Services
 
-const string section = "Credentials:NudeMoon";
-var fusionUser = builder.Configuration.GetValue<string>($"{section}:FusionUser")!;
-var sessionId = builder.Configuration.GetValue<string>($"{section}:PhpSessionId")!;
-var parser = await NudeParser.CreateAsync(fusionUser, sessionId);
+builder.Services.AddScoped<IAuthorisedMangaParserFactory<INudeParser>, NudeMoonParserFactory>();
+builder.Services.AddScoped<IAuthorisedMangaParserFactory<IHentaiChanParser>, HentaiChanParserFactory>();
 
-builder.Services.AddSingleton<INudeParser>(_ => parser);
+builder.Services.AddScoped<IAuthorizationHandler<INudeParser>, NudeMoonAuthorizationHandler>();
+builder.Services.AddScoped<IAuthorizationHandler<IHentaiChanParser>, HentaiChanAuthorizationHandler>();
+
+builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
+
+builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IParsingTicketsService, ParsingTicketsService>();

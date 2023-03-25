@@ -1,6 +1,6 @@
+using Nude.API.Infrastructure.Exceptions;
 using Nude.Models.Sources;
 using Nude.Parsers.Abstractions;
-using Nude.Parsers.Factories;
 using Nude.Parsers.HentaiChan;
 using Nude.Parsers.NudeMoon;
 
@@ -8,24 +8,51 @@ namespace Nude.API.Services.Resolvers;
 
 public class MangaParserResolver : IMangaParserResolver
 {
-    private readonly AuthorizedParserFactory<IHentaiChanParser> _hentaiChanFactory;
+    private readonly IConfiguration _configuration;
+    private readonly IAuthorisedMangaParserFactory<IHentaiChanParser> _hentaiChanFactory;
+    private readonly IAuthorisedMangaParserFactory<INudeParser> _nudeMoonFactory;
 
-    public MangaParserResolver(AuthorizedParserFactory<IHentaiChanParser> hentaiChanFactory)
+    public MangaParserResolver(
+        IConfiguration configuration,
+        IAuthorisedMangaParserFactory<IHentaiChanParser> hentaiChanFactory,
+        IAuthorisedMangaParserFactory<INudeParser> nudeMoonFactory
+    )
     {
+        _configuration = configuration;
         _hentaiChanFactory = hentaiChanFactory;
+        _nudeMoonFactory = nudeMoonFactory;
     }
 
-    public Task<IMangaParser> ResolveByUrlAsync(string mangaUrl)
+    public async Task<IMangaParser> ResolveByUrlAsync(string mangaUrl)
     {
+        string login;
+        string password;
+        
         if (mangaUrl.Contains("nude-moon.org"))
         {
-            // return NudeParser.CreateAsync()
+            (login, password) = GetCredentials("NudeMoon");
+            return await _nudeMoonFactory.CreateAuthorizedAsync(login, password);
         }
-        throw new NotImplementedException();
-    }
+        else if (mangaUrl.Contains(".hentaichan."))
+        {
+            (login, password) = GetCredentials("HentaiChan");
+            return await _hentaiChanFactory.CreateAuthorizedAsync(login, password);
+        }
 
-    public Task<IMangaParser> ResolveByUrlAsync(SourceType sourceType)
+        throw new BadRequestException("Request manga source not supported");
+    }
+    
+    public Task<IMangaParser> ResolveByTypeAsync(SourceType sourceType)
     {
         throw new NotImplementedException();
     }
+
+    private (string login, string password) GetCredentials(string parserName) =>
+        (GetLogin(parserName), GetPassword(parserName));
+
+    private string GetLogin(string parserName) =>
+        _configuration.GetRequiredSection($"Credentials:{parserName}:Login").Value;
+    
+    private string GetPassword(string parserName) =>
+        _configuration.GetRequiredSection($"Credentials:{parserName}:Password").Value;
 }

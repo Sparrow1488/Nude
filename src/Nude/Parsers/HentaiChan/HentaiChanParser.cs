@@ -5,6 +5,7 @@ using Nude.Helpers;
 using Nude.Helpers.Abstractions;
 using Nude.Models;
 using Nude.Navigation.Abstractions;
+using Nude.Parsers.Abstractions;
 
 namespace Nude.Parsers.HentaiChan;
 
@@ -18,7 +19,8 @@ public sealed class HentaiChanParser : IHentaiChanParser
     }
 
     public IHentaiChanHelper Helper { get; } = new HentaiChanHelper();
-    
+    MangaHelper IMangaParser.Helper => (MangaHelper) Helper;
+
     public Task<List<Manga>> GetAsync(int offset, int take)
     {
         throw new NotImplementedException();
@@ -26,7 +28,7 @@ public sealed class HentaiChanParser : IHentaiChanParser
 
     public async Task<Manga> GetByUrlAsync(string urlString)
     {
-        if (ValidateInputUrl(urlString))
+        if (!ValidateInputUrl(urlString))
         {
             throw new InvalidMangaUrlException();
         }

@@ -5,6 +5,7 @@ using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
+using Nude.API.Services.Resolvers;
 using Nude.Models.Tickets.Parsing;
 using Nude.Parsers.NudeMoon;
 
@@ -13,28 +14,29 @@ namespace Nude.API.Services.Parsing;
 public class ParsingTicketsService : IParsingTicketsService
 {
     private readonly AppDbContext _context;
-    private readonly INudeParser _parser;
+    private readonly IMangaParserResolver _parserResolver;
     private readonly IMapper _mapper;
 
     public ParsingTicketsService(
-        AppDbContext context, 
-        INudeParser parser,
+        AppDbContext context,
+        IMangaParserResolver parserResolver,
         IMapper mapper)
     {
         _context = context;
-        _parser = parser;
+        _parserResolver = parserResolver;
         _mapper = mapper;
     }
     
     public async Task<ParsingResponse> CreateTicketAsync(ParsingCreateRequest request)
     {
         // Now I can parse only from this source
-        if (!request.SourceUrl.Contains("nude-moon.org"))
+        if (!request.SourceUrl.Contains("nude-moon.org") && !request.SourceUrl.Contains("hentaichan.live"))
         {
             throw new BadRequestException("Data from this source cannot be retrieved");
         }
-        
-        var externalSourceId = _parser.Helper.GetIdFromUrl(request.SourceUrl);
+
+        var parser = await _parserResolver.ResolveByUrlAsync(request.SourceUrl);
+        var externalSourceId = parser.Helper.GetIdFromUrl(request.SourceUrl);
         var ticket = new ParsingTicket
         {
             Meta = new ParsingMeta

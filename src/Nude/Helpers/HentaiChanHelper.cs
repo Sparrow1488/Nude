@@ -6,7 +6,7 @@ namespace Nude.Helpers;
 
 public class HentaiChanHelper : MangaHelper, IHentaiChanHelper
 {
-    public string GetIdFromUrl(string mangaUrl)
+    public override string GetIdFromUrl(string mangaUrl)
     {
         var url = Url.Create(mangaUrl);
         var partId = url.Path.Split("/").FirstOrDefault(x => char.IsDigit(x[0]))

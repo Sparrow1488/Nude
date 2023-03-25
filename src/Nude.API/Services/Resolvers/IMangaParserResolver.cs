@@ -6,5 +6,5 @@ namespace Nude.API.Services.Resolvers;
 public interface IMangaParserResolver
 {
     Task<IMangaParser> ResolveByUrlAsync(string mangaUrl);
-    Task<IMangaParser> ResolveByUrlAsync(SourceType sourceType);
+    Task<IMangaParser> ResolveByTypeAsync(SourceType sourceType);
 }

@@ -5,6 +5,7 @@ using Nude.Helpers;
 using Nude.Helpers.Abstractions;
 using Nude.Models;
 using Nude.Navigation.Browser;
+using Nude.Parsers.Abstractions;
 
 namespace Nude.Parsers.NudeMoon;
 
@@ -27,6 +28,7 @@ public class NudeParser : INudeParser
     
     public NudeInfo Info { get; }
     public INudeHelper Helper { get; }
+    MangaHelper IMangaParser.Helper => (MangaHelper) Helper;
 
     public static Task<NudeParser> CreateAsync(string fusionUser, string phpSessionId)
     {
@@ -45,7 +47,7 @@ public class NudeParser : INudeParser
         var wrapper = await BrowserWrapper.CreateAsync(options);
         return new NudeParser(wrapper);
     }
-    
+
     public async Task<List<Manga>> GetAsync(int offset, int take)
     {
         if (offset < 0 || take < 0)

@@ -4,6 +4,7 @@ using Nude.API.Data.Repositories;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Infrastructure.Services.FeedBack;
+using Nude.API.Services.Resolvers;
 using Nude.Models.Sources;
 using Nude.Models.Tickets.Parsing;
 using Nude.Parsers.NudeMoon;
@@ -13,7 +14,7 @@ namespace Nude.API.Services.Workers;
 public sealed class ParsingBackgroundWorker : IBackgroundWorker
 {
     private readonly AppDbContext _context;
-    private readonly INudeParser _parser;
+    private readonly IMangaParserResolver _parserResolver;
     private readonly IMangaRepository _repository;
     private readonly IFeedBackService _feedBack;
     private readonly ILogger<ParsingBackgroundWorker> _logger;
@@ -23,14 +24,14 @@ public sealed class ParsingBackgroundWorker : IBackgroundWorker
     public ParsingBackgroundWorker(
         IMangaRepository repository,
         IFeedBackService feedBack,
-        INudeParser parser,
         AppDbContext context,
+        IMangaParserResolver parserResolver,
         ILogger<ParsingBackgroundWorker> logger)
     {
         _repository = repository;
         _feedBack = feedBack;
-        _parser = parser;
         _context = context;
+        _parserResolver = parserResolver;
         _logger = logger;
     }
 
@@ -106,7 +107,8 @@ public sealed class ParsingBackgroundWorker : IBackgroundWorker
         
         _logger.LogInformation("Start parsing item...");
 
-        var externalManga = await _parser.GetByUrlAsync(ticket.Meta.SourceUrl);
+        var parser = await _parserResolver.ResolveByUrlAsync(ticket.Meta.SourceUrl);
+        var externalManga = await parser.GetByUrlAsync(ticket.Meta.SourceUrl);
 
         var manga = await _repository.AddAsync(externalManga, SourceType.NudeMoon);
         await _repository.SaveAsync();

@@ -6,7 +6,7 @@ namespace Nude.Helpers;
 
 public class NudeHelper : MangaHelper, INudeHelper
 {
-    public string GetIdFromUrl(string mangaUrl)
+    public override string GetIdFromUrl(string mangaUrl)
     {
         var url = Url.Create(mangaUrl);
         var mangaId = string.Join("", url.Path.TakeWhile(char.IsDigit));
