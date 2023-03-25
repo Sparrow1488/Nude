@@ -37,28 +37,25 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     public override async Task HandleAsync()
     {
         var mangaResponse = await _nudeClient.GetMangaByUrlAsync(MessageText);
-        
-        if (mangaResponse is null)
-        {
-            var callbackUrl = _configuration["Http:BaseUrl"] + "/callback";
-            
-            var response = await _nudeClient.CreateParsingTicketAsync(MessageText, callbackUrl);
-            await _ticketsService.CreateAsync(response.Id, ChatId);
 
-            await MessageAsync("Обработка не займет много времени. Я напишу Вам, когда все будет готово:)\n");
-            return;
-        }
-        
-        var manga = mangaResponse.Value;
+        if (mangaResponse is not null)
+        {
+            var manga = mangaResponse.Value;
     
-        var tghExists = await _mangaService.GetByExternalIdAsync(manga.ExternalId);
-        if (tghExists is not null)
-        {
-            await MessageAsync(await _messages.GetTghMessageAsync(tghExists));
-            return;
+            var tghExists = await _mangaService.GetByExternalIdAsync(manga.ExternalId);
+            if (tghExists is not null)
+            {
+                await MessageAsync(await _messages.GetTghMessageAsync(tghExists));
+                return;
+            }
         }
+        
+        var callbackUrl = _configuration["Http:BaseUrl"] + "/callback";
+        
+        var response = await _nudeClient.CreateParsingTicketAsync(MessageText, callbackUrl);
+        await _ticketsService.CreateAsync(response.Id, ChatId);
 
-        await MessageAsync("Запрос обрабатывается! Спасибо за ожидание:)");
+        await MessageAsync("Обработка не займет много времени. Я напишу Вам, когда все будет готово:)\n");
     }
 
     public override bool CanHandle() => AvailableSources.IsAvailable(Update.Message?.Text ?? "");

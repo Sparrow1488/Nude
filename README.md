@@ -29,6 +29,16 @@
 
 ## TODO
 
+**Fix**
+
+* ~~Available domains in configuration~~
+
+* ~~Telegraph article source~~
+
+* Check images format before upload to Telegraph (.*webp*)
+
+* Can connect to callback url
+
 **Nude**
 
 * PuppeterSharp optimization requests
@@ -41,27 +51,13 @@
 
 **Nude.API**
 
-* (потом) TagNormalizeConfiguration
+* (feature) TagNormalizeConfiguration
 
-* (потом) RuntimeQueryableFilter
+* (feature) RuntimeQueryableFilter
 
 * Users
 
-* ~~ParsingRequest.CallbackUrl~~
-
-* ~~IParsingCallbackService.SendAsync(request)~~
-
 **Nude.Tg.Bot**
-
-* ~~Callback endpoint to receive avilable manga~~
-
-* ~~Add ConvertTickets (id, manga_id, chat_id, status)~~
-
-* ~~Convert images background service~~
-
-* ~~Get random TghManga~~
-
-* ~~Tgh article response as [Read|<tgh>]~~
 
 * TelegramUsers
 
@@ -72,8 +68,6 @@
 * Install Docker
 
 * Configure Docker Compose
-
-
 
 Claims
 

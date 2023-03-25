@@ -44,7 +44,10 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
         try
         {
             var ticket = await _context.ConvertingTickets
-                .FirstOrDefaultAsync(x => x.Status == ConvertingStatus.WaitToProcess, cancellationToken: ctk);
+                .FirstOrDefaultAsync(x => 
+                    x.Status == ConvertingStatus.WaitToProcess
+                    || x.Status == ConvertingStatus.Frozen, 
+                cancellationToken: ctk);
 
             if (ticket is not null)
             {
