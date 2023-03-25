@@ -10,7 +10,7 @@ public static class CookiesExtensions
         return cookieParams.Select(x => new Cookie(x.Name, x.Value, x.Path, x.Domain));
     }
 
-    public static CookieContainer WithCookies(this CookieContainer container, IEnumerable<Cookie> cookies)
+    public static CookieContainer? WithCookies(this CookieContainer container, IEnumerable<Cookie> cookies)
     {
         foreach (var cookie in cookies)
             container.Add(cookie);

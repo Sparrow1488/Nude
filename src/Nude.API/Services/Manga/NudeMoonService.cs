@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Exceptions;
-using Nude.Parsers;
 using Nude.Parsers.NudeMoon;
 
 namespace Nude.API.Services.Manga;

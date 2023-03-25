@@ -31,7 +31,10 @@ using IMangaParser parser = await CreateHentaiChanParser();
 var mangaUrls = new List<string>
 {
     // "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row",
-    "https://y.hentaichan.live/manga/45190-kniga-v-kotoroy-peresekayut-chertu-so-studentkami-benriya-68-hen-.html"
+    "https://y.hentaichan.live/online/45195-zimnie-kanikuly.html?cacheId=1679404899",
+    "https://y.hentaichan.live/manga/45195-zimnie-kanikuly.html",
+    "https://y.hentaichan.live/manga/45217-mikasa.html",
+    "https://y.hentaichan.live/manga/45190-kniga-.html"
 };
 
 var results = new List<Manga>();
@@ -73,7 +76,7 @@ async Task<IHentaiChanParser> CreateHentaiChanParser()
 
     var secureStore = new CredentialsSecureStore();
     var authHandler = new HentaiChanAuthorizationHandler();
-    var factory = new HentaiChanParserParserFactory(secureStore, authHandler);
+    var factory = new HentaiChanParserFactory(secureStore, authHandler);
     
     return await factory.CreateAuthorizedAsync(login, password);
 }

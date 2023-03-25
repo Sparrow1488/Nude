@@ -12,7 +12,6 @@ using Nude.API.Services.Parsing;
 using Nude.API.Services.Workers;
 using Nude.Mapping.Profiles;
 using Nude.Mapping.Utils;
-using Nude.Parsers;
 using Nude.Parsers.NudeMoon;
 using Serilog;
 using Serilog.Events;

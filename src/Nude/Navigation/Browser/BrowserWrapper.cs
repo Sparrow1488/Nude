@@ -107,7 +107,7 @@ public class BrowserWrapper : IBrowserWrapper
         var cookieParams = await page.GetCookiesAsync();
         if (cookieParams != null)
         {
-            Cookies = new CookieContainer().WithCookies(cookieParams.ToCookies());
+            Cookies = Cookies?.WithCookies(cookieParams.ToCookies());
         }
         
         return response;

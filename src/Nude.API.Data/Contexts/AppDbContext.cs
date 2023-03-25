@@ -1,11 +1,9 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Nude.Models.Abstractions;
 using Nude.Models.Authors;
 using Nude.Models.Mangas;
 using Nude.Models.Sources;
 using Nude.Models.Tags;
-using Nude.Models.Tickets;
 using Nude.Models.Tickets.Parsing;
 using Nude.Models.Urls;
 

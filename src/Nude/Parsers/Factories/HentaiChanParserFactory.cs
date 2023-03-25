@@ -7,11 +7,11 @@ using Nude.Parsers.HentaiChan;
 
 namespace Nude.Parsers.Factories;
 
-public class HentaiChanParserParserFactory : AuthorizedParserFactory<IHentaiChanParser>
+public class HentaiChanParserFactory : AuthorizedParserFactory<IHentaiChanParser>
 {
     private readonly IAuthorizationHandler<IHentaiChanParser> _authorization;
 
-    public HentaiChanParserParserFactory(
+    public HentaiChanParserFactory(
         ICredentialsSecureStore secureStore,
         IAuthorizationHandler<IHentaiChanParser> authorization
     ) : base(secureStore)

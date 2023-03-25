@@ -1,5 +1,6 @@
 using AngleSharp.Dom;
-using AngleSharp.Html.Dom;
+using Newtonsoft.Json.Linq;
+using Nude.Exceptions.Parsing;
 using Nude.Helpers;
 using Nude.Helpers.Abstractions;
 using Nude.Models;
@@ -25,15 +26,33 @@ public sealed class HentaiChanParser : IHentaiChanParser
 
     public async Task<Manga> GetByUrlAsync(string urlString)
     {
-        var document = await _navigator.GetDocumentAsync(urlString);
+        if (ValidateInputUrl(urlString))
+        {
+            throw new InvalidMangaUrlException();
+        }
+        
+        urlString = GetValidPreviewUrl(urlString);
+        
+        using var document = await _navigator.GetDocumentAsync(urlString);
         return new Manga
         {
             Title = GetTitle(document),
             Author = GetAuthor(document),
             ExternalId = Helper.GetIdFromUrl(urlString),
             OriginUrl = urlString,
-            Tags = GetTags(document).ToList()
+            Tags = GetTags(document).ToList(),
+            Images = await GetImagesAsync(GetReadUrlRequired(urlString))
         };
+    }
+
+    private static bool ValidateInputUrl(string url)
+    {
+        return url.Contains(".hentaichan.");
+    }
+
+    private static string GetValidPreviewUrl(string inputUrl)
+    {
+        return inputUrl.Replace("/online/", "/manga/");
     }
 
     private static string GetTitle(IDocument previewDocument)
@@ -61,6 +80,34 @@ public sealed class HentaiChanParser : IHentaiChanParser
         return tagElements.Select(x => 
             x.QuerySelectorAll("a").LastOrDefault()?.TextContent ?? "")
             .Distinct();
+    }
+
+    private static string GetReadUrlRequired(string mangaUrl)
+    {
+        return mangaUrl.Replace("/manga/", "/online/");
+    }
+
+    private async Task<List<string>> GetImagesAsync(string readDocumentUrl)
+    {
+        using var readDocument = await _navigator.GetDocumentAsync(readDocumentUrl);
+        var dataScript = readDocument.Scripts.ToList().Select(x => x.TextContent)
+            .FirstOrDefault(x => x.Contains("createGallery(data)"));
+
+        var images = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(dataScript))
+        {
+            var startIndex = dataScript.IndexOf("\"fullimg\":");
+            var jsonArray = string.Join("", dataScript.Skip(startIndex).TakeWhile(x => x != '}'))
+                .Replace("'", "\"")
+                .Replace("\"fullimg\":", "")
+                .Replace("}", "");
+
+            var imagesArray = JArray.Parse(jsonArray);
+            images = imagesArray.Values<string>().ToList()!;
+        }
+        
+        return images;
     }
 
     public void Dispose()

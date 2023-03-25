@@ -6,7 +6,6 @@ using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Infrastructure.Services.FeedBack;
 using Nude.Models.Sources;
 using Nude.Models.Tickets.Parsing;
-using Nude.Parsers;
 using Nude.Parsers.NudeMoon;
 
 namespace Nude.API.Services.Workers;

@@ -5,9 +5,7 @@ using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
-using Nude.Models.Tickets;
 using Nude.Models.Tickets.Parsing;
-using Nude.Parsers;
 using Nude.Parsers.NudeMoon;
 
 namespace Nude.API.Services.Parsing;

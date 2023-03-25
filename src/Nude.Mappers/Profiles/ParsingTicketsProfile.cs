@@ -1,6 +1,5 @@
 using AutoMapper;
 using Nude.API.Contracts.Parsing.Responses;
-using Nude.Models.Tickets;
 using Nude.Models.Tickets.Parsing;
 
 namespace Nude.Mapping.Profiles;
