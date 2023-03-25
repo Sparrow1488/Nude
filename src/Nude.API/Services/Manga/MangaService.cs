@@ -8,13 +8,13 @@ using Nude.Parsers.NudeMoon;
 
 namespace Nude.API.Services.Manga;
 
-public class NudeMoonService : IMangaService
+public class MangaService : IMangaService
 {
     private readonly AppDbContext _context;
     private readonly INudeParser _nudeParser;
     private readonly IMapper _mapper;
 
-    public NudeMoonService(
+    public MangaService(
         AppDbContext context, 
         INudeParser nudeParser,
         IMapper mapper)
@@ -27,7 +27,7 @@ public class NudeMoonService : IMangaService
     public async Task<MangaResponse> GetByIdAsync(int id)
     {
         var manga = await FindMangaAsync(x => x.Id == id)
-                    ?? throw new NotFoundException("Manga not found", id.ToString(), "Manga");
+            ?? throw new NotFoundException("Manga not found", id.ToString(), "Manga");
 
         return _mapper.Map<MangaResponse>(manga);
     }
@@ -41,7 +41,7 @@ public class NudeMoonService : IMangaService
     public async Task<MangaResponse> GetByExternalIdAsync(string externalId)
     {
         var manga = await FindMangaAsync(x => x.ExternalId == externalId)
-                    ?? throw new NotFoundException("Manga not found", externalId, "Manga");
+            ?? throw new NotFoundException("Manga not found", externalId, "Manga");
 
         return _mapper.Map<MangaResponse>(manga);
     }

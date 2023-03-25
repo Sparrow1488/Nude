@@ -29,7 +29,7 @@ public class HentaiChanParserFactory : AuthorizedParserFactory<IHentaiChanParser
     protected override Task<IHentaiChanParser> CreateParserAsync(UserCredentials credentials)
     {
         var navigator = new HttpClientNavigator();
-        var cookies = new HentaiChanAuthorizationCookies()
+        var cookies = new DefaultAuthorizationCookies()
             .CreateFrom(credentials)
             .ToList();
         

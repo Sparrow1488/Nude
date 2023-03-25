@@ -53,7 +53,7 @@ var parser = await NudeParser.CreateAsync(fusionUser, sessionId);
 
 builder.Services.AddSingleton<INudeParser>(_ => parser);
 
-builder.Services.AddScoped<IMangaService, NudeMoonService>();
+builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IParsingTicketsService, ParsingTicketsService>();
 
 builder.Services.AddScoped<IFeedBackService, CallbackService>();

@@ -3,7 +3,7 @@ using Nude.Constants;
 
 namespace Nude.Authorization.Cookies;
 
-public class HentaiChanAuthorizationCookies : AuthorizationCookies
+public class DefaultAuthorizationCookies : AuthorizationCookies
 {
     public override ICollection<Cookie> CreateFrom(UserCredentials credentials)
     {
@@ -12,7 +12,7 @@ public class HentaiChanAuthorizationCookies : AuthorizationCookies
                 claim.Type, 
                 claim.Value, 
                 "/", 
-                HentaiChanDefaults.Domain))
+                credentials.Domain))
             .ToList();
     }
 }

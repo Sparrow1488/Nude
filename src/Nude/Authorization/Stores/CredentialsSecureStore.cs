@@ -73,7 +73,8 @@ public class CredentialsSecureStore : ICredentialsSecureStore
         return new StoreUserCredentials
         {
             Schema = credentials.Schema,
-            Claims = credentials.Claims.Select(x => new StoreClaim(x.Type, x.Value)).ToList()
+            Claims = credentials.Claims.Select(x => new StoreClaim(x.Type, x.Value, credentials.Domain)).ToList(),
+            Domain = credentials.Domain
         };
     }
 
@@ -81,6 +82,6 @@ public class CredentialsSecureStore : ICredentialsSecureStore
     {
         var claims = store.Claims?.Select(x => new Claim(x.Type, x.Value)).ToList()
             ?? new List<Claim>();
-        return new UserCredentials(claims, store.Schema);
+        return new UserCredentials(claims, store.Domain, store.Schema);
     }
 }

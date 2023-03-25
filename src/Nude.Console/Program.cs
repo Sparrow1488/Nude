@@ -26,15 +26,15 @@ Log.Information("NudeApp started!");
 
 #endregion
 
-using IMangaParser parser = await CreateHentaiChanParser();
+using IMangaParser parser = await CreateNudeParser();
 
 var mangaUrls = new List<string>
 {
-    // "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row",
-    "https://y.hentaichan.live/online/45195-zimnie-kanikuly.html?cacheId=1679404899",
-    "https://y.hentaichan.live/manga/45195-zimnie-kanikuly.html",
-    "https://y.hentaichan.live/manga/45217-mikasa.html",
-    "https://y.hentaichan.live/manga/45190-kniga-.html"
+    "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row",
+    // "https://y.hentaichan.live/online/45195-zimnie-kanikuly.html?cacheId=1679404899",
+    // "https://y.hentaichan.live/manga/45195-zimnie-kanikuly.html",
+    // "https://y.hentaichan.live/manga/45217-mikasa.html",
+    // "https://y.hentaichan.live/manga/45190-kniga-.html"
 };
 
 var results = new List<Manga>();
@@ -63,9 +63,14 @@ Console.WriteLine(jsonResult);
 async Task<INudeParser> CreateNudeParser()
 {
     const string section = "Credentials:NudeMoon";
-    var fusionUser = configuration.GetValue<string>($"{section}:FusionUser")!;
-    var sessionId = configuration.GetValue<string>($"{section}:PhpSessionId")!;
-    return await NudeParser.CreateAsync(fusionUser, sessionId);
+    var login = configuration.GetValue<string>($"{section}:Login")!;
+    var password = configuration.GetValue<string>($"{section}:Password")!;
+    
+    var secureStore = new CredentialsSecureStore();
+    var authHandler = new NudeMoonAuthorizationHandler();
+    var factory = new NudeMoonParserFactory(secureStore, authHandler);
+    
+    return await factory.CreateAuthorizedAsync(login, password);
 }
 
 async Task<IHentaiChanParser> CreateHentaiChanParser()

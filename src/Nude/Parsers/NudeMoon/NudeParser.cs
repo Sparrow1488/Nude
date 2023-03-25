@@ -18,8 +18,7 @@ public class NudeParser : INudeParser
     private const string MangaCardsSelector = "table.news_pic2 tbody td.bg_style1 a";
     private const string ReadButtonSelector = "td span.button a";
 
-    // TODO: logger
-    private NudeParser(IBrowserWrapper browser)
+    internal NudeParser(IBrowserWrapper browser)
     {
         _browser = browser;
         Info = new NudeInfo();
