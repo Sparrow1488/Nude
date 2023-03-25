@@ -53,6 +53,7 @@ public class HttpClientNavigator : IHttpClientNavigator
             CookieContainer = Cookies ?? new CookieContainer()
         });
         
+        client.Timeout = TimeSpan.FromSeconds(5);
         client.DefaultRequestHeaders.Add("User-Agent", userAgent);
         return client;
     }

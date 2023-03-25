@@ -94,7 +94,7 @@ public class ParsingTicketsService : IParsingTicketsService
     {
         ticket.Subscribers.Add(new Subscriber
         {
-            NotifyStatus = NotifyStatus.OnSuccess,
+            NotifyStatus = NotifyStatus.All,
             FeedBackInfo = new FeedBackInfo
             {
                 CallbackUrl = callbackUrl

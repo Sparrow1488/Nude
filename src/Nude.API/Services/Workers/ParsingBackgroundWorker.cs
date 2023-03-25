@@ -57,7 +57,8 @@ public sealed class ParsingBackgroundWorker : IBackgroundWorker
                     : NotifyStatus.OnError;
 
                 var subs = Ticket.Subscribers
-                    .Where(x => x.NotifyStatus == notifyStatus)
+                    .Where(x => 
+                        x.NotifyStatus == notifyStatus || x.NotifyStatus == NotifyStatus.All)
                     .ToList();
             
                 if (subs.Any())

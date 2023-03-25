@@ -3,19 +3,29 @@ using Microsoft.Extensions.Logging;
 using Nude.API.Data.Contexts;
 using Nude.Models.Tickets.Converting;
 using Nude.Models.Tickets.Parsing;
+using Nude.Tg.Bot.Services.Messages;
+using Nude.Tg.Bot.Services.Utils;
+using Telegram.Bot;
+using Telegram.Bot.Types.Enums;
 
 namespace Nude.Tg.Bot.Http.Routes;
 
 public class CallbackRoute
 {
     private readonly BotDbContext _context;
+    private readonly ITelegramBotClient _tgBot;
+    private readonly IMessagesStore _messagesStore;
     private readonly ILogger<CallbackRoute> _logger;
 
     public CallbackRoute(
         BotDbContext context,
+        ITelegramBotClient tgBot,
+        IMessagesStore messagesStore,
         ILogger<CallbackRoute> logger)
     {
         _context = context;
+        _tgBot = tgBot;
+        _messagesStore = messagesStore;
         _logger = logger;
     }
     
@@ -40,5 +50,14 @@ public class CallbackRoute
             : ConvertingStatus.Failed;
 
         await _context.SaveChangesAsync();
+
+        if (status == ParsingStatus.Failed)
+        {
+            await BotUtils.MessageAsync(
+                _tgBot, 
+                ticket.ChatId, 
+                await _messagesStore.GetCallbackFailedMessageAsync()
+            );
+        }
     }
 }

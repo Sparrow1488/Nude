@@ -150,7 +150,7 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
             {
                 _logger.LogInformation(
                     "({current}/{total}) Uploading images to telegraph",
-                    i + 1,
+                    i,
                     manga.Images.Count);
             }
         }

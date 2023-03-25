@@ -27,6 +27,12 @@ public class MessageStore : IMessagesStore
         return new MessageItem(text, ParseMode.MarkdownV2);
     }
 
+    public async Task<MessageItem> GetCallbackFailedMessageAsync()
+    {
+        var text = await GetFileMessageTextAsync("/CallbackFailed.md");
+        return new MessageItem(text, ParseMode.MarkdownV2);
+    }
+
     public async Task<MessageItem> GetMenuMessageAsync()
     {
         var startText = await GetFileMessageTextAsync("/Menu.md");
