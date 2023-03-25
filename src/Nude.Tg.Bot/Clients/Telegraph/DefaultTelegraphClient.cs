@@ -53,7 +53,7 @@ public class DefaultTelegraphClient : ITelegraphClient
         return page.Url;
     }
     
-    public async Task<string> UploadFileAsync(string externalFileUrl)
+    public async Task<string?> UploadFileAsync(string externalFileUrl)
     {
         _logger.LogDebug("Downloading external file url:{url}", externalFileUrl);
         
@@ -80,9 +80,13 @@ public class DefaultTelegraphClient : ITelegraphClient
                 () => httpClient.PostAsync("https://telegra.ph/upload", content));
             if (result.IsSuccessStatusCode)
             {
-                var fileJson = await result.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<TelegraphFileResponse[]>(fileJson);
-                return BaseUrl + response!.First().Src;
+                var json = await result.Content.ReadAsStringAsync();
+                if (TryDeserializeResponse(json, out var files, out var error))
+                {
+                    return BaseUrl + files!.First().Src;
+                }
+
+                return null;
             }
             _logger.LogWarning("Failed upload on tgh, status: {status}", result.StatusCode);
         }
@@ -95,9 +99,40 @@ public class DefaultTelegraphClient : ITelegraphClient
     {
         return "image/png";
     }
+
+    private bool TryDeserializeResponse(
+        string json, 
+        out TelegraphFileResponse[]? files, 
+        out TelegraphErrorResponse? error)
+    {
+        error = null;
+        files = null;
+
+        try
+        {
+            files = JsonConvert.DeserializeObject<TelegraphFileResponse[]>(json);
+            return true;
+        }
+        catch (Exception)
+        {
+            error = JsonConvert.DeserializeObject<TelegraphErrorResponse>(json);
+            
+            _logger.LogWarning(
+                "Failed to upload image. Tgh response message:{message}",
+                error.Value.Error
+            );
+        }
+
+        return false;
+    }
     
     public struct TelegraphFileResponse
     {
         public string Src { get; set; }
+    }
+    
+    public struct TelegraphErrorResponse
+    {
+        public string Error { get; set; }
     }
 }

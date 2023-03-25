@@ -5,6 +5,7 @@ using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Data.Contexts;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.Models.Mangas;
+using Nude.Models.Messages.Telegram;
 using Nude.Models.Tickets.Converting;
 using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot.Clients.Nude;
@@ -104,8 +105,14 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
 
         foreach (var chat in chats)
         {
+            var dbMessage = await _tgMessagesService.GetByTicketIdAsync(ticket.Id);
             var message = await _messages.GetTghMessageAsync(tghManga);
-            await BotUtils.MessageAsync(BotClient, chat, message);
+            await BotUtils.EditMessageAsync(
+                BotClient, 
+                chat,
+                dbMessage!.MessageId,
+                message
+            );
         }
     }
 
@@ -148,7 +155,8 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
     private async Task<List<string>> UploadToTelegraphImagesAsync(MangaResponse manga, int convertTicketId)
     {
         var convertedImages = new List<string>();
-        var dbMessage = await _tgMessagesService.GetByTicketIdAsync(convertTicketId);
+        var dbMessages = await _tgMessagesService
+            .GetSimilarByTicketIdAsync(convertTicketId);
         
         var totalImages = manga.Images.Count;
 
@@ -157,22 +165,40 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
             var tghImage = await _telegraph.UploadFileAsync(manga.Images[i]);
             convertedImages.Add(tghImage);
 
-            if (i % 5 == 0 || i == manga.Images.Count - 1)
+            var currentImage = i + 1;
+            if (currentImage % 5 == 0 || i == manga.Images.Count - 1)
             {
                 _logger.LogInformation(
                     "({current}/{total}) Uploading images to telegraph",
-                    i,
+                    currentImage,
                     totalImages);
             }
-            
-            await BotClient.EditMessageTextAsync(
-                new ChatId(dbMessage!.ChatId),
-                dbMessage!.MessageId,
-                $"Происходит жоски загрузка картинок на сервер: ({i+1}/{totalImages})",
-                ParseMode.Html
-            );
+
+            await UpdateMessagesAsync(dbMessages, currentImage, totalImages);
         }
 
         return convertedImages;
+    }
+
+    private async Task UpdateMessagesAsync(
+        IEnumerable<TelegramConvertingMessage> messages,
+        int currentImage,
+        int totalImages)
+    {
+        foreach (var message in messages)
+        {
+            var tgMessage = await BotUtils.EditMessageAsync(
+                BotClient,
+                message.ChatId,
+                message.MessageId,
+                await _messages.GetImagesUploadMessageAsync(currentImage, totalImages)
+            );
+
+            if (tgMessage == null)
+            {
+                _logger.LogWarning("Editing message respond null message object. Remove it from DB");
+                await _tgMessagesService.DeleteMessageAsync(message);
+            }
+        }
     }
 }

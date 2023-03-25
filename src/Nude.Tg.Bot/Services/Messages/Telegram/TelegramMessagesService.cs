@@ -19,6 +19,13 @@ public class TelegramMessagesService : ITelegramMessagesService
             .FirstOrDefaultAsync(x => x.ConvertTicketId == convertTicketId);
     }
 
+    public async Task<IEnumerable<TelegramConvertingMessage>> GetSimilarByTicketIdAsync(int convertTicketId)
+    {
+        return await _context.ConvertingMessages
+            .Where(x => x.ConvertTicketId == convertTicketId)
+            .ToListAsync();
+    }
+
     public async Task<TelegramConvertingMessage> CreateMessageAsync(TelegramConvertingMessage message)
     {
         await _context.AddAsync(message);
