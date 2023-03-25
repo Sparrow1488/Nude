@@ -1,15 +1,15 @@
 namespace Nude.Authorization.Stores.Models;
 
-public class StoreClaim
+public class StoreClaimEntry
 {
-    public StoreClaim(string type, string value, string domain)
+    public StoreClaimEntry(string type, string value, string issuer)
     {
         Type = type;
         Value = value;
-        Domain = domain;
+        Issuer = issuer;
     }
     
     public string Type { get; set; }
-    public string Domain { get; set; }
     public string Value { get; set; }
+    public string Issuer { get; set; }
 }

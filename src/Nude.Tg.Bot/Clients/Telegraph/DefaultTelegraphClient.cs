@@ -44,8 +44,7 @@ public class DefaultTelegraphClient : ITelegraphClient
         var images = manga.Images.Select(x => Node.ImageFigure(x, imagePage++.ToString()));
         var nodes = new List<Node>
         {
-            Node.P("С любовью от Nude❤️"),
-            Node.P("Сурс: nude-moon.org")
+            Node.P("С любовью от Nude❤️")
         };
         nodes.AddRange(images);
 

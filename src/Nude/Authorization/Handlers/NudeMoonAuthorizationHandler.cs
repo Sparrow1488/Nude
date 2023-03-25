@@ -1,8 +1,8 @@
 using System.Net;
-using System.Security.Claims;
 using System.Text;
 using Nude.Constants;
 using Nude.Exceptions;
+using Nude.Extensions;
 using Nude.Parsers.NudeMoon;
 
 namespace Nude.Authorization.Handlers;
@@ -24,11 +24,8 @@ public class NudeMoonAuthorizationHandler : IAuthorizationHandler<INudeParser>
         
         if (response.IsSuccessStatusCode && !text.Contains("Неправильное имя или пароль"))
         {
-            var claims = cookies
-                .GetAllCookies()
-                .Select(x => new Claim(x.Name, x.Value)).ToList();
-
-            return new UserCredentials(claims, NudeMoonDefaults.Domain, Schema.Cookies);
+            var claims = cookies.GetAllCookies().ToClaims();
+            return new UserCredentials(claims, Schema.Cookies);
         }
 
         throw new AuthorizationException("Invalid user credentials");

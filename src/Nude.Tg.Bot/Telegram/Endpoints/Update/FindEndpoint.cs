@@ -7,7 +7,7 @@ public class FindEndpoint : TelegramUpdateEndpoint
 {
     private readonly IMessagesStore _messages;
     
-    private static readonly List<string> Sources = new() { "nude-moon.org" };
+    private static readonly List<string> Sources = new() { "nude-moon.org", "y.hentaichan.live" };
 
     public FindEndpoint(IMessagesStore messages)
     {

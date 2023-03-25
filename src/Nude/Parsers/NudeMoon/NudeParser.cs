@@ -1,8 +1,6 @@
-using System.Net;
 using AngleSharp.Dom;
 using Nude.Exceptions.Parsing;
 using Nude.Helpers;
-using Nude.Helpers.Abstractions;
 using Nude.Models;
 using Nude.Navigation.Browser;
 using Nude.Parsers.Abstractions;
@@ -12,6 +10,7 @@ namespace Nude.Parsers.NudeMoon;
 public class NudeParser : INudeParser
 {
     private readonly IBrowserWrapper _browser;
+    private readonly NudeHelper _helper;
 
     private const string Domain = "nude-moon.org";
     private const string UrlBase = "https://nude-moon.org";
@@ -22,25 +21,12 @@ public class NudeParser : INudeParser
     internal NudeParser(IBrowserWrapper browser)
     {
         _browser = browser;
+        _helper = new NudeHelper();
         Info = new NudeInfo();
-        Helper = new NudeHelper();
     }
     
     public NudeInfo Info { get; }
-    public INudeHelper Helper { get; }
-    MangaHelper IMangaParser.Helper => (MangaHelper) Helper;
-
-    public static Task<NudeParser> CreateAsync(string fusionUser, string phpSessionId)
-    {
-        return CreateAsync(new BrowserOptions
-        {
-            Cookies =
-            {
-                new Cookie("fusion_user", fusionUser, "/", Domain),
-                new Cookie("PHPSESSID", phpSessionId, "/", Domain)
-            }
-        });
-    }
+    MangaHelper IMangaParser.Helper => _helper;
 
     private static async Task<NudeParser> CreateAsync(BrowserOptions options)
     {
@@ -81,7 +67,7 @@ public class NudeParser : INudeParser
         RequireDomain(urlString);
         urlString = MapUrl(urlString);
         
-        var mangaId = Helper.GetIdFromUrl(urlString);
+        var mangaId = _helper.GetIdFromUrl(urlString);
         using var document = await _browser.GetDocumentAsync(urlString);
 
         if (!CheckMangaDocumentValidation(document))
@@ -158,7 +144,7 @@ public class NudeParser : INudeParser
     {
         const string tagsSelector = "span.tag-links a";
         return mangaPageDocument.QuerySelectorAll(tagsSelector)
-            .Select(x => Helper.GetTextInHtmlTagOrInput(x.InnerHtml))
+            .Select(x => _helper.GetTextInHtmlTagOrInput(x.InnerHtml))
             .ToList();
     }
 

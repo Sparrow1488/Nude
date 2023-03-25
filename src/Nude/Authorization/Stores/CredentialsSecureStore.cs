@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Newtonsoft.Json;
 using Nude.Authorization.Stores.Models;
+using Nude.Extensions;
 
 namespace Nude.Authorization.Stores;
 
@@ -30,10 +30,10 @@ public class CredentialsSecureStore : ICredentialsSecureStore
 
         if (await ExistsAsync(key))
         {
-            var restoredCredentialsJson = await GetEntryStore(key);
+            var restoredCredentialsJson = await GetStoreEntryValue(key);
             var storeCredentials = JsonConvert.DeserializeObject<StoreUserCredentials>(restoredCredentialsJson)!;
 
-            return RestoreUserCredentials(storeCredentials);
+            return storeCredentials.RevertCredentials();
         }
 
         return null;
@@ -46,24 +46,24 @@ public class CredentialsSecureStore : ICredentialsSecureStore
     {
         ArgumentNullException.ThrowIfNull(key);
         
-        var storeEntry = GetEntryStorePath(key);
+        var storeEntry = GetStoreEntryPath(key);
         return Task.FromResult(Directory.Exists(storeEntry));
     }
 
     private static StreamWriter CreateEntryStore(string key)
     {
-        var storePath = GetEntryStorePath(key);
+        var storePath = GetStoreEntryPath(key);
         Directory.CreateDirectory(storePath);
 
         return File.CreateText(storePath + CredentialsEntryFileName);
     }
     
-    private static async Task<string> GetEntryStore(string key)
+    private static async Task<string> GetStoreEntryValue(string key)
     {
-        return await File.ReadAllTextAsync(GetEntryStorePath(key) + CredentialsEntryFileName);
+        return await File.ReadAllTextAsync(GetStoreEntryPath(key) + CredentialsEntryFileName);
     }
 
-    private static string GetEntryStorePath(string key)
+    private static string GetStoreEntryPath(string key)
     {
         return "." + CredentialsStorePath + "/" + key + "/";
     }
@@ -73,15 +73,7 @@ public class CredentialsSecureStore : ICredentialsSecureStore
         return new StoreUserCredentials
         {
             Schema = credentials.Schema,
-            Claims = credentials.Claims.Select(x => new StoreClaim(x.Type, x.Value, credentials.Domain)).ToList(),
-            Domain = credentials.Domain
+            Claims = credentials.Claims.ToStoreEntries()
         };
-    }
-
-    private static UserCredentials RestoreUserCredentials(StoreUserCredentials store)
-    {
-        var claims = store.Claims?.Select(x => new Claim(x.Type, x.Value)).ToList()
-            ?? new List<Claim>();
-        return new UserCredentials(claims, store.Domain, store.Schema);
     }
 }

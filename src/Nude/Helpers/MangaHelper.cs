@@ -3,7 +3,7 @@ using Nude.Helpers.Abstractions;
 
 namespace Nude.Helpers;
 
-public abstract class MangaHelper : IParseTextInHtmlTag, IParseIdFromUrl
+public abstract class MangaHelper : IGetTextInHtmlTag, IGetIdFromUrl
 {
     public string GetTextInHtmlTagOrInput(string input)
     {

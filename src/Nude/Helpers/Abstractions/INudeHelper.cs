@@ -1,5 +1,5 @@
 namespace Nude.Helpers.Abstractions;
 
-public interface INudeHelper : IParseIdFromUrl, IParseTextInHtmlTag
+public interface INudeHelper : IGetIdFromUrl, IGetTextInHtmlTag
 {
 }

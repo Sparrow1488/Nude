@@ -2,12 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Repositories;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Infrastructure.Services.FeedBack;
 using Nude.API.Services.Resolvers;
-using Nude.Models.Sources;
 using Nude.Models.Tickets.Parsing;
-using Nude.Parsers.NudeMoon;
 
 namespace Nude.API.Services.Workers;
 
@@ -110,7 +109,7 @@ public sealed class ParsingBackgroundWorker : IBackgroundWorker
         var parser = await _parserResolver.ResolveByUrlAsync(ticket.Meta.SourceUrl);
         var externalManga = await parser.GetByUrlAsync(ticket.Meta.SourceUrl);
 
-        var manga = await _repository.AddAsync(externalManga, SourceType.NudeMoon);
+        var manga = await _repository.AddAsync(externalManga, externalManga.GetSourceType());
         await _repository.SaveAsync();
 
         await OnSuccessProcessTicketAsync(ticket, manga);
@@ -135,7 +134,7 @@ public sealed class ParsingBackgroundWorker : IBackgroundWorker
         _logger.LogInformation(
             "Ticket {id} processed success in {time}",
             ticket.Id,
-            $"{processTime.Minutes}:{processTime.Seconds} mins");
+            $"{processTime.Minutes:00}:{processTime.Seconds:00} min");
 
         ticket.Status = ParsingStatus.Success;
         ticket.Result.StatusCode = ParsingResultCodes.Ok;

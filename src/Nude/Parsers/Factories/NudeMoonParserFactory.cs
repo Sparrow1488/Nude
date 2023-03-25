@@ -1,7 +1,8 @@
 using Nude.Authorization;
-using Nude.Authorization.Cookies;
 using Nude.Authorization.Handlers;
 using Nude.Authorization.Stores;
+using Nude.Constants;
+using Nude.Extensions;
 using Nude.Navigation.Browser;
 using Nude.Parsers.NudeMoon;
 
@@ -19,7 +20,7 @@ public class NudeMoonParserFactory : AuthorizedParserFactory<INudeParser>
         _authorization = authorization;
     }
 
-    protected override string ParserName => "NudeMoon";
+    protected override string ParserName => NudeMoonDefaults.Name;
     
     protected override Task<UserCredentials> AuthorizeUserAsync(string login, string password)
     {
@@ -29,11 +30,7 @@ public class NudeMoonParserFactory : AuthorizedParserFactory<INudeParser>
     protected override async Task<INudeParser> CreateParserAsync(UserCredentials credentials)
     {
         var browser = await BrowserWrapper.CreateAsync(new BrowserOptions());
-        var cookies = new DefaultAuthorizationCookies()
-            .CreateFrom(credentials)
-            .ToList();
-        
-        browser.AddCookies(cookies);
+        browser.AddCookies(credentials.ToCookies());
         
         return new NudeParser(browser);
     }

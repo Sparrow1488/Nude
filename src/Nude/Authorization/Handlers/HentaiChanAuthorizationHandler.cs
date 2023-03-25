@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Claims;
 using Nude.Constants;
 using Nude.Exceptions;
+using Nude.Extensions;
 using Nude.Parsers.HentaiChan;
 
 namespace Nude.Authorization.Handlers;
@@ -18,16 +19,14 @@ public class HentaiChanAuthorizationHandler : IAuthorizationHandler<IHentaiChanP
 
         if (response.IsSuccessStatusCode)
         {
-            var claims = cookies
-                .GetAllCookies()
-                .Select(x => new Claim(x.Name, x.Value)).ToList();
+            var claims = cookies.GetAllCookies().ToClaims();
 
             if (claims.Count < 3)
             {
                 throw new AuthorizationException("Invalid user credentials");
             }
         
-            return new UserCredentials(claims, HentaiChanDefaults.Domain, Schema.Cookies);
+            return new UserCredentials(claims, Schema.Cookies);
         }
 
         throw new InvalidServerResponseException("Invalid user credentials");

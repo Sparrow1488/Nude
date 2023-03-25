@@ -1,6 +1,6 @@
 namespace Nude.Helpers.Abstractions;
 
-public interface IParseIdFromUrl
+public interface IGetIdFromUrl
 {
     string GetIdFromUrl(string url);
 }

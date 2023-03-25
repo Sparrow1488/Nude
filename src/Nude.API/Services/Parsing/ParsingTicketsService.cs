@@ -7,7 +7,6 @@ using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Services.Resolvers;
 using Nude.Models.Tickets.Parsing;
-using Nude.Parsers.NudeMoon;
 
 namespace Nude.API.Services.Parsing;
 
@@ -29,8 +28,7 @@ public class ParsingTicketsService : IParsingTicketsService
     
     public async Task<ParsingResponse> CreateTicketAsync(ParsingCreateRequest request)
     {
-        // Now I can parse only from this source
-        if (!request.SourceUrl.Contains("nude-moon.org") && !request.SourceUrl.Contains("hentaichan.live"))
+        if (!AvailableSources.IsAvailable(request.SourceUrl))
         {
             throw new BadRequestException("Data from this source cannot be retrieved");
         }
@@ -54,7 +52,7 @@ public class ParsingTicketsService : IParsingTicketsService
             Subscribers = new List<Subscriber>()
         };
         
-        if(WantSubscribe(request))
+        if(IsSubscribedToNotification(request))
             AddSubscriber(ticket, request.CallbackUrl!);
 
         var similarTicket = await _context.ParsingTickets
@@ -77,7 +75,7 @@ public class ParsingTicketsService : IParsingTicketsService
         
         var alreadySubscribed = similarTicket.Subscribers
             .Any(x => x.FeedBackInfo.CallbackUrl == request.CallbackUrl);
-        if (WantSubscribe(request) && !alreadySubscribed)
+        if (IsSubscribedToNotification(request) && !alreadySubscribed)
         {
             AddSubscriber(similarTicket, request.CallbackUrl!);
             _context.Update(similarTicket);
@@ -87,7 +85,7 @@ public class ParsingTicketsService : IParsingTicketsService
         return _mapper.Map<ParsingResponse>(similarTicket);
     }
 
-    private static bool WantSubscribe(ParsingCreateRequest request)
+    private static bool IsSubscribedToNotification(ParsingCreateRequest request)
     {
         return !string.IsNullOrWhiteSpace(request.CallbackUrl);
     }

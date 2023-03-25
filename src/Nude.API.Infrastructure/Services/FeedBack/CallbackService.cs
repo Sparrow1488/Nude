@@ -19,18 +19,33 @@ public class CallbackService : IFeedBackService
         if (Uri.TryCreate(info.CallbackUrl, UriKind.Absolute, out var url))
         {
             using var client = new HttpClient();
-            client.Timeout = TimeSpan.FromSeconds(8);
+            client.Timeout = TimeSpan.FromSeconds(10);
 
             var query = $"?ticket_id={ticket.Id}&status={ticket.Status}";
             var requestUrl = url + query;
-            var content = new StringContent(string.Empty);
-            
-            var response = await client.PostAsync(requestUrl, content);
-            _logger.LogInformation("Callback response status '{status}'", response.StatusCode);
+            using var content = new StringContent(string.Empty);
+
+            var response = await PostAsync(client, requestUrl, content);
+            _logger.LogInformation("Callback response status '{status}'", response?.StatusCode);
         }
         else
         {
             _logger.LogWarning("Cannot create uri");
         }
+    }
+
+    private async Task<HttpResponseMessage?> PostAsync(HttpClient client, string url, HttpContent content)
+    {
+        HttpResponseMessage? message = null;
+        try
+        {
+            message = await client.PostAsync(url, content)!;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex.Message);
+        }
+
+        return message;
     }
 }

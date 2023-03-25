@@ -22,10 +22,10 @@ public class MangaRepository : IMangaRepository
     public async Task<Manga> AddAsync(Models.Manga manga, SourceType sourceType)
     {
         var author = await _context.Authors.FirstOrDefaultAsync(x => x.Name == manga.Author) 
-                     ?? new Author { Name = manga.Author };
+            ?? new Author { Name = manga.Author };
         
         var source = await _context.Sources.FirstOrDefaultAsync(x => x.Type == sourceType)
-                     ?? new Source { Type = sourceType };
+            ?? new Source { Type = sourceType };
 
         var mangaTags = await _tagManager.AddRangeAsync(manga.Tags);
         

@@ -1,4 +1,5 @@
 using Nude.API.Infrastructure.Exceptions;
+using Nude.Constants;
 using Nude.Models.Sources;
 using Nude.Parsers.Abstractions;
 using Nude.Parsers.HentaiChan;
@@ -25,26 +26,29 @@ public class MangaParserResolver : IMangaParserResolver
 
     public async Task<IMangaParser> ResolveByUrlAsync(string mangaUrl)
     {
-        string login;
-        string password;
-        
         if (mangaUrl.Contains("nude-moon.org"))
         {
-            (login, password) = GetCredentials("NudeMoon");
-            return await _nudeMoonFactory.CreateAuthorizedAsync(login, password);
+            return await ResolveParserAsync(NudeMoonDefaults.Name, async (login, password) =>
+                await _nudeMoonFactory.CreateAuthorizedAsync(login, password));
         }
-        else if (mangaUrl.Contains(".hentaichan."))
+        if (mangaUrl.Contains(".hentaichan."))
         {
-            (login, password) = GetCredentials("HentaiChan");
-            return await _hentaiChanFactory.CreateAuthorizedAsync(login, password);
+            return await ResolveParserAsync(HentaiChanDefaults.Name, async (login, password) =>
+                await _hentaiChanFactory.CreateAuthorizedAsync(login, password));
         }
 
-        throw new BadRequestException("Request manga source not supported");
+        throw new BadRequestException("Request manga source not supported (parser not resolved)");
     }
     
     public Task<IMangaParser> ResolveByTypeAsync(SourceType sourceType)
     {
         throw new NotImplementedException();
+    }
+
+    private Task<IMangaParser> ResolveParserAsync(string name, Func<string, string, Task<IMangaParser>> resolver)
+    {
+        var (login, password) = GetCredentials(name);
+        return resolver.Invoke(login, password);
     }
 
     private (string login, string password) GetCredentials(string parserName) =>
