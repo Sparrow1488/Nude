@@ -1,6 +1,8 @@
 using Nude.Authorization;
+using Nude.Authorization.Cookies;
 using Nude.Authorization.Handlers;
 using Nude.Authorization.Stores;
+using Nude.Navigation.Http;
 using Nude.Parsers.HentaiChan;
 
 namespace Nude.Parsers.Factories;
@@ -26,6 +28,13 @@ public class HentaiChanParserParserFactory : AuthorizedParserFactory<IHentaiChan
 
     protected override Task<IHentaiChanParser> CreateParserAsync(UserCredentials credentials)
     {
-        return HentaiChanParser.CreateAsync(credentials);
+        var navigator = new HttpClientNavigator();
+        var cookies = new HentaiChanAuthorizationCookies()
+            .CreateFrom(credentials)
+            .ToList();
+        
+        navigator.AddCookies(cookies);
+
+        return Task.FromResult((IHentaiChanParser) new HentaiChanParser(navigator));
     }
 }

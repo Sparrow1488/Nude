@@ -24,14 +24,13 @@ var configuration = new ConfigurationBuilder()
 
 Log.Information("NudeApp started!");
 
-
 #endregion
 
 using IMangaParser parser = await CreateHentaiChanParser();
 
 var mangaUrls = new List<string>
 {
-    "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row",
+    // "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row",
     "https://y.hentaichan.live/manga/45190-kniga-v-kotoroy-peresekayut-chertu-so-studentkami-benriya-68-hen-.html"
 };
 

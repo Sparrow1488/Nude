@@ -1,52 +1,60 @@
 using System.Net;
 using AngleSharp.Dom;
+using AngleSharp.Html.Parser;
 
 namespace Nude.Navigation.Http;
 
 public class HttpClientNavigator : IHttpClientNavigator
 {
-    private readonly HttpClientOptions _options;
+    public CookieContainer? Cookies { get; private set; }
 
-    private HttpClientNavigator(HttpClientOptions options)
+    public async Task<IDocument> GetDocumentAsync(string url)
     {
-        _options = options;
-    }
-    
-    public static Task<IHttpClientNavigator> CreateAsync(HttpClientOptions options)
-    {
-        return Task.FromResult((IHttpClientNavigator)new HttpClientNavigator(options));
-    }
+        var parser = new HtmlParser();
+        var html = await GetTextAsync(url);
 
-    public Task<IDocument> GetDocumentAsync(string url)
-    {
-        throw new NotImplementedException();
+        return await parser.ParseDocumentAsync(html);
     }
 
     public async Task<string> GetTextAsync(string url)
     {
-        using var client = CreateHttpClient(_options);
+        using var client = CreateHttpClient();
         return await client.GetStringAsync(url);
     }
 
-    public Task<(string? html, int status)> GetTextWithStatusAsync(string url)
+    public async Task<(string? html, int status)> GetTextWithStatusAsync(string url)
     {
-        throw new NotImplementedException();
+        using var client = CreateHttpClient();
+        using var response = await client.GetAsync(url);
+        
+        var html = await response.Content.ReadAsStringAsync();
+        var status = response.StatusCode;
+        
+        return (html, (int) status);
     }
 
-    private static HttpClient CreateHttpClient(HttpClientOptions options)
+    public void AddCookies(IEnumerable<Cookie> cookies)
     {
-        var cookies = new CookieContainer();
-        foreach (var cookie in options.Cookies)
-            cookies.Add(cookie);
-        
+        Cookies ??= new CookieContainer();
+        foreach (var cookie in cookies)
+            Cookies.Add(cookie);
+    }
+
+    public void ResetCookies()
+    {
+        Cookies = null;
+    }
+
+    private HttpClient CreateHttpClient()
+    {
         return new HttpClient(new HttpClientHandler
         {
-            CookieContainer = cookies
+            CookieContainer = Cookies ?? new CookieContainer()
         });
     }
-    
+
     public void Dispose()
     {
-        
+        ResetCookies();
     }
 }

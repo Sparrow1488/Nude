@@ -1,6 +1,8 @@
+using System.Net;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Nude.Exceptions.Navigation;
+using Nude.Extensions;
 using PuppeteerSharp;
 
 namespace Nude.Navigation.Browser;
@@ -10,16 +12,13 @@ public class BrowserWrapper : IBrowserWrapper
     private bool _isDisposed;
     
     private readonly IBrowser _browser;
-    private readonly BrowserOptions _options;
     private readonly HtmlParser _htmlParser;
     private readonly WaitForSelectorOptions _waitForSelectorOptions;
     private IPage? _page;
 
-    // TODO: logger
-    private BrowserWrapper(IBrowser browser, BrowserOptions options)
+    private BrowserWrapper(IBrowser browser)
     {
         _browser = browser;
-        _options = options;
         _htmlParser = new HtmlParser();
         _waitForSelectorOptions = new WaitForSelectorOptions
         {
@@ -34,6 +33,8 @@ public class BrowserWrapper : IBrowserWrapper
             Dispose();
         }
     }
+    
+    public CookieContainer? Cookies { get; private set; }
 
     public static async Task<IBrowserWrapper> CreateAsync(BrowserOptions options)
     {
@@ -50,7 +51,7 @@ public class BrowserWrapper : IBrowserWrapper
             Headless = true, 
             Devtools = false
         });
-        return new BrowserWrapper(browser, options);
+        return new BrowserWrapper(browser);
     }
 
     public Task<IDocument> GetDocumentAsync(string url)
@@ -73,7 +74,7 @@ public class BrowserWrapper : IBrowserWrapper
     {
         var response = await GoToAsync(url, waitSelector);
         return await response.TextAsync()
-               ?? throw new EmptyResponseException($"Empty text response on request to {url}");
+            ?? throw new EmptyResponseException($"Empty text response on request to {url}");
     }
 
     public async Task<(string? html, int status)> GetTextWithStatusAsync(string url)
@@ -83,15 +84,32 @@ public class BrowserWrapper : IBrowserWrapper
         return (text, (int)response.Status);
     }
 
+    public void AddCookies(IEnumerable<Cookie> cookies)
+    {
+        Cookies ??= new CookieContainer().WithCookies(cookies);
+    }
+
+    public void ResetCookies()
+    {
+        Cookies = null;
+    }
+
     private async Task<IResponse> GoToAsync(string url, string? waitForSelector = null)
     {
-        // TODO: retry policy
         var page = await GetOrCreatePageAsync();
+        
         var response = await page.GoToAsync(url, WaitUntilNavigation.DOMContentLoaded);
         if (!string.IsNullOrWhiteSpace(waitForSelector))
         {
             await page.WaitForSelectorAsync(waitForSelector, _waitForSelectorOptions);
         }
+
+        var cookieParams = await page.GetCookiesAsync();
+        if (cookieParams != null)
+        {
+            Cookies = new CookieContainer().WithCookies(cookieParams.ToCookies());
+        }
+        
         return response;
     }
 
@@ -100,13 +118,18 @@ public class BrowserWrapper : IBrowserWrapper
         if (_page == null || _page.IsClosed)
         {
             _page = await _browser.NewPageAsync();
-            var cookieParams = _options.Cookies.Select(x => new CookieParam
+            
+            if (Cookies != null)
             {
-                Name = x.Name,
-                Value = x.Value,
-                Domain = x.Domain
-            });
-            await _page.SetCookieAsync(cookieParams.ToArray());
+                var cookies = Cookies.GetAllCookies().Select(x => new CookieParam
+                {
+                    Name = x.Name,
+                    Value = x.Value,
+                    Path = x.Path,
+                    Domain = x.Domain
+                });
+                await _page.SetCookieAsync(cookies.ToArray());
+            }
         }
 
         return _page;

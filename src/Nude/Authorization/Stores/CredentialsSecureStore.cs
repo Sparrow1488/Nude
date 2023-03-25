@@ -9,14 +9,6 @@ public class CredentialsSecureStore : ICredentialsSecureStore
     private const string CredentialsStorePath = "/store/credentials";
     private const string CredentialsEntryFileName = "file.json";
 
-    public Task<bool> ExistsAsync(string key)
-    {
-        ArgumentNullException.ThrowIfNull(key);
-        
-        var storeEntry = GetEntryStorePath(key);
-        return Task.FromResult(Directory.Exists(storeEntry));
-    }
-
     public async Task SaveAsync(string key, UserCredentials credentials)
     {
         ArgumentNullException.ThrowIfNull(key);
@@ -49,6 +41,14 @@ public class CredentialsSecureStore : ICredentialsSecureStore
 
     private static void ConfigureStore() =>
         Directory.CreateDirectory("." + CredentialsStorePath);
+    
+    private static Task<bool> ExistsAsync(string key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        
+        var storeEntry = GetEntryStorePath(key);
+        return Task.FromResult(Directory.Exists(storeEntry));
+    }
 
     private static StreamWriter CreateEntryStore(string key)
     {

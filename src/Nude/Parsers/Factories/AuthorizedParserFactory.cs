@@ -17,7 +17,7 @@ where TParser : IMangaParser
     
     public async Task<TParser> CreateAuthorizedAsync(string login, string password)
     {
-        var storeKey = ParserName + ":" + login;
+        var storeKey = $"[{ParserName}]" + login;
 
         var credentials = await SecureStore.GetAsync(storeKey) 
             ?? await AuthorizeUserAsync(login, password);
