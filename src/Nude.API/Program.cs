@@ -102,6 +102,11 @@ var app = builder.Build();
 
 app.UseAuthorization();
 
+app.MapGet("/", async ctx =>
+{
+    await ctx.Response.WriteAsync("Иди нахуй");
+});
+
 app.UseMiddleware<ErrorsMiddleware>();
 
 app.MapControllers();
