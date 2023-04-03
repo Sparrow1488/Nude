@@ -79,6 +79,9 @@ public sealed class ConvertingBackgroundWorker : IBackgroundWorker
         if (parsingTicket is null || status != ParsingStatus.Success)
         {
             _logger.LogError("Failed to process non-existing or failed ticket");
+
+            ticket.Status = ConvertingStatus.Failed;
+            await _context.SaveChangesAsync();
             return;
         }
 

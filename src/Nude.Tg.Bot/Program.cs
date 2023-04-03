@@ -18,8 +18,6 @@ using Nude.Tg.Bot.Services.Messages.Telegram;
 using Nude.Tg.Bot.Services.Resolvers;
 using Nude.Tg.Bot.Services.Workers;
 using Nude.Tg.Bot.Telegram;
-using Nude.Tg.Bot.Telegram.Endpoints.Base;
-using Nude.Tg.Bot.Telegram.Endpoints.Update;
 using Nude.Tg.Bot.Telegram.Handlers;
 using Serilog;
 using Serilog.Events;
