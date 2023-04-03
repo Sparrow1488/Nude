@@ -5,14 +5,9 @@ namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
 
 public class DefaultTgUpdateEndpoint : TelegramUpdateEndpoint
 {
-    public override async Task HandleAsync()
-    {
-        // TODO: рандомайзер прикольных слов
+    // TODO: рандомайзер прикольных слов
+    public override async Task HandleAsync() =>
         await BotClient.SendTextMessageAsync(ChatId, "Неизвестная команда");
-    }
 
-    public override bool CanHandle()
-    {
-        return true;
-    }
+    public override bool CanHandle() => true;
 }

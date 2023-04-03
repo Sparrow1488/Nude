@@ -12,7 +12,7 @@ namespace Nude.Tg.Bot.Http;
 
 public class HttpServer
 {
-    public static async Task StartListenAsync(IServiceProvider services)
+    public static async Task StartListenAsync(IServiceProvider services, CancellationToken ctk)
     {
         var configuration = services.GetRequiredService<IConfiguration>();
         var logger = services.GetRequiredService<ILogger<HttpServer>>();
@@ -21,8 +21,15 @@ public class HttpServer
         listener.Prefixes.Add(configuration["Http:BaseUrl"] + "/");
 
         listener.Start();
+        ctk.Register(() =>
+        {
+            try
+            {
+                listener.Stop(); 
+            } catch { }
+        });
 
-        while (true)
+        while (!ctk.IsCancellationRequested)
         {
             try
             {
@@ -53,7 +60,7 @@ public class HttpServer
                     context.Response.ContentType = "application/text";
 
                     var responseData = Encoding.UTF8.GetBytes("OK");
-                    await context.Response.OutputStream.WriteAsync(responseData);
+                    await context.Response.OutputStream.WriteAsync(responseData, ctk);
                 }
 
                 context.Response.Close();

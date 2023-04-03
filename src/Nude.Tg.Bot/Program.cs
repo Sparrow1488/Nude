@@ -8,11 +8,11 @@ using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Extensions;
 using Nude.Tg.Bot.Clients.Nude;
 using Nude.Tg.Bot.Clients.Telegraph;
+using Nude.Tg.Bot.Extensions;
 using Nude.Tg.Bot.Http;
 using Nude.Tg.Bot.Http.Routes;
 using Nude.Tg.Bot.Services.Convert;
 using Nude.Tg.Bot.Services.Manga;
-using Nude.Tg.Bot.Services.Messages;
 using Nude.Tg.Bot.Services.Messages.Store;
 using Nude.Tg.Bot.Services.Messages.Telegram;
 using Nude.Tg.Bot.Services.Resolvers;
@@ -71,14 +71,7 @@ builder.ConfigureServices(services =>
     #region Endpoints
 
     services.AddSingleton<EndpointsResolver>();
-    
-    services.AddScoped<TelegramUpdateEndpoint, StartEndpoint>();
-    services.AddScoped<TelegramUpdateEndpoint, MenuEndpoint>();
-    services.AddScoped<TelegramUpdateEndpoint, MyTicketsEndpoint>();
-    services.AddScoped<TelegramUpdateEndpoint, MangaEndpoint>();
-    services.AddScoped<TelegramUpdateEndpoint, RandomEndpoint>();
-    services.AddScoped<TelegramUpdateEndpoint, FindEndpoint>();
-    services.AddScoped<TelegramUpdateEndpoint, DefaultTgUpdateEndpoint>();
+    services.AddTelegramEndpoints();
 
     #endregion
 
@@ -90,19 +83,15 @@ builder.ConfigureServices(services =>
 
     #region Database
 
-    // TODO: refactor
-    services.AddDbContext<BotDbContext>((provider, opt) =>
+    void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
     {
         var connection = provider.GetRequiredService<IConfiguration>()
             .GetConnectionString("Database");
         opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Tg.Bot"));
-    });
-    // services.AddDbContextFactory<BotDbContext>((provider, opt) =>
-    // {
-    //     var connection = provider.GetRequiredService<IConfiguration>()
-    //         .GetConnectionString("Database");
-    //     opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Tg.Bot"));
-    // });
+    }
+
+    services.AddDbContext<BotDbContext>(ConfigureDatabase);
+    services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
 
     #endregion
 
@@ -123,8 +112,14 @@ builder.ConfigureServices(services =>
 
 }).UseSerilog(Log.Logger);
 
-var host = builder.Build();
-await host.StartAsync();
+var cancellationSource = new CancellationTokenSource(); 
+Console.CancelKeyPress += (_, _) =>
+{
+    cancellationSource.Cancel();
+};
 
-await BotInitializer.StartReceiveAsync(host.Services);
-await HttpServer.StartListenAsync(host.Services);
+var host = builder.Build();
+await host.StartAsync(cancellationSource.Token);
+
+await BotInitializer.StartReceiveAsync(host.Services, cancellationSource.Token);
+await HttpServer.StartListenAsync(host.Services, cancellationSource.Token);

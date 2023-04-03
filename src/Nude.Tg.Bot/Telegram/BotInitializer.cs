@@ -8,10 +8,10 @@ namespace Nude.Tg.Bot.Telegram;
 
 public class BotInitializer
 {
-    public static async Task StartReceiveAsync(IServiceProvider services)
+    public static async Task StartReceiveAsync(IServiceProvider services, CancellationToken ctk)
     {
         var bot = services.GetRequiredService<ITelegramBotClient>();
-        var botInfo = await bot.GetMeAsync();
+        var botInfo = await bot.GetMeAsync(ctk);
 
         var logger = services.GetRequiredService<ILogger<BotInitializer>>();
         logger.LogInformation(botInfo.FirstName + " started");
@@ -21,7 +21,8 @@ public class BotInitializer
         bot.StartReceiving(
             handler.HandleUpdateAsync, 
             handler.HandleErrorAsync, 
-            new ReceiverOptions()
+            new ReceiverOptions(),
+            ctk
         );
     }
 }

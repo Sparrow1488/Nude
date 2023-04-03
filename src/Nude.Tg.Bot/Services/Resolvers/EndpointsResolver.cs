@@ -22,6 +22,7 @@ public class EndpointsResolver
         {
             x.Update = update;
             x.BotClient = botClient;
+            x.ServiceProvider = _services;
         });
         
         var handler = endpoints.FirstOrDefault(x => x.CanHandle());

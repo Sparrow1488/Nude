@@ -1,6 +1,13 @@
 namespace Nude.Tg.Bot.Telegram.Endpoints.Base;
 
-public class TelegramUpdateCommandEndpoint
+public abstract class TelegramUpdateCommandEndpoint : TelegramUpdateEndpoint
 {
-    
+    private readonly string _command;
+
+    public TelegramUpdateCommandEndpoint(string command)
+    {
+        _command = command;
+    }
+
+    public override bool CanHandle() => MessageText?.StartsWith(_command) ?? false;
 }

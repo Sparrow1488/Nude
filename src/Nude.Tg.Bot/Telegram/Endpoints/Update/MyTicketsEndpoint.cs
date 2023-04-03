@@ -4,11 +4,11 @@ using Nude.Tg.Bot.Telegram.Endpoints.Base;
 
 namespace Nude.Tg.Bot.Telegram.Endpoints.Update;
 
-public class MyTicketsEndpoint : TelegramUpdateEndpoint
+public class MyTicketsEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly IConvertTicketsService _ticketsService;
 
-    public MyTicketsEndpoint(IConvertTicketsService ticketsService)
+    public MyTicketsEndpoint(IConvertTicketsService ticketsService) : base("/requests")
     {
         _ticketsService = ticketsService;
     }
@@ -17,7 +17,7 @@ public class MyTicketsEndpoint : TelegramUpdateEndpoint
     {
         var tickets = (await _ticketsService.GetAllByChatIdAsync(ChatId)).ToList();
         var builder = new StringBuilder();
-        builder.AppendLine("Всего " + tickets.Count);
+        builder.AppendLine("Всего Ваших запросов: " + tickets.Count);
         for (var i = 0; i < tickets.Count; i++)
         {
             var ticket = tickets[i];
@@ -25,10 +25,5 @@ public class MyTicketsEndpoint : TelegramUpdateEndpoint
         }
 
         await MessageAsync(builder.ToString());
-    }
-
-    public override bool CanHandle()
-    {
-        return MessageText == "/requests";
     }
 }

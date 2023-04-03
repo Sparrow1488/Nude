@@ -1,5 +1,4 @@
 using System.Net;
-using System.Security.Claims;
 using Nude.Constants;
 using Nude.Exceptions;
 using Nude.Extensions;

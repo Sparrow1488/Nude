@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Nude.Models.Abstractions;
 using Nude.Models.Authors;
 using Nude.Models.Mangas;
 using Nude.Models.Sources;

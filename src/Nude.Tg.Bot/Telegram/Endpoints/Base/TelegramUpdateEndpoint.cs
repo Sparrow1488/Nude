@@ -1,4 +1,4 @@
-using Nude.Tg.Bot.Services.Messages;
+using Microsoft.Extensions.DependencyInjection;
 using Nude.Tg.Bot.Services.Messages.Store;
 using Nude.Tg.Bot.Services.Utils;
 using Telegram.Bot;
@@ -9,10 +9,20 @@ namespace Nude.Tg.Bot.Telegram.Endpoints.Base;
 
 public abstract class TelegramUpdateEndpoint : TelegramEndpoint
 {
-    public global::Telegram.Bot.Types.Update Update { get; set; }
+    #region Current update scope
+
+    public global::Telegram.Bot.Types.Update Update { get; set; } = null!;
     private Message Message => Update.Message ?? throw new Exception("Tg message not available");
     protected string MessageText => Message?.Text ?? "";
     protected long ChatId => Message.Chat.Id;
+
+    #endregion
+
+    #region Helpers
+
+    protected IMessagesStore MessagesStore => ServiceProvider.GetRequiredService<IMessagesStore>();
+
+    #endregion
     
     protected Task<Message> MessageAsync(string message, ParseMode parseMode = ParseMode.Html)
     {

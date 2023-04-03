@@ -3,11 +3,9 @@ using Microsoft.Extensions.Logging;
 using Nude.API.Data.Contexts;
 using Nude.Models.Tickets.Converting;
 using Nude.Models.Tickets.Parsing;
-using Nude.Tg.Bot.Services.Messages;
 using Nude.Tg.Bot.Services.Messages.Store;
 using Nude.Tg.Bot.Services.Utils;
 using Telegram.Bot;
-using Telegram.Bot.Types.Enums;
 
 namespace Nude.Tg.Bot.Http.Routes;
 
