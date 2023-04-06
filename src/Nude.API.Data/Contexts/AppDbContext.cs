@@ -5,6 +5,9 @@ using Nude.Models.Sources;
 using Nude.Models.Tags;
 using Nude.Models.Tickets.Parsing;
 using Nude.Models.Urls;
+using Nude.Models.Users;
+using Nude.Models.Users.Accounts;
+using Nude.Models.Users.Subscriptions;
 
 namespace Nude.API.Data.Contexts;
 
@@ -25,6 +28,11 @@ public sealed class AppDbContext : DatabaseContext
     public DbSet<FeedBackInfo> FeedBackInfos => Set<FeedBackInfo>();
     public DbSet<ParsingResult> ParsingResults => Set<ParsingResult>();
     public DbSet<Subscriber> Subscribers => Set<Subscriber>();
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<TelegramAccount> TelegramAccounts => Set<TelegramAccount>();
+    public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    public DbSet<Subscription> Subscription => Set<Subscription>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -37,6 +45,17 @@ public sealed class AppDbContext : DatabaseContext
             .HasOne(x => x.Result)
             .WithOne(x => x.Ticket)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<User>()
+            .HasOne(x => x.UserSubscription)
+            .WithOne(x => x.Owner)
+            .HasForeignKey<UserSubscription>()
+            .OnDelete(DeleteBehavior.Cascade);
+        //
+        // modelBuilder.Entity<Subscription>()
+        //     .HasMany(x => x.UserSubscriptions)
+        //     .WithOne(x => x.Subscription)
+        //     .OnDelete(DeleteBehavior.Cascade);
         
         base.OnModelCreating(modelBuilder);
     }

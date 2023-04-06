@@ -1,9 +1,12 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Nude.API.Data.Contexts;
 using Nude.API.Data.Managers;
 using Nude.API.Data.Repositories;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.FeedBack;
@@ -45,6 +48,29 @@ builder.Services.AddControllers()
         options.SerializerSettings.ContractResolver = new DefaultContractResolver
         {
             NamingStrategy = new SnakeCaseNamingStrategy()
+        };
+    });
+
+#endregion
+
+#region Authentication & Authorization
+
+builder.Services.AddAuthentication(TelegramDefaults.DefaultScheme)
+    .AddJwtBearer(TelegramDefaults.DefaultScheme, options =>
+    {
+        var config = builder.Configuration.GetRequiredSection("Authentication:Jwt");
+        
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = config["Issuer"],
+            ValidateAudience = true,
+            ValidAudience = config["Audience"],
+            ValidateLifetime = true,
+            
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["KEY"])),
+            ValidateIssuerSigningKey = true,
         };
     });
 
