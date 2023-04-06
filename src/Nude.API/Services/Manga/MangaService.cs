@@ -32,17 +32,17 @@ public class MangaService : IMangaService
         return _mapper.Map<MangaResponse>(manga);
     }
 
-    public async Task<MangaResponse> GetByUrlAsync(string url)
+    public async Task<MangaResponse> FindBySourceUrlAsync(string url)
     {
         var parser = await _parserResolver.ResolveByUrlAsync(url);
         var mangaId = parser.Helper.GetIdFromUrl(url);
-        return await GetByExternalIdAsync(mangaId);
+        return await FindBySourceIdAsync(mangaId);
     }
 
-    public async Task<MangaResponse> GetByExternalIdAsync(string externalId)
+    public async Task<MangaResponse> FindBySourceIdAsync(string id)
     {
-        var manga = await FindMangaAsync(x => x.ExternalId == externalId)
-            ?? throw new NotFoundException("Manga not found", externalId, "Manga");
+        var manga = await FindMangaAsync(x => x.ExternalId == id)
+            ?? throw new NotFoundException("Manga not found", id, "Manga");
 
         return _mapper.Map<MangaResponse>(manga);
     }

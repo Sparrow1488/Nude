@@ -1,4 +1,4 @@
-namespace Nude.API.Models.Mangas.Formats;
+namespace Nude.API.Models.Formats;
 
 public class TelegraphContentFormat : WebContentFormat
 {

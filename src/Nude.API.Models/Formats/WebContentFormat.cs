@@ -1,6 +1,6 @@
 using Nude.API.Models.Urls;
 
-namespace Nude.API.Models.Mangas.Formats;
+namespace Nude.API.Models.Formats;
 
 public abstract class WebContentFormat : ContentFormat
 {

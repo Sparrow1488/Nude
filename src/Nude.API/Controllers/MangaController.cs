@@ -20,5 +20,5 @@ public class MangaController : ControllerBase
     
     [HttpGet]
     public Task<MangaResponse> GetByUrl(string url)
-        => _service.GetByUrlAsync(url);
+        => _service.FindBySourceUrlAsync(url);
 }
