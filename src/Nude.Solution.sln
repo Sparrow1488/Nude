@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Infrastructure", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Mappers", "Nude.Mappers\Nude.Mappers.csproj", "{D42E1761-9E9D-486B-881A-6ACC6D481B25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Tg.Bot", "Nude.Tg.Bot\Nude.Tg.Bot.csproj", "{AF6414B7-E0EE-43AE-9F42-B4518FC9843E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Bot.Tg", "Nude.Bot.Tg\Nude.Bot.Tg.csproj", "{AF6414B7-E0EE-43AE-9F42-B4518FC9843E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utility.ChromeKiller", "Utility.ChromeKiller\Utility.ChromeKiller.csproj", "{04400F74-B0D2-486D-B9CA-9A156A43468B}"
 EndProject
