@@ -11,6 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Nude.API.Models\Nude.API.Models.csproj" />
       <ProjectReference Include="..\Nude.Models\Nude.Models.csproj" />
       <ProjectReference Include="..\Nude\Nude.csproj" />
     </ItemGroup>

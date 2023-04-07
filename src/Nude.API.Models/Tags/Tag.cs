@@ -9,5 +9,5 @@ public class Tag : IEntity
     public string Value { get; set; }
     public string NormalizeValue { get; set; }
     public TagType Type { get; set; }
-    public ICollection<Manga> Mangas { get; set; }
+    public ICollection<MangaEntry> Mangas { get; set; }
 }

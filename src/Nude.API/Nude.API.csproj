@@ -10,6 +10,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Nude.API.Contracts\Nude.API.Contracts.csproj" />
+      <ProjectReference Include="..\Nude.API.Models\Nude.API.Models.csproj" />
       <ProjectReference Include="..\Nude.Data.Infrastructure\Nude.Data.Infrastructure.csproj" />
       <ProjectReference Include="..\Nude.API.Infrastructure\Nude.API.Infrastructure.csproj" />
       <ProjectReference Include="..\Nude.Mappers\Nude.Mappers.csproj" />
@@ -27,6 +28,11 @@
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.8" />
       <PackageReference Include="Serilog.AspNetCore" Version="6.1.1-dev-00295" />
       <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="store\credentials\[HentaiChan]Kill_solt\file.json" />
+      <_ContentIncludedByDefault Remove="store\credentials\[NudeMoon]Sparrow1488\file.json" />
     </ItemGroup>
 
 </Project>
