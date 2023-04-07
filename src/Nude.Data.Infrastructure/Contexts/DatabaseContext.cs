@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.Models.Abstractions;
 
-namespace Nude.API.Data.Contexts;
+namespace Nude.Data.Infrastructure.Contexts;
 
 public abstract class DatabaseContext : DbContext
 {

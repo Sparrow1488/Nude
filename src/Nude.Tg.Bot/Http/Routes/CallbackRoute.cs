@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Nude.API.Data.Contexts;
+using Nude.Data.Infrastructure.Contexts;
 using Nude.Models.Tickets.Converting;
 using Nude.Models.Tickets.Parsing;
 using Nude.Tg.Bot.Services.Messages.Store;

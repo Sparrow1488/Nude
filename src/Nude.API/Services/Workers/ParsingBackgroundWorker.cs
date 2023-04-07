@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Nude.API.Data.Contexts;
-using Nude.API.Data.Repositories;
+using Nude.Data.Infrastructure.Contexts;
+using Nude.Data.Infrastructure.Repositories;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Infrastructure.Services.Background;

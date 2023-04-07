@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using Nude.API.Data.Contexts;
-using Nude.API.Data.Managers;
+using Nude.Data.Infrastructure.Contexts;
+using Nude.Data.Infrastructure.Managers;
 using Nude.Models.Authors;
 using Nude.Models.Mangas;
 using Nude.Models.Sources;
 using Nude.Models.Urls;
 
-namespace Nude.API.Data.Repositories;
+namespace Nude.Data.Infrastructure.Repositories;
 
 public class MangaRepository : IMangaRepository
 {

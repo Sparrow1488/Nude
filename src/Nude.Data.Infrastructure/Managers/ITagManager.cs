@@ -1,6 +1,6 @@
 using Nude.Models.Tags;
 
-namespace Nude.API.Data.Managers;
+namespace Nude.Data.Infrastructure.Managers;
 
 public interface ITagManager
 {

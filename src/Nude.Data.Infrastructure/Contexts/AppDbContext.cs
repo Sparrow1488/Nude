@@ -9,7 +9,7 @@ using Nude.Models.Users;
 using Nude.Models.Users.Accounts;
 using Nude.Models.Users.Subscriptions;
 
-namespace Nude.API.Data.Contexts;
+namespace Nude.Data.Infrastructure.Contexts;
 
 public sealed class AppDbContext : DatabaseContext
 {

@@ -1,4 +1,4 @@
-namespace Nude.API.Data.Repositories;
+namespace Nude.Data.Infrastructure.Repositories;
 
 public interface IRepository<TEntity>
 {

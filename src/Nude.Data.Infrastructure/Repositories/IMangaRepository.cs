@@ -1,7 +1,7 @@
 using Nude.Models.Mangas;
 using Nude.Models.Sources;
 
-namespace Nude.API.Data.Repositories;
+namespace Nude.Data.Infrastructure.Repositories;
 
 public interface IMangaRepository : IRepository<Manga>
 {

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Nude.API.Data.Contexts;
+using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Extensions;
 using Nude.Tg.Bot.Clients.Nude;

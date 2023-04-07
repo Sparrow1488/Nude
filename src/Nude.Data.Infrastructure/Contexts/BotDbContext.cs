@@ -3,7 +3,7 @@ using Nude.Models.Mangas;
 using Nude.Models.Messages.Telegram;
 using Nude.Models.Tickets.Converting;
 
-namespace Nude.API.Data.Contexts;
+namespace Nude.Data.Infrastructure.Contexts;
 
 public sealed class BotDbContext : DatabaseContext
 {

@@ -2,7 +2,7 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Parsing.Responses;
-using Nude.API.Data.Contexts;
+using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Services.Resolvers;

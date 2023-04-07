@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Nude.API.Data.Contexts;
+using Nude.Data.Infrastructure.Contexts;
 using Nude.Models.Tags;
 
-namespace Nude.API.Data.Managers;
+namespace Nude.Data.Infrastructure.Managers;
 
 public class TagManager : ITagManager
 {

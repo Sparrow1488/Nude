@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Manga.Responses;
-using Nude.API.Data.Contexts;
+using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Services.Resolvers;
 

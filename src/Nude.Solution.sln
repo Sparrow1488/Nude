@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Contracts", "Nude.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Models", "Nude.Models\Nude.Models.csproj", "{418C0287-FA2E-4D36-8006-22097206F605}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Data", "Nude.API.Data\Nude.API.Data.csproj", "{E8E47ABA-7805-4F54-903E-C77F5A85D243}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Data.Infrastructure", "Nude.Data.Infrastructure\Nude.Data.Infrastructure.csproj", "{E8E47ABA-7805-4F54-903E-C77F5A85D243}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Infrastructure", "Nude.API.Infrastructure\Nude.API.Infrastructure.csproj", "{5CC02743-B560-45CC-B7B3-D204BB281B68}"
 EndProject

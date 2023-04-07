@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Parsing.Responses;
-using Nude.API.Data.Contexts;
+using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.Models.Mangas;
 using Nude.Models.Messages.Telegram;

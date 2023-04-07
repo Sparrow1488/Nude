@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Nude.API.Data.Contexts;
+using Nude.Data.Infrastructure.Contexts;
 using Nude.Models.Tickets.Converting;
 
 namespace Nude.Tg.Bot.Services.Convert;
