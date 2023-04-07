@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Models.Mangas;
+using Nude.API.Models.Tags;
+using Nude.API.Services.Mangas.Results;
 using Nude.Data.Infrastructure.Contexts;
 
 namespace Nude.API.Services.Mangas;
@@ -12,7 +14,18 @@ public class FixedMangaService : IFixedMangaService
     {
         _context = context;
     }
-    
+
+    public Task<MangaCreationResult> CreateAsync(string title, string description, IEnumerable<string> images, string? externalSourceId = null,
+        string? externalSourceUrl = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<MangaTagsAdditionResult> AddTagsAsync(int mangaId, IEnumerable<Tag> tags)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<MangaEntry?> GetByIdAsync(int id)
     {
         return _context.Mangas

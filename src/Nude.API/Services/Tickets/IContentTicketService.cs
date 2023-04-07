@@ -8,5 +8,6 @@ public interface IContentTicketService
     Task<ContentTicket> CreateAsync(string sourceUrl);
     Task<ContentTicket?> GetByIdAsync(int id);
     Task<ContentTicket?> FindSimilarAsync(string sourceUrl);
+    Task<ContentTicket?> GetWaitingAsync();
     Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback);
 }

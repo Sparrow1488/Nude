@@ -51,6 +51,11 @@ public class ContentTicketService : IContentTicketService
             .FirstOrDefaultAsync(x => x.Context.ContentUrl.Contains(sourceUrl));
     }
 
+    public Task<ContentTicket?> GetWaitingAsync()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback)
     {
         ArgumentNullException.ThrowIfNull(callback);
