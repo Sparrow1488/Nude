@@ -1,6 +1,6 @@
 namespace Nude.API.Contracts.Parsing.Requests;
 
-public struct ReceiveContentTicketRequest
+public struct ContentTicketRequest
 {
     public string SourceUrl { get; set; }
     public string? CallbackUrl { get; set; }

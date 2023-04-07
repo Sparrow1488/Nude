@@ -25,11 +25,11 @@ public class FixedAppDbContext : DatabaseContext
     public DbSet<FormattedContent> FormattedContents => Set<FormattedContent>();
     public DbSet<TelegraphContent> TelegraphContents => Set<TelegraphContent>();
     
-    public DbSet<ContentTicket> ReceiveRequests => Set<ContentTicket>();
-    public DbSet<ReceiveResult> ReceiveResults => Set<ReceiveResult>();
-    public DbSet<ReceiveContext> ReceiveContexts => Set<ReceiveContext>();
+    public DbSet<ContentTicket> ContentRequests => Set<ContentTicket>();
+    public DbSet<ContentResult> ContentResults => Set<ContentResult>();
+    public DbSet<TicketContext> TicketContexts => Set<TicketContext>();
     
-    public DbSet<ContentFormatTicket> FormattingRequests => Set<ContentFormatTicket>();
+    public DbSet<ContentFormatTicket> FormatTickets => Set<ContentFormatTicket>();
     
     public DbSet<Subscriber> Subscribers => Set<Subscriber>();
 

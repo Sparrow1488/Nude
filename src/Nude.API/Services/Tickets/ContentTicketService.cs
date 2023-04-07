@@ -2,9 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.Contexts;
 using Nude.API.Models.Tickets.States;
+using Nude.API.Models.Tickets.Subscribers;
 using Nude.Data.Infrastructure.Contexts;
 
 namespace Nude.API.Services.Tickets;
+
+// ReSharper disable once InvertIf
 
 public class ContentTicketService : IContentTicketService
 {
@@ -20,7 +23,7 @@ public class ContentTicketService : IContentTicketService
         var request = new ContentTicket
         {
             Status = ReceiveStatus.WaitToProcess,
-            Context = new ReceiveContext
+            Context = new TicketContext
             {
                 ContentUrl = sourceUrl
             }
@@ -34,10 +37,42 @@ public class ContentTicketService : IContentTicketService
 
     public Task<ContentTicket?> GetByIdAsync(int id)
     {
-        return _context.ReceiveRequests
+        return _context.ContentRequests
             .AsQueryable()
             .IncludeDependencies()
             .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public Task<ContentTicket?> FindSimilarAsync(string sourceUrl)
+    {
+        return _context.ContentRequests
+            .AsQueryable()
+            .IncludeDependencies()
+            .FirstOrDefaultAsync(x => x.Context.ContentUrl.Contains(sourceUrl));
+    }
+
+    public async Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback)
+    {
+        ArgumentNullException.ThrowIfNull(callback);
+        
+        var alreadySubscribed = ticket.Subscribers.Any(x => x.CallbackUrl == callback);
+
+        if (!alreadySubscribed)
+        {
+            var subscriber = new Subscriber
+            {
+                CallbackUrl = callback,
+                ContentTicketId = ticket.Id,
+                NotifyStatus = NotifyStatus.All
+            };
+            
+            await _context.AddAsync(subscriber);
+            await _context.SaveChangesAsync();
+            
+            ticket.Subscribers.Add(subscriber);
+        }
+        
+        return ticket.Subscribers.First(x => x.CallbackUrl == callback);
     }
 }
 

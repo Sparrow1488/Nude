@@ -10,7 +10,7 @@ public class ContentTicket : IEntity
 {
     public int Id { get; set; }
     public ReceiveStatus Status { get; set; }
-    public ReceiveResult? Result { get; set; }
-    public ReceiveContext Context { get; set; } = null!;
+    public ContentResult? Result { get; set; }
+    public TicketContext Context { get; set; } = null!;
     public ICollection<Subscriber> Subscribers { get; set; } = null!;
 }

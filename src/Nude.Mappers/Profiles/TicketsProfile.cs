@@ -12,7 +12,7 @@ public class TicketsProfile : Profile
     {
         CreateMap<ContentTicket, ContentTicketResponse>();
 
-        CreateMap<ReceiveResult, ContentResponse>();
-        CreateMap<ReceiveContext, TicketContextResponse>();
+        CreateMap<ContentResult, ContentResponse>();
+        CreateMap<TicketContext, TicketContextResponse>();
     }
 }

@@ -2,6 +2,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Tickets;
+using Nude.API.Models.Tickets;
 using Nude.API.Services.Tickets;
 
 namespace Nude.API.Controllers;
@@ -21,10 +22,21 @@ public class TicketsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(ReceiveContentTicketRequest request)
+    public async Task<IActionResult> Create(ContentTicketRequest request)
     {
-        var ticket = await _service.CreateAsync(request.SourceUrl);
+        var ticket = await _service.FindSimilarAsync(request.SourceUrl)
+            ?? await _service.CreateAsync(request.SourceUrl);
+
+        await SubscribeAsync(ticket, request.CallbackUrl);
+
         return Ok(_mapper.Map<ContentTicketResponse>(ticket));
+    }
+
+    private Task SubscribeAsync(ContentTicket ticket, string? callback)
+    {
+        return !string.IsNullOrWhiteSpace(callback) 
+            ? _service.SubscribeAsync(ticket, callback) 
+            : Task.CompletedTask;
     }
     
     [HttpGet("{id}")]

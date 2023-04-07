@@ -8,4 +8,6 @@ public class Subscriber : IEntity
     public int Id { get; set; }
     public NotifyStatus NotifyStatus { get; set; }
     public string? CallbackUrl { get; set; }
+
+    public int? ContentTicketId { get; set; }
 }
