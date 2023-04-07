@@ -1,6 +1,6 @@
 using Nude.API.Models.Abstractions;
 
-namespace Nude.API.Models.Requests.Contexts;
+namespace Nude.API.Models.Tickets.Contexts;
 
 public class ReceiveContext : IEntity
 {

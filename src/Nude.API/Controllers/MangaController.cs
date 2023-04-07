@@ -4,8 +4,8 @@ using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;
+using Nude.API.Models.Tags;
 using Nude.API.Models.Urls;
-using Nude.API.Services.Manga;
 using Nude.API.Services.Mangas;
 using Nude.Data.Infrastructure.Contexts;
 
@@ -46,6 +46,12 @@ public class MangaController : ControllerBase
                 new() { Url = new Url { Value = "img_2.jpg" }},
                 new() { Url = new Url { Value = "img_3.jpg" }}
             },
+            Tags = new List<Tag>
+            {
+                new() { Value = "asd0", NormalizeValue = "ASD0" },  
+                new() { Value = "asd2", NormalizeValue = "ASD2" },  
+                new() { Value = "gay", NormalizeValue = "GAY", Type = TagType.Author },  
+            },
             Formats = new List<FormattedContent>
             {
                 new TelegraphContent { Url = "https://telegra.ph/sex-1" }
@@ -63,7 +69,7 @@ public class MangaController : ControllerBase
 
         if (manga != null)
         {
-            return Ok(_mapper.Map<MangaResponse>(manga));
+            return Ok(_mapper.Map<NewMangaResponse>(manga));
         }
 
         return NotFound();
@@ -76,7 +82,7 @@ public class MangaController : ControllerBase
 
         if (manga != null)
         {
-            return Ok(_mapper.Map<MangaResponse>(manga));
+            return Ok(_mapper.Map<NewMangaResponse>(manga));
         }
 
         return NotFound();

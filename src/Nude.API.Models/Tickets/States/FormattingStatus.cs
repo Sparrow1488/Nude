@@ -1,4 +1,4 @@
-namespace Nude.API.Models.Requests.States;
+namespace Nude.API.Models.Tickets.States;
 
 public enum FormattingStatus
 {

@@ -1,6 +1,6 @@
 using Nude.API.Contracts.Manga.Responses;
 
-namespace Nude.API.Services.Manga;
+namespace Nude.API.Services.Mangas;
 
 public interface IMangaService
 {

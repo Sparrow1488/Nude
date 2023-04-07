@@ -1,6 +1,6 @@
 using Nude.API.Models.Abstractions;
 
-namespace Nude.API.Models.Requests.Results;
+namespace Nude.API.Models.Tickets.Results;
 
 public class ReceiveResult : IEntity
 {

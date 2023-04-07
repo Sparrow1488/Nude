@@ -2,10 +2,10 @@ using System.Linq.Expressions;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Manga.Responses;
-using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Exceptions;
+using Nude.Data.Infrastructure.Contexts;
 
-namespace Nude.API.Services.Manga;
+namespace Nude.API.Services.Mangas;
 
 public class MangaService : IMangaService
 {

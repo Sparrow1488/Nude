@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nude.Data.Infrastructure.Contexts;
@@ -11,9 +12,10 @@ using Nude.Data.Infrastructure.Contexts;
 namespace Nude.API.Migrations.FixedAppDb
 {
     [DbContext(typeof(FixedAppDbContext))]
-    partial class FixedAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230407194630_0.0.6")]
+    partial class _006
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

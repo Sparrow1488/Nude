@@ -1,10 +1,10 @@
 using Nude.API.Models.Abstractions;
 using Nude.API.Models.Formats;
-using Nude.API.Models.Requests.States;
+using Nude.API.Models.Tickets.States;
 
-namespace Nude.API.Models.Requests;
+namespace Nude.API.Models.Tickets;
 
-public class FormattingContentRequest : IEntity
+public class ContentFormatTicket : IEntity
 {
     public int Id { get; set; }
     public FormatType FormatType { get; set; }

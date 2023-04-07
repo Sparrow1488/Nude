@@ -4,12 +4,10 @@ using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Nude.Data.Infrastructure.Contexts;
-using Nude.Data.Infrastructure.Managers;
-using Nude.Data.Infrastructure.Repositories;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Middlewares;
-using Nude.API.Infrastructure.Services.FeedBack;
-using Nude.API.Services.Manga;
+using Nude.API.Services.Mangas;
+using Nude.API.Services.Tickets;
 using Nude.Authorization.Handlers;
 using Nude.Authorization.Stores;
 using Nude.Mapping.Profiles;
@@ -85,6 +83,8 @@ builder.Services.AddScoped<IAuthorizationHandler<IHentaiChanParser>, HentaiChanA
 builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
+builder.Services.AddScoped<IFixedMangaService, FixedMangaService>();
+builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 // builder.Services.AddScoped<IParsingTicketsService, ParsingTicketsService>();
 
 // builder.Services.AddScoped<IFeedBackService, CallbackService>();

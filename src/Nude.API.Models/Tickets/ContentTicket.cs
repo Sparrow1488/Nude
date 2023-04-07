@@ -1,12 +1,12 @@
 using Nude.API.Models.Abstractions;
-using Nude.API.Models.Requests.Contexts;
-using Nude.API.Models.Requests.Results;
-using Nude.API.Models.Requests.States;
-using Nude.API.Models.Requests.Subscribers;
+using Nude.API.Models.Tickets.Contexts;
+using Nude.API.Models.Tickets.Results;
+using Nude.API.Models.Tickets.States;
+using Nude.API.Models.Tickets.Subscribers;
 
-namespace Nude.API.Models.Requests;
+namespace Nude.API.Models.Tickets;
 
-public class ReceiveContentRequest : IEntity
+public class ContentTicket : IEntity
 {
     public int Id { get; set; }
     public ReceiveStatus Status { get; set; }

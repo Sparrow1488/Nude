@@ -1,7 +1,7 @@
 using Nude.API.Models.Abstractions;
-using Nude.API.Models.Requests.States;
+using Nude.API.Models.Tickets.States;
 
-namespace Nude.API.Models.Requests.Subscribers;
+namespace Nude.API.Models.Tickets.Subscribers;
 
 public class Subscriber : IEntity
 {
