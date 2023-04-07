@@ -14,7 +14,7 @@ public class Manga : IAuditable
 
     public ICollection<Tag> Tags { get; set; }
     public ICollection<MangaImage> Images { get; set; }
-    public ICollection<ContentFormat> Formats { get; set; }
+    public ICollection<FormattedContent> Formats { get; set; }
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

@@ -9,5 +9,5 @@ public class ConvertContentRequest : IEntity
     public int Id { get; set; }
     public FormatType FormatType { get; set; }
     public ConvertStatus Status { get; set; }
-    public ContentFormat? Result { get; set; } = null!;
+    public FormattedContent? Result { get; set; } = null!;
 }
