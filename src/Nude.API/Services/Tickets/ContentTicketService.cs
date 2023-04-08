@@ -1,13 +1,19 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.Contexts;
+using Nude.API.Models.Tickets.Results;
 using Nude.API.Models.Tickets.States;
 using Nude.API.Models.Tickets.Subscribers;
 using Nude.Data.Infrastructure.Contexts;
+using Nude.Data.Infrastructure.Extensions;
 
 namespace Nude.API.Services.Tickets;
 
+#region Rider annotations
+
 // ReSharper disable once InvertIf
+
+#endregion
 
 public class ContentTicketService : IContentTicketService
 {
@@ -35,10 +41,31 @@ public class ContentTicketService : IContentTicketService
         return request;
     }
 
+    public async Task<ContentTicket> UpdateStatusAsync(ContentTicket ticket, ReceiveStatus status)
+    {
+        if (ticket.Status != status)
+        {
+            ticket.Status = status;
+            await _context.SaveChangesAsync();
+        }
+        
+        return ticket;
+    }
+
+    public async Task<ContentTicket> UpdateResultAsync(ContentTicket ticket, string entityId, string code)
+    {
+        ticket.Result ??= new ContentResult();
+
+        ticket.Result.Code = code;
+        ticket.Result.EntityId = entityId;
+        await _context.SaveChangesAsync();
+
+        return ticket;
+    }
+
     public Task<ContentTicket?> GetByIdAsync(int id)
     {
         return _context.ContentRequests
-            .AsQueryable()
             .IncludeDependencies()
             .FirstOrDefaultAsync(x => x.Id == id);
     }
@@ -46,14 +73,15 @@ public class ContentTicketService : IContentTicketService
     public Task<ContentTicket?> FindSimilarAsync(string sourceUrl)
     {
         return _context.ContentRequests
-            .AsQueryable()
             .IncludeDependencies()
             .FirstOrDefaultAsync(x => x.Context.ContentUrl.Contains(sourceUrl));
     }
 
     public Task<ContentTicket?> GetWaitingAsync()
     {
-        throw new NotImplementedException();
+        return _context.ContentRequests
+            .IncludeDependencies()
+            .FirstOrDefaultAsync(x => x.Status == ReceiveStatus.WaitToProcess);
     }
 
     public async Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback)
@@ -78,17 +106,5 @@ public class ContentTicketService : IContentTicketService
         }
         
         return ticket.Subscribers.First(x => x.CallbackUrl == callback);
-    }
-}
-
-public static class ReceiveContentRequestExtensions
-{
-    public static IQueryable<ContentTicket> IncludeDependencies(
-        this IQueryable<ContentTicket> queryable)
-    {
-        return queryable
-            .Include(x => x.Result)
-            .Include(x => x.Context)
-            .Include(x => x.Subscribers);
     }
 }

@@ -1,33 +1,26 @@
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
-using Nude.API.Infrastructure.Services.Resolvers;
-using Nude.API.Services.Mangas;
-using Nude.API.Services.Mangas.Results;
+using Nude.API.Models.Tickets.States;
+using Nude.API.Services.Steal;
+using Nude.API.Services.Steal.Results;
 using Nude.API.Services.Tickets;
-using Nude.Data.Infrastructure.Contexts;
 
 namespace Nude.API.Services.Workers;
 
 public class ContentTicketsWorker : IBackgroundWorker
 {
-    private readonly FixedAppDbContext _context;
-    private readonly IFixedMangaService _mangaService;
     private readonly IContentTicketService _ticketService;
-    private readonly IMangaParserResolver _parserResolver;
     private readonly ILogger<ContentTicketsWorker> _logger;
+    private readonly IStealContentService _stealContentService;
 
     public ContentTicketsWorker(
-        FixedAppDbContext context,
-        IFixedMangaService mangaService,
-        IMangaParserResolver parserResolver,
         IContentTicketService ticketService,
-        ILogger<ContentTicketsWorker> logger)
+        ILogger<ContentTicketsWorker> logger,
+        IStealContentService stealContentService)
     {
-        _context = context;
-        _mangaService = mangaService;
         _ticketService = ticketService;
-        _parserResolver = parserResolver;
         _logger = logger;
+        _stealContentService = stealContentService;
     }
     
     public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
@@ -36,46 +29,43 @@ public class ContentTicketsWorker : IBackgroundWorker
 
         if (ticket == null)
         {
-            _logger.LogInformation("No waiting tickets");
+            _logger.LogDebug("No waiting tickets");
+            return;
+        }
+
+        var contentUrl = ticket.Context.ContentUrl;
+        if (!AvailableSources.IsAvailable(contentUrl))
+        {
+            await _ticketService.UpdateStatusAsync(ticket, ReceiveStatus.Failed);
+            _logger.LogWarning("Ticket source url is not yet available ({url})", contentUrl);
             return;
         }
         
-        // IF RESOURCE IS MANGA RESOURCE
-        var contentUrl = ticket.Context.ContentUrl;
-        if (AvailableSources.IsAvailable(contentUrl))
-        {
-            var parser = await _parserResolver.ResolveByUrlAsync(contentUrl);
-            var result = await parser.GetByUrlAsync(contentUrl);
+        var stealingResult = await _stealContentService.StealContentAsync(contentUrl);
 
-            var creationResult = await _mangaService.CreateAsync(
-                result.Title, 
-                result.Description, 
-                result.Images,
-                externalSourceUrl: contentUrl,
-                externalSourceId: parser.Helper.GetIdFromUrl(contentUrl)
-            );
-            
-            LogResult(creationResult);
+        LogResult(stealingResult);
 
-            // TODO: add tags
-            // await _mangaService.AddTagsAsync(creationResult.Entry.Id, result.Tags);
-        }
+        var newTicketStatus = stealingResult.IsSuccess
+            ? ReceiveStatus.Success
+            : ReceiveStatus.Failed;
+        
+        await _ticketService.UpdateStatusAsync(ticket, newTicketStatus);
+        await _ticketService.UpdateResultAsync(ticket, stealingResult.EntryId.ToString(), "---");
     }
 
-    private void LogResult(MangaCreationResult result)
+    private void LogResult(ContentStealingResult result)
     {
         if (result.IsSuccess)
         {
             // TODO: receive stats (time)
-            _logger.LogInformation("Entry created success");
+            _logger.LogInformation("Content stolen success");
         }
         else
         {
             _logger.LogError(
                 result.Exception,
-                "Entry creation failed {reason}",
+                "Content stealing failed {reason}",
                 result.Exception!.Message);
         }
     }
-    
 }

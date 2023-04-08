@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Configuration;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.Constants;
-using Nude.Models.Sources;
 using Nude.Parsers.Abstractions;
 using Nude.Parsers.HentaiChan;
 using Nude.Parsers.NudeMoon;
@@ -25,6 +25,11 @@ public class MangaParserResolver : IMangaParserResolver
         _nudeMoonFactory = nudeMoonFactory;
     }
 
+    public bool CanBeResolved(string mangaUrl)
+    {
+        return AvailableSources.IsAvailable(mangaUrl);
+    }
+
     public async Task<IMangaParser> ResolveByUrlAsync(string mangaUrl)
     {
         if (mangaUrl.Contains("nude-moon.org"))
@@ -41,11 +46,6 @@ public class MangaParserResolver : IMangaParserResolver
         throw new BadRequestException("Request manga source not supported (parser not resolved)");
     }
     
-    public Task<IMangaParser> ResolveByTypeAsync(SourceType sourceType)
-    {
-        throw new NotImplementedException();
-    }
-
     private Task<IMangaParser> ResolveParserAsync(string name, Func<string, string, Task<IMangaParser>> resolver)
     {
         var (login, password) = GetCredentials(name);

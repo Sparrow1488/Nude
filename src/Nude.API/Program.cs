@@ -5,10 +5,14 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
+using Nude.API.Infrastructure.Services.Resolvers;
 using Nude.API.Services.Mangas;
+using Nude.API.Services.Steal;
 using Nude.API.Services.Tickets;
+using Nude.API.Services.Workers;
 using Nude.Authorization.Handlers;
 using Nude.Authorization.Stores;
 using Nude.Mapping.Profiles;
@@ -79,15 +83,14 @@ builder.Services.AddScoped<IAuthorisedMangaParserFactory<IHentaiChanParser>, Hen
 builder.Services.AddScoped<IAuthorizationHandler<INudeParser>, NudeMoonAuthorizationHandler>();
 builder.Services.AddScoped<IAuthorizationHandler<IHentaiChanParser>, HentaiChanAuthorizationHandler>();
 
-// builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
-
 builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
-builder.Services.AddScoped<IFixedMangaService, FixedMangaService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();
+builder.Services.AddScoped<IStealContentService, StealContentService>();
+builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
 
 #endregion
 
@@ -112,11 +115,11 @@ builder.Services.AddAutoMapper(x => x.AddMaps(profilesAssembly));
 
 #endregion
 
-// #region Background Service
-//
-// builder.Services.AddBackgroundWorker<ParsingBackgroundWorker>();
-//
-// #endregion
+#region Background Service
+
+builder.Services.AddBackgroundWorker<ContentTicketsWorker>();
+
+#endregion
 
 var app = builder.Build();
 

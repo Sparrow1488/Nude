@@ -11,12 +11,12 @@ public class MangaController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly FixedAppDbContext _context;
-    private readonly IFixedMangaService _service;
+    private readonly IMangaService _service;
 
     public MangaController(
         IMapper mapper,
         FixedAppDbContext context,
-        IFixedMangaService service)
+        IMangaService service)
     {
         _mapper = mapper;
         _context = context;
