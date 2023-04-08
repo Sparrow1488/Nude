@@ -4,6 +4,11 @@ namespace Nude.Bot.Tg.Services.Messages.Store;
 
 public interface IMessagesStore
 {
+    Task<MessageItem> GetTicketStatusMessageAsync(string time,
+        string reqStatus,
+        string stage,
+        string loaded, 
+        string url);
     Task<MessageItem> GetTghMessageAsync(TghManga manga);
     Task<MessageItem> GetStartMessageAsync();
     Task<MessageItem> GetCallbackFailedMessageAsync();
