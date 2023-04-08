@@ -1,6 +1,6 @@
 using Nude.API.Contracts.Manga.Responses;
 
-namespace Nude.Bot.Tg.Clients.Telegraph;
+namespace Nude.API.Infrastructure.Clients.Telegraph;
 
 public interface ITelegraphClient
 {

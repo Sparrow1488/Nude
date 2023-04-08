@@ -1,14 +1,11 @@
 ﻿using System.Reflection;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
-using Nude.API.Infrastructure.Extensions;
 using Nude.Bot.Tg.Clients.Nude;
-using Nude.Bot.Tg.Clients.Telegraph;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http;
 using Nude.Bot.Tg.Http.Routes;
@@ -17,7 +14,6 @@ using Nude.Bot.Tg.Services.Manga;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Services.Resolvers;
-using Nude.Bot.Tg.Services.Workers;
 using Nude.Bot.Tg.Telegram;
 using Nude.Bot.Tg.Telegram.Handlers;
 using Serilog;
@@ -57,7 +53,7 @@ builder.ConfigureServices(services =>
     #region Clients
 
     services.AddScoped<INudeClient, NudeClient>();
-    services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
+    // services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
 
     #endregion
 
@@ -96,7 +92,7 @@ builder.ConfigureServices(services =>
 
     #region Background
 
-    services.AddBackgroundWorker<ConvertingBackgroundWorker>();
+    // services.AddBackgroundWorker<ConvertingBackgroundWorker>();
 
     #endregion
 

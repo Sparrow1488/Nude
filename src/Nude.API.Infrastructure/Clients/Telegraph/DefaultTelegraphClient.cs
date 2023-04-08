@@ -8,7 +8,7 @@ using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Infrastructure.Constants;
 using Polly;
 
-namespace Nude.Bot.Tg.Clients.Telegraph;
+namespace Nude.API.Infrastructure.Clients.Telegraph;
 
 public class DefaultTelegraphClient : ITelegraphClient
 {
