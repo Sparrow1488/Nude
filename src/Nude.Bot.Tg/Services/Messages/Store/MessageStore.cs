@@ -13,6 +13,18 @@ public class MessageStore : IMessagesStore
         _configuration = configuration;
     }
 
+    public async Task<MessageItem> GetTicketStatusMessageAsync(
+        string time,
+        string reqStatus,
+        string stage,
+        string loaded, 
+        string url)
+    {
+        string text = await GetFileMessageTextAsync("/TicketInfo.md");
+        text = string.Format(text, time, reqStatus, stage, loaded, url);
+        return new MessageItem(text, ParseMode.MarkdownV2);
+    }
+
     public Task<MessageItem> GetTghMessageAsync(TghManga manga)
     {
         var text = $"[Читать онлине]({manga.TghUrl})";

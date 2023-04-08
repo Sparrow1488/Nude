@@ -1,30 +1,36 @@
 ﻿using System.Reflection;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Extensions;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http;
 using Nude.Bot.Tg.Http.Routes;
+using Nude.Bot.Tg.Services.Background;
 using Nude.Bot.Tg.Services.Convert;
 using Nude.Bot.Tg.Services.Manga;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Services.Resolvers;
-using Nude.Bot.Tg.Telegram;
 using Nude.Bot.Tg.Telegram.Handlers;
+using Nude.Models.Tickets.Parsing;
 using Serilog;
 using Serilog.Events;
 using Telegram.Bot;
 
-var builder = Host.CreateDefaultBuilder();
+var builder = WebApplication.CreateBuilder(args);
 
 #region Configuration
 
-builder.ConfigureHostConfiguration(x => x.AddUserSecrets(Assembly.GetExecutingAssembly()));
+builder.Host.ConfigureHostConfiguration(
+    x => x.AddUserSecrets(Assembly.GetExecutingAssembly()));
 
 #endregion
 
@@ -38,74 +44,69 @@ Log.Logger = new LoggerConfiguration()
 
 #endregion
 
-builder.ConfigureServices(services =>
+#region Bot
+
+builder.Services.AddSingleton<ITelegramBotClient>(x =>
 {
-    #region Bot
+    var token = x.GetRequiredService<IConfiguration>()[BotDefaults.TelegramAccessTokenSection];
+    return new TelegramBotClient(token);
+});
 
-    services.AddSingleton<ITelegramBotClient>(x =>
-    {
-        var token = x.GetRequiredService<IConfiguration>()[BotDefaults.TelegramAccessTokenSection];
-        return new TelegramBotClient(token);
-    });
+#endregion
 
-    #endregion
-    
-    #region Clients
+#region Clients
 
-    services.AddScoped<INudeClient, NudeClient>();
-    // services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
+builder.Services.AddScoped<INudeClient, NudeClient>();
+builder.Services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
 
-    #endregion
+#endregion
 
-    #region Http Routes
+#region Http Routes
 
-    services.AddScoped<CallbackRoute>();
+builder.Services.AddScoped<CallbackRoute>();
 
-    #endregion
-    
-    #region Endpoints
+#endregion
 
-    services.AddSingleton<EndpointsResolver>();
-    services.AddTelegramEndpoints();
+#region Endpoints
 
-    #endregion
+builder.Services.AddSingleton<EndpointsResolver>();
+builder.Services.AddTelegramEndpoints();
 
-    #region Telegram Handlers
+#endregion
 
-    services.AddSingleton<ITelegramHandler, TelegramHandler>();
+#region Telegram Handlers
 
-    #endregion
+builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 
-    #region Database
+#endregion
 
-    void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
-    {
-        var connection = provider.GetRequiredService<IConfiguration>()
-            .GetConnectionString("Database");
-        opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
-    }
+#region Database
 
-    services.AddDbContext<BotDbContext>(ConfigureDatabase);
-    services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
+void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
+{
+    var connection = provider.GetRequiredService<IConfiguration>()
+        .GetConnectionString("Database");
+    opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
+}
 
-    #endregion
+builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
+builder.Services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
 
-    #region Background
+#endregion
 
-    // services.AddBackgroundWorker<ConvertingBackgroundWorker>();
+#region Background
+builder.Services.AddHostedService<BotBgService>();
 
-    #endregion
+#endregion
 
-    #region Services
+#region Services
 
-    services.AddScoped<ITelegraphMangaService, TelegraphMangaService>();
-    services.AddScoped<IConvertTicketsService, ConvertTicketsService>();
-    services.AddScoped<IMessagesStore, MessageStore>();
-    services.AddScoped<ITelegramMessagesService, TelegramMessagesService>();
+builder.Services.AddScoped<ITelegraphMangaService, TelegraphMangaService>();
+builder.Services.AddScoped<IConvertTicketsService, ConvertTicketsService>();
+builder.Services.AddScoped<IMessagesStore, MessageStore>();
+builder.Services.AddScoped<ITelegramMessagesService, TelegramMessagesService>();
 
-    #endregion
-
-}).UseSerilog(Log.Logger);
+#endregion
 
 var cancellationSource = new CancellationTokenSource(); 
 Console.CancelKeyPress += (_, _) =>
@@ -113,8 +114,15 @@ Console.CancelKeyPress += (_, _) =>
     cancellationSource.Cancel();
 };
 
-var host = builder.Build();
-await host.StartAsync(cancellationSource.Token);
+var app = builder.Build();
 
-await BotInitializer.StartReceiveAsync(host.Services, cancellationSource.Token);
-await HttpServer.StartListenAsync(host.Services, cancellationSource.Token);
+app.MapGet("/callback", async (int ticketId, ParsingStatus status, HttpContext context) =>
+{
+    var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
+    await callbackRoute.OnCallbackAsync(ticketId, status);
+
+    await context.Response.WriteAsync("ok");
+});
+
+await app.RunAsync(cancellationSource.Token);
+await HttpServer.StartListenAsync(app.Services, cancellationSource.Token);
