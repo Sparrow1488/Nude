@@ -12,24 +12,24 @@ using Nude.Bot.Tg.Clients.Telegraph;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http;
 using Nude.Bot.Tg.Http.Routes;
-using Nude.Bot.Tg.Services.bgServices;
+using Nude.Bot.Tg.Services.Background;
 using Nude.Bot.Tg.Services.Convert;
 using Nude.Bot.Tg.Services.Manga;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Services.Resolvers;
 using Nude.Bot.Tg.Services.Workers;
-using Nude.Bot.Tg.Telegram;
 using Nude.Bot.Tg.Telegram.Handlers;
 using Serilog;
 using Serilog.Events;
 using Telegram.Bot;
 
-var builder = Host.CreateDefaultBuilder();
+var builder = WebApplication.CreateBuilder(args);
 
 #region Configuration
 
-builder.ConfigureHostConfiguration(x => x.AddUserSecrets(Assembly.GetExecutingAssembly()));
+builder.Host.ConfigureHostConfiguration(
+    x => x.AddUserSecrets(Assembly.GetExecutingAssembly()));
 
 #endregion
 
@@ -43,75 +43,71 @@ Log.Logger = new LoggerConfiguration()
 
 #endregion
 
-builder.ConfigureServices(services =>
+#region Bot
+
+builder.Services.AddSingleton<ITelegramBotClient>(x =>
 {
-    #region Bot
+    var token = x.GetRequiredService<IConfiguration>()[BotDefaults.TelegramAccessTokenSection];
+    return new TelegramBotClient(token);
+});
 
-    services.AddSingleton<ITelegramBotClient>(x =>
-    {
-        var token = x.GetRequiredService<IConfiguration>()[BotDefaults.TelegramAccessTokenSection];
-        return new TelegramBotClient(token);
-    });
+#endregion
 
-    #endregion
-    
-    #region Clients
+#region Clients
 
-    services.AddScoped<INudeClient, NudeClient>();
-    services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
+builder.Services.AddScoped<INudeClient, NudeClient>();
+builder.Services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
 
-    #endregion
+#endregion
 
-    #region Http Routes
+#region Http Routes
 
-    services.AddScoped<CallbackRoute>();
+builder.Services.AddScoped<CallbackRoute>();
 
-    #endregion
-    
-    #region Endpoints
+#endregion
 
-    services.AddSingleton<EndpointsResolver>();
-    services.AddTelegramEndpoints();
+#region Endpoints
 
-    #endregion
+builder.Services.AddSingleton<EndpointsResolver>();
+builder.Services.AddTelegramEndpoints();
 
-    #region Telegram Handlers
+#endregion
 
-    services.AddSingleton<ITelegramHandler, TelegramHandler>();
+#region Telegram Handlers
 
-    #endregion
+builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 
-    #region Database
+#endregion
 
-    void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
-    {
-        var connection = provider.GetRequiredService<IConfiguration>()
-            .GetConnectionString("Database");
-        opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
-    }
+#region Database
 
-    services.AddDbContext<BotDbContext>(ConfigureDatabase);
-    services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
+void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
+{
+    var connection = provider.GetRequiredService<IConfiguration>()
+        .GetConnectionString("Database");
+    opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
+}
 
-    #endregion
+builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
+builder.Services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
 
-    #region Background
+#endregion
 
-    services.AddBackgroundWorker<ConvertingBackgroundWorker>();
-    services.AddHostedService<BotBgService>();
+#region Background
 
-    #endregion
+builder.Services.AddBackgroundWorker<ConvertingBackgroundWorker>();
+builder.Services.AddHostedService<BotBgService>();
 
-    #region Services
+#endregion
 
-    services.AddScoped<ITelegraphMangaService, TelegraphMangaService>();
-    services.AddScoped<IConvertTicketsService, ConvertTicketsService>();
-    services.AddScoped<IMessagesStore, MessageStore>();
-    services.AddScoped<ITelegramMessagesService, TelegramMessagesService>();
+#region Services
 
-    #endregion
+builder.Services.AddScoped<ITelegraphMangaService, TelegraphMangaService>();
+builder.Services.AddScoped<IConvertTicketsService, ConvertTicketsService>();
+builder.Services.AddScoped<IMessagesStore, MessageStore>();
+builder.Services.AddScoped<ITelegramMessagesService, TelegramMessagesService>();
 
-}).UseSerilog(Log.Logger);
+#endregion
 
 var cancellationSource = new CancellationTokenSource(); 
 Console.CancelKeyPress += (_, _) =>

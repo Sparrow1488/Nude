@@ -6,7 +6,7 @@ using Nude.Bot.Tg.Telegram.Handlers;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
-namespace Nude.Bot.Tg.Services.bgServices;
+namespace Nude.Bot.Tg.Services.Background;
 
 public class BotBgService : BackgroundService
 {
@@ -16,7 +16,8 @@ public class BotBgService : BackgroundService
     {
         _services = services;
     }
-    protected async override Task ExecuteAsync(CancellationToken ctk)
+    
+    protected override async Task ExecuteAsync(CancellationToken ctk)
     {
         var bot = _services.GetRequiredService<ITelegramBotClient>();
         var botInfo = await bot.GetMeAsync(ctk);
