@@ -1,5 +1,7 @@
 using AutoMapper;
+using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Manga.Responses;
+using Nude.API.Contracts.Tags.Responses;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;

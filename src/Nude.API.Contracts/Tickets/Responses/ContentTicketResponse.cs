@@ -1,6 +1,6 @@
 using Nude.API.Models.Tickets.States;
 
-namespace Nude.API.Contracts.Tickets;
+namespace Nude.API.Contracts.Tickets.Responses;
 
 public struct ContentTicketResponse
 {

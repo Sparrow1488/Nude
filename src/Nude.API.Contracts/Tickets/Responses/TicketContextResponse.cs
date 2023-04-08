@@ -1,4 +1,4 @@
-namespace Nude.API.Contracts.Tickets;
+namespace Nude.API.Contracts.Tickets.Responses;
 
 public struct TicketContextResponse
 {

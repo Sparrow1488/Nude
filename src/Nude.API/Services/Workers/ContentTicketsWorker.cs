@@ -29,7 +29,7 @@ public class ContentTicketsWorker : IBackgroundWorker
 
         if (ticket == null)
         {
-            _logger.LogDebug("No waiting tickets");
+            _logger.LogDebug("No waiting content-tickets");
             return;
         }
 

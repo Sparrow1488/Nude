@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
+using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;
 using Nude.API.Models.Tags;
@@ -117,5 +118,19 @@ public class MangaService : IMangaService
             .AsQueryable()
             .FirstOrDefaultAsync(x =>
                 x.ExternalMeta != null && x.ExternalMeta.SourceId == id);
+    }
+
+    public async Task<MangaEntry> AddFormatAsync(MangaEntry manga, FormattedContent format)
+    {
+        if (manga.Formats == null)
+        {
+            await _context.Entry(manga).Collection(nameof(manga.Formats)).LoadAsync();
+            manga.Formats ??= new List<FormattedContent>();
+        }
+        
+        manga.Formats.Add(format);
+        await _context.SaveChangesAsync();
+
+        return manga;
     }
 }

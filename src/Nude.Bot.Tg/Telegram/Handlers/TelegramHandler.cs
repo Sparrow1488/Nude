@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using Nude.Bot.Tg.Services.Resolvers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Telegram.Handlers;
 
@@ -25,7 +26,7 @@ public class TelegramHandler : ITelegramHandler
             update?.Message?.Text ?? "no_message",
             update?.Message?.Chat.Username);
 
-        if(update!.Type == global::Telegram.Bot.Types.Enums.UpdateType.Message)
+        if(update!.Type == UpdateType.Message)
         {
             try
             {

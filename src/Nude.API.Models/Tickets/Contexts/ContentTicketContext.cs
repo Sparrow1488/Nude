@@ -2,7 +2,7 @@ using Nude.API.Models.Abstractions;
 
 namespace Nude.API.Models.Tickets.Contexts;
 
-public class TicketContext : IEntity
+public class ContentTicketContext : IEntity
 {
     public int Id { get; set; }
     public string ContentUrl { get; set; }

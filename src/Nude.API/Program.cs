@@ -3,12 +3,14 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Resolvers;
+using Nude.API.Services.Formatters;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Stealers;
 using Nude.API.Services.Tickets;
@@ -87,10 +89,14 @@ builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
+builder.Services.AddScoped<IContentFormatTicketService, ContentFormatTicketService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();
-builder.Services.AddScoped<IContentStealerService, ContentStealerService>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
+builder.Services.AddScoped<IContentStealerService, ContentStealerService>();
+builder.Services.AddScoped<IContentFormatterService, ContentFormatterService>();
+
+builder.Services.AddScoped<ITelegraphClient, DefaultTelegraphClient>();
 
 #endregion
 
@@ -101,8 +107,8 @@ var configureAction = new Action<DbContextOptionsBuilder>(
     x => x.UseNpgsql(
         connectionString, 
         b => b.MigrationsAssembly("Nude.API")));
-// builder.Services.AddDbContextFactory<AppDbContext>(configureAction);
-// builder.Services.AddDbContext<AppDbContext>(configureAction);
+
+builder.Services.AddDbContextFactory<FixedAppDbContext>(configureAction);
 builder.Services.AddDbContext<FixedAppDbContext>(configureAction);
 
 #endregion
@@ -118,6 +124,7 @@ builder.Services.AddAutoMapper(x => x.AddMaps(profilesAssembly));
 #region Background Service
 
 builder.Services.AddBackgroundWorker<ContentTicketsWorker>();
+builder.Services.AddBackgroundWorker<ContentFormatTicketsWorker>();
 
 #endregion
 

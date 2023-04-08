@@ -36,8 +36,10 @@ public class ForeverBackgroundService : BackgroundService
                 return;
             }
             
-            var tasks = workers.Select(x => x.ExecuteAsync(context, stoppingToken));
-            await Task.WhenAll(tasks.ToArray());
+            foreach (var worker in workers)
+            {
+                await worker.ExecuteAsync(context, stoppingToken);
+            }
 
             await Task.Delay(context.Delay, stoppingToken);
         }

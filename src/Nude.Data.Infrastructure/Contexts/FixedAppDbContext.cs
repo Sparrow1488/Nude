@@ -25,9 +25,9 @@ public class FixedAppDbContext : DatabaseContext
     public DbSet<FormattedContent> FormattedContents => Set<FormattedContent>();
     public DbSet<TelegraphContent> TelegraphContents => Set<TelegraphContent>();
     
-    public DbSet<ContentTicket> ContentRequests => Set<ContentTicket>();
+    public DbSet<ContentTicket> ContentTickets => Set<ContentTicket>();
     public DbSet<ContentResult> ContentResults => Set<ContentResult>();
-    public DbSet<TicketContext> TicketContexts => Set<TicketContext>();
+    public DbSet<ContentTicketContext> TicketContexts => Set<ContentTicketContext>();
     
     public DbSet<ContentFormatTicket> FormatTickets => Set<ContentFormatTicket>();
     

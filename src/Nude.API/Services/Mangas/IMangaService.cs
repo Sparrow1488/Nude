@@ -1,3 +1,4 @@
+using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Services.Mangas.Results;
 
@@ -16,4 +17,5 @@ public interface IMangaService
 
     Task<MangaEntry?> GetByIdAsync(int id);
     Task<MangaEntry?> FindBySourceIdAsync(string id);
+    Task<MangaEntry> AddFormatAsync(MangaEntry manga, FormattedContent format);
 }

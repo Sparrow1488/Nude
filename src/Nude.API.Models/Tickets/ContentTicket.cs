@@ -11,6 +11,6 @@ public class ContentTicket : IEntity
     public int Id { get; set; }
     public ReceiveStatus Status { get; set; }
     public ContentResult? Result { get; set; }
-    public TicketContext Context { get; set; } = null!;
+    public ContentTicketContext Context { get; set; } = null!;
     public ICollection<Subscriber> Subscribers { get; set; } = null!;
 }

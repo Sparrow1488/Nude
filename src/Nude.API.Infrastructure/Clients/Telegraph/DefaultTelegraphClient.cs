@@ -4,7 +4,6 @@ using Kvyk.Telegraph.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Infrastructure.Constants;
 using Polly;
 
@@ -35,24 +34,33 @@ public class DefaultTelegraphClient : ITelegraphClient
         _telegraph = new TelegraphClient { AccessToken = accessToken };
     }
 
-    public async Task<string> CreatePageAsync(MangaResponse manga)
+    public async Task<string> CreatePageAsync(string title, string text, IEnumerable<string> images)
     {
-        var title = manga.Title.Split("/")[0].Trim();
-        _logger.LogInformation($"Creating tgh page titled '{title}' with {manga.Images.Count} images");
+        var imagesList = images.ToList();
         
-        var imagePage = 1;
-        var images = manga.Images.Select(x => Node.ImageFigure(x, imagePage++.ToString()));
-        var nodes = new List<Node>
-        {
-            Node.P("С любовью от Nude❤️")
-        };
-        nodes.AddRange(images);
+        _logger.LogInformation($"Creating tgh page titled '{title}' with {imagesList.Count} images");
 
+        var nodes = CreateTelegraphNodes(title, imagesList).ToList();
         var page = await _telegraph.CreatePage(title, nodes);
+        
         _logger.LogInformation("Created tgh page success ({url})", page.Url);
+        
         return page.Url;
     }
-    
+
+    private static IEnumerable<Node> CreateTelegraphNodes(string title, IEnumerable<string> images)
+    {
+        var imagePage = 1;
+        var tghImages = images.Select(x => Node.ImageFigure(x, imagePage++.ToString()));
+        var nodes = new List<Node>
+        {
+            Node.P(title)
+        };
+        nodes.AddRange(tghImages);
+
+        return nodes;
+    }
+
     public async Task<string?> UploadFileAsync(string externalFileUrl)
     {
         _logger.LogDebug("Downloading external file url:{url}", externalFileUrl);

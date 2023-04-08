@@ -29,7 +29,7 @@ public class ContentTicketService : IContentTicketService
         var request = new ContentTicket
         {
             Status = ReceiveStatus.WaitToProcess,
-            Context = new TicketContext
+            Context = new ContentTicketContext
             {
                 ContentUrl = sourceUrl
             }
@@ -65,21 +65,21 @@ public class ContentTicketService : IContentTicketService
 
     public Task<ContentTicket?> GetByIdAsync(int id)
     {
-        return _context.ContentRequests
+        return _context.ContentTickets
             .IncludeDependencies()
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public Task<ContentTicket?> FindSimilarAsync(string sourceUrl)
     {
-        return _context.ContentRequests
+        return _context.ContentTickets
             .IncludeDependencies()
             .FirstOrDefaultAsync(x => x.Context.ContentUrl.Contains(sourceUrl));
     }
 
     public Task<ContentTicket?> GetWaitingAsync()
     {
-        return _context.ContentRequests
+        return _context.ContentTickets
             .IncludeDependencies()
             .FirstOrDefaultAsync(x => x.Status == ReceiveStatus.WaitToProcess);
     }

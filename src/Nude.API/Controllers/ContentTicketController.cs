@@ -2,18 +2,19 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Tickets;
+using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Models.Tickets;
 using Nude.API.Services.Tickets;
 
 namespace Nude.API.Controllers;
 
-[ApiController, Route("tickets")]
-public class TicketsController : ControllerBase
+[ApiController, Route("content-tickets")]
+public class ContentTicketController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly IContentTicketService _service;
 
-    public TicketsController(
+    public ContentTicketController(
         IMapper mapper,
         IContentTicketService service)
     {
