@@ -10,10 +10,12 @@ public interface IFixedMangaService
         string title, 
         string description,
         IEnumerable<string> images,
+        IEnumerable<string>? tags = null,
+        string? author = null,
         string? externalSourceId = null,
         string? externalSourceUrl = null);
 
-    Task<MangaTagsAdditionResult> AddTagsAsync(int mangaId, IEnumerable<Tag> tags);
+    Task<MangaTagsAdditionResult> AddTagsAsync(MangaEntry manga, IEnumerable<Tag> tags);
     Task<MangaEntry?> GetByIdAsync(int id);
     Task<MangaEntry?> FindBySourceIdAsync(string id);
 }

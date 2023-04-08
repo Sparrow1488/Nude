@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Tickets;
@@ -85,12 +86,8 @@ builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IFixedMangaService, FixedMangaService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
-// builder.Services.AddScoped<IParsingTicketsService, ParsingTicketsService>();
 
-// builder.Services.AddScoped<IFeedBackService, CallbackService>();
-
-// builder.Services.AddScoped<IMangaRepository, MangaRepository>();
-// builder.Services.AddScoped<ITagManager, TagManager>();
+builder.Services.AddScoped<ITagManager, TagManager>();
 
 #endregion
 

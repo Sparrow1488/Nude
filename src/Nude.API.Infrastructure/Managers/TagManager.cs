@@ -1,29 +1,29 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Models.Tags;
 using Nude.Data.Infrastructure.Contexts;
-using Nude.Models.Tags;
+using Tag = Nude.API.Models.Tags.Tag;
 
 namespace Nude.API.Infrastructure.Managers;
 
 public class TagManager : ITagManager
 {
-    private readonly AppDbContext _context;
+    private readonly FixedAppDbContext _context;
 
-    public TagManager(AppDbContext context)
+    public TagManager(FixedAppDbContext context)
     {
         _context = context;
     }
     
-    public async Task<Tag> AddAsync(string tag)
+    public async Task<Tag> AddAsync(string tag, TagType type)
     {
-        var created = await AddRangeAsync(new[] {tag});
-        return created.First();
+        var collection = await AddRangeAsync(new[] { tag }, type);
+        return collection.First();
     }
 
-    public async Task<ICollection<Tag>> AddRangeAsync(IEnumerable<string> tags)
+    public async Task<ICollection<Tag>> AddRangeAsync(IEnumerable<string> tags, TagType type)
     {
         var created = new List<Tag>();
-        const string notNormalizedTag = "not_normalized";
-        var normalizedTags = tags.Select(x => NormalizeTag(x) ?? notNormalizedTag).ToList();
+        var normalizedTags = tags.Select(NormalizeTag).ToList();
 
         var existsTags = await _context.Tags
             .Where(x => normalizedTags.Contains(x.NormalizeValue))
@@ -39,7 +39,8 @@ public class TagManager : ITagManager
             .Select(x => new Tag
             {
                 Value = x,
-                NormalizeValue = NormalizeTag(x) ?? notNormalizedTag
+                Type = type,
+                NormalizeValue = NormalizeTag(x)
             })
             .ToList();
 
@@ -51,10 +52,9 @@ public class TagManager : ITagManager
         return created;
     }
 
-    public string? NormalizeTag(string tag)
+    public string NormalizeTag(string tag)
     {
-        // TODO: read from configuration file
-        // external source tag -> normalized tag
-        return tag;
+        var normalize = tag.Where(s => char.IsDigit(s) || char.IsLetter(s));
+        return string.Join("", normalize).ToUpper();
     }
 }

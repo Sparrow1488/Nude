@@ -1,11 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Manga.Responses;
-using Nude.API.Models.Formats;
-using Nude.API.Models.Mangas;
-using Nude.API.Models.Mangas.Meta;
-using Nude.API.Models.Tags;
-using Nude.API.Models.Urls;
 using Nude.API.Services.Mangas;
 using Nude.Data.Infrastructure.Contexts;
 
@@ -31,35 +26,23 @@ public class MangaController : ControllerBase
     [HttpPost]
     public async Task Create()
     {
-        var manga = new MangaEntry
+        var images = new List<string>
         {
-            Title = "Test",
-            Description = "Lorem ipsum",
-            ExternalMeta = new MangaExternalMeta
-            {
-                SourceId = "1488",
-                SourceUrl = "https://huina.com/mangas/1"
-            },
-            Images = new List<MangaImage>
-            {
-                new() { Url = new Url { Value = "img_1.jpg" }},
-                new() { Url = new Url { Value = "img_2.jpg" }},
-                new() { Url = new Url { Value = "img_3.jpg" }}
-            },
-            Tags = new List<Tag>
-            {
-                new() { Value = "asd0", NormalizeValue = "ASD0" },  
-                new() { Value = "asd2", NormalizeValue = "ASD2" },  
-                new() { Value = "gay", NormalizeValue = "GAY", Type = TagType.Author },  
-            },
-            Formats = new List<FormattedContent>
-            {
-                new TelegraphContent { Url = "https://telegra.ph/sex-1" }
-            }
+            "img1.png",
+            "img2.png",
+            "img3.png",
         };
+        
+        var tags = new List<string> { "asd", "dfg", "gfj" };
 
-        await _context.AddAsync(manga);
-        await _context.SaveChangesAsync();
+        await _service.CreateAsync(
+            "Test",
+            "Lorem ipsum",
+            images,
+            tags,
+            author: "No name",
+            externalSourceUrl: "https://hueta.com/1488",
+            externalSourceId: "1488");
     }
 
     [HttpGet("{id}")]

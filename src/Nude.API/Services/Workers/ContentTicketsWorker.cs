@@ -1,12 +1,10 @@
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Infrastructure.Services.Resolvers;
-using Nude.API.Models.Tags;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Mangas.Results;
 using Nude.API.Services.Tickets;
 using Nude.Data.Infrastructure.Contexts;
-using Nude.Models;
 
 namespace Nude.API.Services.Workers;
 
