@@ -1,4 +1,5 @@
 using Nude.API.Infrastructure.Services.Background;
+using Nude.API.Infrastructure.Services.Notifications;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Tickets.States;
@@ -17,17 +18,20 @@ namespace Nude.API.Services.Workers;
 public class ContentFormatTicketsWorker : IBackgroundWorker
 {
     private readonly IMangaService _mangaService;
+    private readonly INotificationService _notificationService;
     private readonly IContentFormatTicketService _ticketService;
     private readonly IContentFormatterService _formatterService;
     private readonly ILogger<ContentFormatTicketsWorker> _logger;
 
     public ContentFormatTicketsWorker(
         IMangaService mangaService,
+        INotificationService notificationService,
         IContentFormatTicketService ticketService,
         IContentFormatterService formatterService,
         ILogger<ContentFormatTicketsWorker> logger)
     {
         _mangaService = mangaService;
+        _notificationService = notificationService;
         _ticketService = ticketService;
         _formatterService = formatterService;
         _logger = logger;
