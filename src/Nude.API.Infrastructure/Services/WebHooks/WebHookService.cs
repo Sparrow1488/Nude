@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Nude.API.Infrastructure.Exceptions;
@@ -26,7 +27,7 @@ public class WebHookService : IWebHookService
             client.Timeout = TimeSpan.FromSeconds(10);
 
             var json = JsonConvert.SerializeObject(content, Formatting.Indented);
-            using var request = new StringContent(json);
+            using var request = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await PostAsync(client, callbackUrl, request);
             _logger.LogInformation("Callback response status '{status}'", response?.StatusCode);

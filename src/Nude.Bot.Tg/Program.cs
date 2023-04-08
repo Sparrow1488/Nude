@@ -9,6 +9,7 @@ using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Extensions;
+using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http;
@@ -116,12 +117,14 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
-app.MapGet("/callback", async (int ticketId, ParsingStatus status, HttpContext context) =>
+app.MapPost("/callback", async ctx =>
 {
-    var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
-    await callbackRoute.OnCallbackAsync(ticketId, status);
-
-    await context.Response.WriteAsync("ok");
+    var subject = await ctx.Request.ReadFromJsonAsync<NotificationSubject>();
+    await ctx.Response.WriteAsync("ok");
+    
+    
+    // var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
+    // await callbackRoute.OnCallbackAsync(ticketId, status);
 });
 
 await app.RunAsync(cancellationSource.Token);
