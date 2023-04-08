@@ -1,4 +1,4 @@
-namespace Nude.API.Services.Steal.Results;
+namespace Nude.API.Services.Stealers.Results;
 
 public class ContentStealingResult
 {

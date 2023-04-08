@@ -10,7 +10,7 @@ using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Resolvers;
 using Nude.API.Services.Mangas;
-using Nude.API.Services.Steal;
+using Nude.API.Services.Stealers;
 using Nude.API.Services.Tickets;
 using Nude.API.Services.Workers;
 using Nude.Authorization.Handlers;
@@ -89,7 +89,7 @@ builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();
-builder.Services.AddScoped<IStealContentService, StealContentService>();
+builder.Services.AddScoped<IContentStealerService, ContentStealerService>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
 
 #endregion

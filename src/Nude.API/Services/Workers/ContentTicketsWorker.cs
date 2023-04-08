@@ -1,8 +1,8 @@
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Models.Tickets.States;
-using Nude.API.Services.Steal;
-using Nude.API.Services.Steal.Results;
+using Nude.API.Services.Stealers;
+using Nude.API.Services.Stealers.Results;
 using Nude.API.Services.Tickets;
 
 namespace Nude.API.Services.Workers;
@@ -11,16 +11,16 @@ public class ContentTicketsWorker : IBackgroundWorker
 {
     private readonly IContentTicketService _ticketService;
     private readonly ILogger<ContentTicketsWorker> _logger;
-    private readonly IStealContentService _stealContentService;
+    private readonly IContentStealerService _contentStealerService;
 
     public ContentTicketsWorker(
         IContentTicketService ticketService,
         ILogger<ContentTicketsWorker> logger,
-        IStealContentService stealContentService)
+        IContentStealerService contentStealerService)
     {
         _ticketService = ticketService;
         _logger = logger;
-        _stealContentService = stealContentService;
+        _contentStealerService = contentStealerService;
     }
     
     public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
@@ -41,7 +41,7 @@ public class ContentTicketsWorker : IBackgroundWorker
             return;
         }
         
-        var stealingResult = await _stealContentService.StealContentAsync(contentUrl);
+        var stealingResult = await _contentStealerService.StealContentAsync(contentUrl);
 
         LogResult(stealingResult);
 

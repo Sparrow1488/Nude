@@ -1,86 +1,35 @@
-# Nude
+# How to get started
 
-## Infrastructure
+1. Скачать последнюю версию **.NET SDK** ([.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0))
 
-```asciidoc
-                 ┌──────────────┐
-                 │              │
-                 │   Database   │
-                 │              │
-                 └────▲─────────┘
-                      │
-   ┌──────────┐       │    ┌─────────────────┐
-   │          │       │    │                 │
-   │ Nude.API ├───────┴────►  Nude-Moon.org  │
-   │          │            │                 │
-   └──┬───▲───┘            └─────────────────┘
-      │   │
-┌─────▼───┴──────┐
-│                └────► Convert manga images
-│  Nude.Tg.Bot   ◄────┘ to Telegraph article
-│                │
-└───────┬────────┘
-        │
-        │
-   ┌────▼─────────────┐
-   │ Telegram Client  │
-   └──────────────────┘
+2. Клонировать репозиторий `Nude` solution
+
+```git
+git clone https://github.com/Sparrow1488/Nude.git
 ```
 
-## TODO
+3. Сконфигурировать `dotnet user-secrets`
 
-**Fix**
+```powershell
+dotnet user-secrets init --porject {project-name}
+```
 
-* ~~Available domains in configuration~~
-
-* ~~Telegraph article source~~
-
-* Check images format before upload to Telegraph (.*webp*)
-
-* Can connect to callback url
-
-**Nude**
-
-* PuppeterSharp optimization requests
-
-* Handle exceptions and retry requests
-
-* More searching patterns (by name, tags, author)
-
-* Search all linked manga
-
-**Nude.API**
-
-* (feature) TagNormalizeConfiguration
-
-* (feature) RuntimeQueryableFilter
-
-* Users
-
-**Nude.Tg.Bot**
-
-* TelegramUsers
-
-**CI/CD**
-
-* Buy VPS
-
-* Install Docker
-
-* Configure Docker Compose
-
-Claims
-
-1. `nude.user.default`
+4. Добавить секреты в проекты.
    
-   * Max 3 parallel processing requests
+   **Секреты для Nude.Bot.Tg:**
+   
+   * "*Credentials:Telegram*" "*{token}*"
+   
+   **Секреты для Nude.API:**
+   
+   Сейчас в проекте есть 2 ресурса, для которых нужно добавить авторизационные данные, это **NudeMoon** и **HentaiChan**:
+   
+   * "*Credentials:{resource}:Login*" "*{login}*"
+   
+   * "*Credentials:{resource}:Password*" "*{password}*"
+   
+   Секреты устанавливаются следующим образом:
 
-2. `nude.user.premium`
-   
-   * Max 10 parallel processing requests
-   
-   * Create manga
-
-3. `nude.user.admin` 
-   
-   * No limit parallel processing requests
+```powershell
+dotnet user-secrets set "Credentials:Telegram" "{token}"
+```

@@ -1,16 +1,16 @@
 using Nude.API.Infrastructure.Services.Resolvers;
 using Nude.API.Models.Mangas;
 using Nude.API.Services.Mangas;
-using Nude.API.Services.Steal.Results;
+using Nude.API.Services.Stealers.Results;
 
-namespace Nude.API.Services.Steal;
+namespace Nude.API.Services.Stealers;
 
-public class StealContentService : IStealContentService
+public class ContentStealerService : IContentStealerService
 {
     private readonly IMangaService _mangaService;
     private readonly IMangaParserResolver _mangaParserResolver;
 
-    public StealContentService(
+    public ContentStealerService(
         IMangaService mangaService,
         IMangaParserResolver mangaParserResolver)
     {
