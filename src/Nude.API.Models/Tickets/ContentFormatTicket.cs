@@ -10,6 +10,6 @@ public class ContentFormatTicket : IEntity
     public int Id { get; set; }
     public FormatType FormatType { get; set; }
     public FormattingStatus Status { get; set; }
-    public FormattedContent? Result { get; set; } = null!;
+    public FormattedContent? Result { get; set; }
     public ContentFormatTicketContext Context { get; set; } = null!;
 }
