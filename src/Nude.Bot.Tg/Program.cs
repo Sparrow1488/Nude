@@ -19,7 +19,6 @@ using Nude.Bot.Tg.Services.Manga;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Services.Resolvers;
-using Nude.Bot.Tg.Services.Workers;
 using Nude.Bot.Tg.Telegram.Handlers;
 using Nude.Models.Tickets.Parsing;
 using Serilog;
@@ -96,8 +95,6 @@ builder.Services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: 
 #endregion
 
 #region Background
-
-builder.Services.AddBackgroundWorker<ConvertingBackgroundWorker>();
 builder.Services.AddHostedService<BotBgService>();
 
 #endregion
