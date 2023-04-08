@@ -10,7 +10,6 @@ public static class ContentTicketExtensions
     {
         return dbSet
             .Include(x => x.Result)
-            .Include(x => x.Context)
-            .Include(x => x.Subscribers);
+            .Include(x => x.Context);
     }
 }

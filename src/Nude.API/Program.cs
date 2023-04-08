@@ -9,10 +9,13 @@ using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
+using Nude.API.Infrastructure.Services.Notifications;
 using Nude.API.Infrastructure.Services.Resolvers;
+using Nude.API.Infrastructure.Services.WebHooks;
 using Nude.API.Services.Formatters;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Stealers;
+using Nude.API.Services.Subscribers;
 using Nude.API.Services.Tickets;
 using Nude.API.Services.Workers;
 using Nude.Authorization.Handlers;
@@ -88,6 +91,7 @@ builder.Services.AddScoped<IAuthorizationHandler<IHentaiChanParser>, HentaiChanA
 builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
+builder.Services.AddScoped<ISubscribersService, SubscribersService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 builder.Services.AddScoped<IContentFormatTicketService, ContentFormatTicketService>();
 
@@ -95,6 +99,9 @@ builder.Services.AddScoped<ITagManager, TagManager>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
 builder.Services.AddScoped<IContentStealerService, ContentStealerService>();
 builder.Services.AddScoped<IContentFormatterService, ContentFormatterService>();
+
+builder.Services.AddScoped<IWebHookService, WebHookService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddScoped<ITelegraphClient, DefaultTelegraphClient>();
 

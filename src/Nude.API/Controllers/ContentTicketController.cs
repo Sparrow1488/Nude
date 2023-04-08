@@ -4,6 +4,7 @@ using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Tickets;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Models.Tickets;
+using Nude.API.Services.Subscribers;
 using Nude.API.Services.Tickets;
 
 namespace Nude.API.Controllers;
@@ -13,13 +14,16 @@ public class ContentTicketController : ControllerBase
 {
     private readonly IMapper _mapper;
     private readonly IContentTicketService _service;
+    private readonly ISubscribersService _subscribersService;
 
     public ContentTicketController(
         IMapper mapper,
-        IContentTicketService service)
+        IContentTicketService service,
+        ISubscribersService subscribersService)
     {
         _mapper = mapper;
         _service = service;
+        _subscribersService = subscribersService;
     }
 
     [HttpPost]
@@ -36,7 +40,7 @@ public class ContentTicketController : ControllerBase
     private Task SubscribeAsync(ContentTicket ticket, string? callback)
     {
         return !string.IsNullOrWhiteSpace(callback) 
-            ? _service.SubscribeAsync(ticket, callback) 
+            ? _subscribersService.CreateAsync(ticket.Id.ToString(), nameof(ContentTicket), callback) 
             : Task.CompletedTask;
     }
     

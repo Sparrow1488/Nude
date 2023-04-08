@@ -84,27 +84,27 @@ public class ContentTicketService : IContentTicketService
             .FirstOrDefaultAsync(x => x.Status == ReceiveStatus.WaitToProcess);
     }
 
-    public async Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback)
-    {
-        ArgumentNullException.ThrowIfNull(callback);
-        
-        var alreadySubscribed = ticket.Subscribers.Any(x => x.CallbackUrl == callback);
-
-        if (!alreadySubscribed)
-        {
-            var subscriber = new Subscriber
-            {
-                CallbackUrl = callback,
-                ContentTicketId = ticket.Id,
-                NotifyStatus = NotifyStatus.All
-            };
-            
-            await _context.AddAsync(subscriber);
-            await _context.SaveChangesAsync();
-            
-            ticket.Subscribers.Add(subscriber);
-        }
-        
-        return ticket.Subscribers.First(x => x.CallbackUrl == callback);
-    }
+    // public async Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback)
+    // {
+    //     // ArgumentNullException.ThrowIfNull(callback);
+    //     //
+    //     // var alreadySubscribed = ticket.Subscribers.Any(x => x.CallbackUrl == callback);
+    //     //
+    //     // if (!alreadySubscribed)
+    //     // {
+    //     //     var subscriber = new Subscriber
+    //     //     {
+    //     //         CallbackUrl = callback,
+    //     //         ContentTicketId = ticket.Id,
+    //     //         NotifyStatus = NotifyStatus.All
+    //     //     };
+    //     //     
+    //     //     await _context.AddAsync(subscriber);
+    //     //     await _context.SaveChangesAsync();
+    //     //     
+    //     //     ticket.Subscribers.Add(subscriber);
+    //     // }
+    //     //
+    //     // return ticket.Subscribers.First(x => x.CallbackUrl == callback);
+    // }
 }

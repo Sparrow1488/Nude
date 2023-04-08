@@ -12,5 +12,5 @@ public interface IContentTicketService
     Task<ContentTicket?> GetByIdAsync(int id);
     Task<ContentTicket?> FindSimilarAsync(string sourceUrl);
     Task<ContentTicket?> GetWaitingAsync();
-    Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback);
+    // Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback);
 }
