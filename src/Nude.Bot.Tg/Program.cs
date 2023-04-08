@@ -12,6 +12,7 @@ using Nude.Bot.Tg.Clients.Telegraph;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http;
 using Nude.Bot.Tg.Http.Routes;
+using Nude.Bot.Tg.Services.bgServices;
 using Nude.Bot.Tg.Services.Convert;
 using Nude.Bot.Tg.Services.Manga;
 using Nude.Bot.Tg.Services.Messages.Store;
@@ -97,6 +98,7 @@ builder.ConfigureServices(services =>
     #region Background
 
     services.AddBackgroundWorker<ConvertingBackgroundWorker>();
+    services.AddHostedService<BotBgService>();
 
     #endregion
 
@@ -118,7 +120,6 @@ Console.CancelKeyPress += (_, _) =>
 };
 
 var host = builder.Build();
-await host.StartAsync(cancellationSource.Token);
+await host.RunAsync(cancellationSource.Token);
 
-await BotInitializer.StartReceiveAsync(host.Services, cancellationSource.Token);
 await HttpServer.StartListenAsync(host.Services, cancellationSource.Token);
