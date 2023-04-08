@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,7 @@ using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Services.Resolvers;
 using Nude.Bot.Tg.Services.Workers;
 using Nude.Bot.Tg.Telegram.Handlers;
+using Nude.Models.Tickets.Parsing;
 using Serilog;
 using Serilog.Events;
 using Telegram.Bot;
@@ -115,7 +117,15 @@ Console.CancelKeyPress += (_, _) =>
     cancellationSource.Cancel();
 };
 
-var host = builder.Build();
-await host.RunAsync(cancellationSource.Token);
+var app = builder.Build();
 
-await HttpServer.StartListenAsync(host.Services, cancellationSource.Token);
+app.MapGet("/callback", async (int ticketId, ParsingStatus status, HttpContext context) =>
+{
+    var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
+    await callbackRoute.OnCallbackAsync(ticketId, status);
+
+    await context.Response.WriteAsync("ok");
+});
+
+await app.RunAsync(cancellationSource.Token);
+await HttpServer.StartListenAsync(app.Services, cancellationSource.Token);
