@@ -1,4 +1,4 @@
-namespace Nude.API.Models.Notifications;
+namespace Nude.API.Models.Notifications.Details;
 
 public abstract class NotificationDetails
 {

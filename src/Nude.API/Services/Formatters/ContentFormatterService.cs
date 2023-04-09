@@ -1,5 +1,7 @@
+using System.Collections;
 using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.API.Models.Formats;
+using Nude.API.Services.Formatters.Variables;
 
 #region Rider annotations
 
@@ -21,6 +23,8 @@ public class ContentFormatterService : IContentFormatterService
         _telegraph = telegraph;
         _logger = logger;
     }
+
+    public event Func<IDictionary, Task>? FormatProgressUpdated;
 
     public async Task<FormattedContent> FormatAsync(
         string title, 
@@ -53,20 +57,39 @@ public class ContentFormatterService : IContentFormatterService
         for (var i = 0; i < images.Count; i++)
         {
             var tghImage = await _telegraph.UploadFileAsync(images[i]);
-            convertedImages.Add(tghImage);
+            convertedImages.Add(tghImage); // TODO: add error to progress variables
 
             var currentImage = i + 1;
-            if (currentImage % 5 == 0 || i == images.Count - 1)
-            { 
-                _logger.LogInformation(
-                    "({current}/{total}) Uploading images to telegraph",
-                    currentImage,
-                    totalImages);
-            }
+            LogUploadingProgress(totalImages, currentImage);
+            
+            if (FormatProgressUpdated != null)
+                await FormatProgressUpdated.Invoke(CreateProgressVariables(totalImages, currentImage));
         }
         
         _logger.LogInformation("Images uploaded success");
 
         return convertedImages;
+    }
+
+    private void LogUploadingProgress(int totalImages, int currentImage)
+    {
+        if (currentImage % 5 == 0 || currentImage == totalImages)
+        { 
+            _logger.LogInformation(
+                "({current}/{total}) Uploading images to telegraph",
+                currentImage,
+                totalImages);
+        }
+    }
+
+    private static IDictionary CreateProgressVariables(
+        int totalImages,
+        int currentImage)
+    {
+        return new Dictionary<string, object>
+        {
+            { FormatProgressVariables.TotalImages, totalImages },
+            { FormatProgressVariables.CurrentImageProcessing, currentImage }
+        };
     }
 }

@@ -1,10 +1,14 @@
+using System.Collections;
+using System.Diagnostics;
 using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Notifications;
+using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.States;
 using Nude.API.Services.Formatters;
+using Nude.API.Services.Formatters.Variables;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
 using Nude.API.Services.Subscribers;
@@ -20,6 +24,9 @@ namespace Nude.API.Services.Workers;
 
 public class ContentFormatTicketsWorker : IBackgroundWorker
 {
+    private readonly Stopwatch _stopwatch;
+    private const string CurrentDiagnosticMethodName = nameof(ContentFormatTicketsWorker);
+    
     private readonly IMangaService _mangaService;
     private readonly ISubscribersService _subscribersService;
     private readonly INotificationService _notificationService;
@@ -41,6 +48,7 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
         _ticketService = ticketService;
         _formatterService = formatterService;
         _logger = logger;
+        _stopwatch = new Stopwatch();
     }
     
     public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
@@ -52,7 +60,9 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
             _logger.LogDebug("No waiting format-tickets");
             return;
         }
-        
+
+        StartStopwatchDiagnostics();
+
         _logger.LogInformation("Starting process format-ticket {id}", ticket.Id);
 
         if (ticket.Context.EntityType == nameof(MangaEntry))
@@ -60,8 +70,11 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
             var manga = await _mangaService.GetByIdAsync(int.Parse(ticket.Context.EntityId));
             var images = manga!.Images.Select(x => x.Url.Value);
             
-            images = new List<string>() { images.First() }; // TODO: У МЕНЯ ХУЕВЫЙ ИНЕТ!!! УДАЛИТЬ!!!
+            images = new List<string>(images.Take(3)); // TODO: У МЕНЯ ХУЕВЫЙ ИНЕТ!!! УДАЛИТЬ!!!
 
+            _formatterService.FormatProgressUpdated += 
+                variables => OnFormatProgressUpdatedAsync(ticket, variables); 
+            
             var format = await _formatterService.FormatAsync(
                 manga.Title,
                 "With Love By Nude",
@@ -75,13 +88,31 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
 
             await NotifySubscribersAsync(ticket);
             
+            EndStopwatchDiagnostics();
+            
             return;
         }
 
         throw new NotImplementedException();
     }
 
-    private async Task NotifySubscribersAsync(ContentFormatTicket ticket)
+    private async Task OnFormatProgressUpdatedAsync(ContentFormatTicket ticket, IDictionary variables)
+    {
+        var details = new FormatProgressDetails();
+        
+        var totalImages = variables[FormatProgressVariables.TotalImages]?.ToString();
+        var currentImage = variables[FormatProgressVariables.CurrentImageProcessing]?.ToString();
+
+        if (!string.IsNullOrWhiteSpace(totalImages))
+            details.TotalImages = int.Parse(totalImages);
+        if (!string.IsNullOrWhiteSpace(currentImage))
+            details.CurrentImage = int.Parse(currentImage);
+
+        await NotifySubscribersAsync(ticket, details);
+    }
+
+    private async Task NotifySubscribersAsync(
+        ContentFormatTicket ticket, NotificationDetails? details = null)
     {
         var ticketId = ticket.Id.ToString();
         const string ticketType = nameof(ContentFormatTicket);
@@ -91,7 +122,7 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
             EntityId = ticketId,
             EntityType = ticketType,
             Status = ticket.Status.ToString(),
-            Details = null
+            Details = details
         };
         
         var subs = await _subscribersService.FindAsync(ticketId, ticketType);
@@ -99,5 +130,28 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
         {
             await _notificationService.NotifyAsync(sub, subject);
         }
+    }
+
+    private void StartStopwatchDiagnostics()
+    {
+        _stopwatch.Start();
+        
+        _logger.LogInformation("Diagnostics of the {method} is stated", CurrentDiagnosticMethodName);
+    }
+
+    private void EndStopwatchDiagnostics()
+    {
+        _stopwatch.Stop();
+
+        var elapsed = _stopwatch.Elapsed;
+        var elapsedTime = string.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+            elapsed.Hours, elapsed.Minutes, elapsed.Seconds,
+            elapsed.Milliseconds / 10);
+        
+        _logger.LogInformation(
+            "{mathod} completed in {time}",
+            CurrentDiagnosticMethodName,
+            elapsedTime
+        );
     }
 }
