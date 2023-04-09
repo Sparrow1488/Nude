@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,7 +26,6 @@ public class LoopBackgroundService : BackgroundService
         {
             Delay = TimeSpan.FromSeconds(2)
         };
-        
         
         while (!stoppingToken.IsCancellationRequested)
         {
