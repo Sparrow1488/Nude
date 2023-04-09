@@ -118,19 +118,18 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
-app.MapPost("/callback", async (
-    HttpContext ctx) =>
+app.MapPost("/callback", async (HttpContext ctx) =>
 {
     var subject = await ctx.Request.ReadFromJsonAsync<NotificationSubject>();
     
     var json = JsonConvert.SerializeObject(subject, Formatting.Indented);
     Console.WriteLine(json);
+
+    var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
+    await callbackRoute.OnCallbackAsync(subject);
     
     ctx.Response.StatusCode = StatusCodes.Status200OK;
     await ctx.Response.WriteAsync("ok");
-
-    // var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
-    // await callbackRoute.OnCallbackAsync(ticketId, status);
 });
 
 await app.RunAsync(cancellationSource.Token);

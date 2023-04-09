@@ -53,7 +53,7 @@ public class HttpServer
                     {
                         var cb = services.GetRequiredService<CallbackRoute>();
                         var enumStatus = Enum.Parse<ParsingStatus>(status);
-                        await cb.OnCallbackAsync(int.Parse(ticketId), enumStatus);
+                        //await cb.OnCallbackAsync(int.Parse(ticketId), enumStatus);
                     }
 
                     context.Response.StatusCode = StatusCodes.Status202Accepted;
