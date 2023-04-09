@@ -1,4 +1,4 @@
-namespace Nude.API.Contracts.Parsing.Requests;
+namespace Nude.API.Contracts.Tickets.Requests;
 
 public struct ContentTicketRequest
 {

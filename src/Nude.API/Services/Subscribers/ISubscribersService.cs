@@ -6,4 +6,5 @@ public interface ISubscribersService
 {
     Task<Subscriber> CreateAsync(string entityId, string entityType, string callbackUrl);
     Task<IEnumerable<Subscriber>> FindAsync(string entityId, string entityType);
+    Task DeleteAsync(Subscriber subscriber);
 }
