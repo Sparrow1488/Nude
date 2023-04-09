@@ -44,15 +44,9 @@ builder.Host.UseSerilog(Log.Logger);
 
 #region Controllers
 
-builder.Services.AddControllers()
-    .AddNewtonsoftJson(options =>
-    {
-        options.SerializerSettings.Formatting = Formatting.Indented;
-        options.SerializerSettings.ContractResolver = new DefaultContractResolver
-        {
-            NamingStrategy = new SnakeCaseNamingStrategy()
-        };
-    });
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson(options => options.BindOptions());
 
 #endregion
 

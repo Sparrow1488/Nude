@@ -6,11 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Nude.API.Infrastructure.Clients.Telegraph;
+using Nude.API.Infrastructure.Configurations.Json;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
-using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
@@ -25,12 +23,8 @@ using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#region Configuration
-
 builder.Host.ConfigureHostConfiguration(
     x => x.AddUserSecrets(Assembly.GetExecutingAssembly()));
-
-#endregion
 
 #region Logger
 
@@ -50,31 +44,16 @@ builder.Services.AddSingleton<ITelegramBotClient>(x =>
     return new TelegramBotClient(token);
 });
 
-#endregion
-
-#region Clients
-
-builder.Services.AddScoped<INudeClient, NudeClient>();
-builder.Services.AddSingleton<ITelegraphClient, DefaultTelegraphClient>();
+builder.Services.AddHostedService<BotBgService>();
+builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 
 #endregion
 
-#region Http Routes
-
-builder.Services.AddScoped<CallbackRoute>();
-
-#endregion
-
-#region Endpoints
+#region Endpoints & Routes
 
 builder.Services.AddSingleton<EndpointsResolver>();
 builder.Services.AddTelegramEndpoints();
-
-#endregion
-
-#region Telegram Handlers
-
-builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
+builder.Services.AddScoped<CallbackRoute>();
 
 #endregion
 
@@ -91,13 +70,9 @@ builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
 
 #endregion
 
-#region Background
-builder.Services.AddHostedService<BotBgService>();
-
-#endregion
-
 #region Services
 
+builder.Services.AddScoped<INudeClient, NudeClient>();
 builder.Services.AddScoped<IMessagesStore, MessageStore>();
 
 #endregion
@@ -114,20 +89,11 @@ app.MapPost("/callback", async ctx =>
 {
     using var content = new StreamContent(ctx.Request.Body);
     var subjectJson = await content.ReadAsStringAsync();
-    
-    var jsonSettings = new JsonSerializerSettings
-    {
-        Formatting = Formatting.Indented,
-        ContractResolver = new DefaultContractResolver
-        {
-            // NamingStrategy = new SnakeCaseNamingStrategy()
-        }
-    };
-    jsonSettings.Converters.Add(new NotificationDetailsConverter());
-    jsonSettings.Converters.Add(new FormattedContentResponseConverter());
-    
-    // TODO: ОТПРАВЛЯТЬ С АПИ ОТВЕТ В SNAKE CASE
-    var subject = JsonConvert.DeserializeObject<NotificationSubject>(subjectJson, jsonSettings);
+
+    var subject = JsonConvert.DeserializeObject<NotificationSubject>(
+        subjectJson, 
+        JsonSettingsProvider.Create()
+    );
 
     var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
     await callbackRoute.OnCallbackAsync(subject!);

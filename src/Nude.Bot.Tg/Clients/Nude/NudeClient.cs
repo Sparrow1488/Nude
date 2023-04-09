@@ -5,6 +5,7 @@ using Newtonsoft.Json.Serialization;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
+using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Formats;
 
@@ -18,17 +19,8 @@ public class NudeClient : INudeClient
     public NudeClient(IConfiguration configuration)
     {
         _baseUrl = configuration["Nude.API:BaseUrl"] ?? throw new Exception("No Nude.API BaseUrl in config");
-        
-        _jsonSerializerSettings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.Indented,
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new SnakeCaseNamingStrategy()
-            }
-        };
-        
-        _jsonSerializerSettings.Converters.Add(new FormattedContentResponseConverter());
+
+        _jsonSerializerSettings = JsonSettingsProvider.Create();
     }
 
     public async Task<MangaResponse?> GetMangaByIdAsync(int id)

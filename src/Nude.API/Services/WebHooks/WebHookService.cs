@@ -1,5 +1,6 @@
 using System.Text;
 using Newtonsoft.Json;
+using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Services.WebHooks.Results;
 
@@ -8,10 +9,12 @@ namespace Nude.API.Services.WebHooks;
 public class WebHookService : IWebHookService
 {
     private readonly ILogger<WebHookService> _logger;
+    private readonly JsonSerializerSettings _settings;
 
     public WebHookService(ILogger<WebHookService> logger)
     {
         _logger = logger;
+        _settings = JsonSettingsProvider.Create();
     }
     
     public async Task<SendingResult> SendAsync<T>(string callbackUrl, T content)
@@ -20,12 +23,12 @@ public class WebHookService : IWebHookService
         
         _logger.LogInformation("Send ticket processed request for url {url}", callbackUrl);
         
-        if (Uri.TryCreate(callbackUrl, UriKind.Absolute, out var url))
+        if (Uri.TryCreate(callbackUrl, UriKind.Absolute, out _))
         {
             using var client = new HttpClient();
             client.Timeout = TimeSpan.FromSeconds(50);
 
-            var json = JsonConvert.SerializeObject(content, Formatting.Indented);
+            var json = JsonConvert.SerializeObject(content, _settings);
             using var request = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await PostAsync(client, callbackUrl, request);
