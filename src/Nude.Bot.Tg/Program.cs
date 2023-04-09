@@ -6,10 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Notifications;
+using Nude.API.Models.Notifications.Details;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http.Routes;
@@ -76,6 +78,23 @@ builder.Services.AddScoped<INudeClient, NudeClient>();
 builder.Services.AddScoped<IMessagesStore, MessageStore>();
 
 #endregion
+
+
+var subj = new NotificationSubject
+{
+    EventDetails = new FormatTicketProgressDetails
+    {
+        CurrentImage = 100,
+        TotalImages = 500,
+        TicketId = 123
+    }
+};
+
+var settings = JsonSettingsProvider.Create();
+var json = JsonConvert.SerializeObject(subj, settings);
+
+var result = JsonConvert.DeserializeObject<NotificationSubject>(json, settings);
+
 
 var cancellationSource = new CancellationTokenSource(); 
 Console.CancelKeyPress += (_, _) =>

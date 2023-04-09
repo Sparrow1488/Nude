@@ -30,37 +30,60 @@ public class ContentTicketsWorker : IBackgroundWorker
         _notificationService = notificationService;
         _contentStealerService = contentStealerService;
     }
+
+    private ContentTicket? Ticket { get; set; }
     
     public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
     {
-        var ticket = await _ticketService.GetWaitingAsync();
-
-        if (ticket == null)
+        try
         {
-            _logger.LogDebug("No waiting content-tickets");
-            return;
-        }
+            Ticket = await _ticketService.GetWaitingAsync();
 
-        var contentUrl = ticket.Context.ContentUrl;
-        if (!AvailableSources.IsAvailable(contentUrl))
+            if (Ticket == null)
+            {
+                _logger.LogDebug("No waiting content-tickets");
+                return;
+            }
+
+            var contentUrl = Ticket.Context.ContentUrl;
+            if (!AvailableSources.IsAvailable(contentUrl))
+            {
+                await _ticketService.UpdateStatusAsync(Ticket, ReceiveStatus.Failed);
+                _logger.LogWarning("Ticket source url is not yet available ({url})", contentUrl);
+                return;
+            }
+
+            var stealingResult = await _contentStealerService.StealContentAsync(contentUrl);
+
+            LogResult(stealingResult);
+
+            var newTicketStatus = stealingResult.IsSuccess
+                ? ReceiveStatus.Success
+                : ReceiveStatus.Failed;
+
+            await _ticketService.UpdateStatusAsync(Ticket, newTicketStatus);
+            await _ticketService.UpdateResultAsync(Ticket, stealingResult.EntryId.ToString(), "...");
+
+            await NotifySubscribersAsync(Ticket, stealingResult);
+        }
+        catch (Exception ex)
         {
-            await _ticketService.UpdateStatusAsync(ticket, ReceiveStatus.Failed);
-            _logger.LogWarning("Ticket source url is not yet available ({url})", contentUrl);
-            return;
+            await HandleExceptionAsync(ex);
         }
+    }
+
+    public async Task HandleExceptionAsync(Exception exception)
+    {
+        if (Ticket == null) return;
+
+        var stealingResult = new ContentStealingResult
+        {
+            IsSuccess = false,
+            Exception = exception
+        };
         
-        var stealingResult = await _contentStealerService.StealContentAsync(contentUrl);
-
-        LogResult(stealingResult);
-
-        var newTicketStatus = stealingResult.IsSuccess
-            ? ReceiveStatus.Success
-            : ReceiveStatus.Failed;
-        
-        await _ticketService.UpdateStatusAsync(ticket, newTicketStatus);
-        await _ticketService.UpdateResultAsync(ticket, stealingResult.EntryId.ToString(), "...");
-
-        await NotifySubscribersAsync(ticket, stealingResult);
+        await _ticketService.UpdateStatusAsync(Ticket, ReceiveStatus.Failed);
+        await NotifySubscribersAsync(Ticket, stealingResult);
     }
 
     private void LogResult(ContentStealingResult result)

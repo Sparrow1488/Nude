@@ -46,12 +46,11 @@ public class LoopBackgroundService : BackgroundService
                 _logger.LogInformation("No any background service worker registered");
                 return;
             }
-            
+
             var tasks = workers.Select(
-                x => x.ExecuteAsync(context, stoppingToken)
-            ).ToArray();
-            
-            Task.WaitAll(tasks, stoppingToken);
+                x => x.ExecuteAsync(context, stoppingToken));
+
+            Task.WaitAll(tasks.ToArray(), stoppingToken);
 
             scopes.ForEach(x => x.Dispose());
             await Task.Delay(context.Delay, stoppingToken);

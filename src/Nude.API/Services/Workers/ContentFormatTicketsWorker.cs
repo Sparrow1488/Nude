@@ -49,52 +49,64 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
     
     public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
     {
-        var ticket = await _ticketService.GetWaitingAsync();
-
-        if (ticket == null)
+        try
         {
-            _logger.LogDebug("No waiting format-tickets");
-            return;
-        }
+            var ticket = await _ticketService.GetWaitingAsync();
 
-        StartStopwatchDiagnostics();
-
-        _logger.LogInformation("Starting process format-ticket {id}", ticket.Id);
-
-        if (ticket.Context.EntityType == nameof(MangaEntry))
-        {
-            var manga = await _mangaService.GetByIdAsync(int.Parse(ticket.Context.EntityId));
-            var images = manga!.Images.Select(x => x.Url.Value);
-            
-            images = new List<string>(images.Take(2)); // TODO: У МЕНЯ ХУЕВЫЙ ИНЕТ!!! УДАЛИТЬ!!!
-
-            _formatterService.FormatProgressUpdated += 
-                variables => OnFormatProgressUpdatedAsync(ticket, variables); 
-            
-            var format = await _formatterService.FormatAsync(
-                manga.Title,
-                "With Love By Nude",
-                images,
-                FormatType.Telegraph);
-
-            await _mangaService.AddFormatAsync(manga, format);
-
-            await _ticketService.UpdateStatusAsync(ticket, FormattingStatus.Success);
-            await _ticketService.UpdateResultAsync(ticket, format);
-
-            var resultDetails = new FormatTicketStatusChangedDetails
+            if (ticket == null)
             {
-                Status = ticket.Status,
-                MangaId = int.Parse(ticket.Context.EntityId)
-            };
-            await NotifySubscribersAsync(resultDetails);
-            
-            EndStopwatchDiagnostics();
-            
-            return;
-        }
+                _logger.LogDebug("No waiting format-tickets");
+                return;
+            }
 
-        _logger.LogError("NotImplementedException");
+            StartStopwatchDiagnostics();
+
+            _logger.LogInformation("Starting process format-ticket {id}", ticket.Id);
+
+            if (ticket.Context.EntityType == nameof(MangaEntry))
+            {
+                var manga = await _mangaService.GetByIdAsync(int.Parse(ticket.Context.EntityId));
+                var images = manga!.Images.Select(x => x.Url.Value);
+
+                images = new List<string>(images.Take(2)); // TODO: У МЕНЯ ХУЕВЫЙ ИНЕТ!!! УДАЛИТЬ!!!
+
+                _formatterService.FormatProgressUpdated +=
+                    variables => OnFormatProgressUpdatedAsync(ticket, variables);
+
+                var format = await _formatterService.FormatAsync(
+                    manga.Title,
+                    "With Love By Nude",
+                    images,
+                    FormatType.Telegraph);
+
+                await _mangaService.AddFormatAsync(manga, format);
+
+                await _ticketService.UpdateStatusAsync(ticket, FormattingStatus.Success);
+                await _ticketService.UpdateResultAsync(ticket, format);
+
+                var resultDetails = new FormatTicketStatusChangedDetails
+                {
+                    Status = ticket.Status,
+                    MangaId = int.Parse(ticket.Context.EntityId)
+                };
+                await NotifySubscribersAsync(resultDetails);
+
+                EndStopwatchDiagnostics();
+
+                return;
+            }
+
+            _logger.LogError("NotImplementedException");
+        }
+        catch (Exception ex)
+        {
+            await HandleExceptionAsync(ex);
+        }
+    }
+
+    public Task HandleExceptionAsync(Exception exception)
+    {
+        return Task.CompletedTask;
     }
 
     private async Task OnFormatProgressUpdatedAsync(ContentFormatTicket ticket, IDictionary variables)
