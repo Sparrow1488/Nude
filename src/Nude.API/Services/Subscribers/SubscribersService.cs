@@ -36,4 +36,14 @@ public class SubscribersService : ISubscribersService
 
         return subscribers;
     }
+
+    public async Task DeleteAsync(Subscriber subscriber)
+    {
+        var exists = await _context.Subscribers.AnyAsync(x => x.Id == subscriber.Id);
+        if (!exists)
+        {
+            _context.Remove(subscriber);
+            await _context.SaveChangesAsync();
+        }
+    }
 }

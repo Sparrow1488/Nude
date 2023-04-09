@@ -1,6 +1,6 @@
-namespace Nude.API.Infrastructure.Services.WebHooks.Results;
+namespace Nude.API.Services.Notifications.Results;
 
-public class SendingResult
+public class NotificationResult
 {
     public bool IsSuccess { get; set; }
     public Exception? Exception { get; set; }

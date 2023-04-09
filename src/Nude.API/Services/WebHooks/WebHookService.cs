@@ -1,10 +1,9 @@
 using System.Text;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Nude.API.Infrastructure.Exceptions;
-using Nude.API.Infrastructure.Services.WebHooks.Results;
+using Nude.API.Services.WebHooks.Results;
 
-namespace Nude.API.Infrastructure.Services.WebHooks;
+namespace Nude.API.Services.WebHooks;
 
 public class WebHookService : IWebHookService
 {
@@ -66,7 +65,8 @@ public class WebHookService : IWebHookService
         if (response == null)
             return new NullReferenceException("Http response null result");
 
-        if (!response.StatusCode.ToString().StartsWith('2'))
+        var statusCode = (int) response.StatusCode;
+        if (statusCode is < 200 or >= 300)
             return new BadClientResponseException($"Get {response.StatusCode} status code in web hook");
 
         return null;

@@ -1,6 +1,5 @@
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.States;
-using Nude.API.Models.Tickets.Subscribers;
 
 namespace Nude.API.Services.Tickets;
 

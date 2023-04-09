@@ -1,9 +1,9 @@
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
-using Nude.API.Infrastructure.Services.Notifications;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.States;
+using Nude.API.Services.Notifications;
 using Nude.API.Services.Stealers;
 using Nude.API.Services.Stealers.Results;
 using Nude.API.Services.Subscribers;

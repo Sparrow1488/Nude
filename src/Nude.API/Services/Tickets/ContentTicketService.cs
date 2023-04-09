@@ -3,7 +3,6 @@ using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.Contexts;
 using Nude.API.Models.Tickets.Results;
 using Nude.API.Models.Tickets.States;
-using Nude.API.Models.Tickets.Subscribers;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.Data.Infrastructure.Extensions;
 

@@ -1,8 +1,8 @@
-using Nude.API.Infrastructure.Services.Notifications.Results;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Tickets.Subscribers;
+using Nude.API.Services.Notifications.Results;
 
-namespace Nude.API.Infrastructure.Services.Notifications;
+namespace Nude.API.Services.Notifications;
 
 public interface INotificationService
 {

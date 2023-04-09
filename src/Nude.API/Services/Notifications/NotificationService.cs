@@ -1,18 +1,23 @@
 using Nude.API.Infrastructure.Exceptions;
-using Nude.API.Infrastructure.Services.Notifications.Results;
-using Nude.API.Infrastructure.Services.WebHooks;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Tickets.Subscribers;
+using Nude.API.Services.Notifications.Results;
+using Nude.API.Services.Subscribers;
+using Nude.API.Services.WebHooks;
 
-namespace Nude.API.Infrastructure.Services.Notifications;
+namespace Nude.API.Services.Notifications;
 
 public class NotificationService : INotificationService
 {
     private readonly IWebHookService _webHookService;
+    private readonly ISubscribersService _subscribersService;
 
-    public NotificationService(IWebHookService webHookService)
+    public NotificationService(
+        IWebHookService webHookService,
+        ISubscribersService subscribersService)
     {
         _webHookService = webHookService;
+        _subscribersService = subscribersService;
     }
     
     public async Task<NotificationResult> NotifyAsync(Subscriber subscriber, NotificationSubject subject)
@@ -20,10 +25,14 @@ public class NotificationService : INotificationService
         if (!string.IsNullOrWhiteSpace(subscriber.CallbackUrl))
         {
             var result = await _webHookService.SendAsync(subscriber.CallbackUrl, subject);
+            if (result.IsSuccess)
+            {
+                await _subscribersService.DeleteAsync(subscriber);
+            }
             return CreateResult(result.IsSuccess, result.Exception);
         }
 
-        var exception = new UnknownCommunicationTypeException();
+        var exception = new UnknownCommunicationTypeException("Supported only WebHooks communication type");
         return CreateResult(false, exception);
     }
 
