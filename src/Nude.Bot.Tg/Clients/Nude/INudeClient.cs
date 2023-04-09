@@ -1,6 +1,4 @@
 using Nude.API.Contracts.Manga.Responses;
-using Nude.API.Contracts.Parsing.Requests;
-using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Models.Formats;

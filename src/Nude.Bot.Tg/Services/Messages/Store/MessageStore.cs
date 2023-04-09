@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Nude.Models.Mangas;
 using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Services.Messages.Store;

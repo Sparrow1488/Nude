@@ -1,23 +1,16 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
-using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Tickets.Requests;
-using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Messages;
-using Nude.API.Models.Tickets;
-using Nude.API.Models.Tickets.States;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Services.Convert;
 using Nude.Bot.Tg.Services.Manga;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
-using Nude.Models.Messages.Telegram;
-using Nude.Models.Tickets.Converting;
-using Nude.Models.Tickets.Parsing;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot.Types.Enums;
 
