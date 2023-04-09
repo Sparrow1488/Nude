@@ -8,11 +8,11 @@ namespace Nude.API.Services.Notifications;
 
 public class NotificationService : INotificationService
 {
-    private readonly FixedAppDbContext _context;
+    private readonly AppDbContext _context;
     private readonly IWebHookService _webHookService;
 
     public NotificationService(
-        FixedAppDbContext context,
+        AppDbContext context,
         IWebHookService webHookService)
     {
         _context = context;

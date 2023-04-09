@@ -22,11 +22,11 @@ namespace Nude.API.Services.Mangas;
 
 public class MangaService : IMangaService
 {
-    private readonly FixedAppDbContext _context;
+    private readonly AppDbContext _context;
     private readonly ITagManager _tagManager;
 
     public MangaService(
-        FixedAppDbContext context,
+        AppDbContext context,
         ITagManager tagManager)
     {
         _context = context;

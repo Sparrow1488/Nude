@@ -11,10 +11,10 @@ namespace Nude.API.Services.Tickets;
 
 public class ContentFormatTicketService : IContentFormatTicketService
 {
-    private readonly FixedAppDbContext _context;
+    private readonly AppDbContext _context;
 
     public ContentFormatTicketService(
-        FixedAppDbContext context)
+        AppDbContext context)
     {
         _context = context;
     }

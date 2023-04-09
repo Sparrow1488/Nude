@@ -113,8 +113,8 @@ var configureAction = new Action<DbContextOptionsBuilder>(
         connectionString, 
         b => b.MigrationsAssembly("Nude.API")));
 
-builder.Services.AddDbContextFactory<FixedAppDbContext>(configureAction);
-builder.Services.AddDbContext<FixedAppDbContext>(configureAction);
+builder.Services.AddDbContextFactory<AppDbContext>(configureAction);
+builder.Services.AddDbContext<AppDbContext>(configureAction);
 
 #endregion
 

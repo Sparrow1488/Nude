@@ -41,7 +41,7 @@ public class NudeClient : INudeClient
         return result;
     }
 
-    public async Task<NewMangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType format)
+    public async Task<NewMangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType? format = null)
     {
         NewMangaResponse? result = null;
         await GetAsync<NewMangaResponse>(
@@ -52,11 +52,11 @@ public class NudeClient : INudeClient
         return result;
     }
 
-    public async Task<NewMangaResponse?> GetRandomMangaAsync()
+    public async Task<NewMangaResponse?> GetRandomMangaAsync(FormatType? format = null)
     {
         NewMangaResponse? response = null;
         await GetAsync<NewMangaResponse>(
-                "/manga/random",
+                "/manga/random?format=" + format,
                 (_, res) => response = res,
                 _ => response = null);
         return response;

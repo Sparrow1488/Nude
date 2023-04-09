@@ -8,10 +8,7 @@ using Nude.API.Models.Formats;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Tickets;
 using Nude.Bot.Tg.Clients.Nude;
-using Nude.Bot.Tg.Services.Convert;
-using Nude.Bot.Tg.Services.Manga;
 using Nude.Bot.Tg.Services.Messages.Store;
-using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot.Types.Enums;
@@ -24,20 +21,14 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     private readonly INudeClient _nudeClient;
     private readonly IConfiguration _configuration;
     private readonly IMessagesStore _messages;
-    private readonly ITelegraphMangaService _mangaService;
-    private readonly IConvertTicketsService _ticketsService;
-    private readonly ITelegramMessagesService _tgMessagesService;
-    private readonly FixedBotDbContext _context;
+    private readonly BotDbContext _context;
     private readonly IServiceProvider _services;
 
     public MangaEndpoint(
         INudeClient nudeClient,
         IConfiguration configuration,
         IMessagesStore messages,
-        ITelegraphMangaService mangaService,
-        IConvertTicketsService ticketsService,
-        ITelegramMessagesService tgMessagesService,
-        FixedBotDbContext context,
+        BotDbContext context,
         IServiceProvider services,
         ILogger<MangaEndpoint> logger)
     {
@@ -45,11 +36,8 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         _nudeClient = nudeClient;
         _configuration = configuration;
         _messages = messages;
-        _mangaService = mangaService;
-        _ticketsService = ticketsService;
         _context = context;
         _services = services;
-        _tgMessagesService = tgMessagesService;
     }
     
     public override async Task HandleAsync()
@@ -60,7 +48,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         {
             var manga = mangaResponse.Value;
             var tghFormat = (TelegraphContentResponse) manga.Formats.First(x => x is TelegraphContentResponse);
-            await MessageAsync(await _messages.GetTghMessageAsync(tghFormat.Url));
+            await MessageAsync(await _messages.GetReadMangaMessageAsync(tghFormat.Url));
             return;
         }
 
@@ -77,7 +65,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         var botMessage = await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
         
         using var scope = _services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<FixedBotDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<BotDbContext>();
         await context.AddAsync(new UserMessages
         {
             ChatId = ChatId,

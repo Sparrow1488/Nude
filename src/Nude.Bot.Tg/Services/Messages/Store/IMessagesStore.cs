@@ -7,7 +7,7 @@ public interface IMessagesStore
         string stage,
         string loaded, 
         string url);
-    Task<MessageItem> GetTghMessageAsync(string manga);
+    Task<MessageItem> GetReadMangaMessageAsync(string manga);
     Task<MessageItem> GetStartMessageAsync();
     Task<MessageItem> GetCallbackFailedMessageAsync();
     Task<MessageItem> GetMenuMessageAsync();

@@ -16,9 +16,9 @@ namespace Nude.API.Services.Tickets;
 
 public class ContentTicketService : IContentTicketService
 {
-    private readonly FixedAppDbContext _context;
+    private readonly AppDbContext _context;
 
-    public ContentTicketService(FixedAppDbContext context)
+    public ContentTicketService(AppDbContext context)
     {
         _context = context;
     }

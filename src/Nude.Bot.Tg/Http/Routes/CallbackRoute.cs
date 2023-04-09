@@ -20,7 +20,7 @@ namespace Nude.Bot.Tg.Http.Routes;
 
 public class CallbackRoute
 {
-    private readonly FixedBotDbContext _context;
+    private readonly BotDbContext _context;
     private readonly IMessagesStore _messagesStore;
     private readonly ILogger<CallbackRoute> _logger;
     private readonly INudeClient _client;
@@ -32,7 +32,7 @@ public class CallbackRoute
         INudeClient client,
         IConfiguration configuration,
         ITelegramBotClient bot,
-        FixedBotDbContext context,
+        BotDbContext context,
         ILogger<CallbackRoute> logger)
     {
         _context = context;

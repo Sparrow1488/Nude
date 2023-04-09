@@ -1,62 +1,45 @@
 using Microsoft.EntityFrameworkCore;
-using Nude.Models.Authors;
-using Nude.Models.Mangas;
-using Nude.Models.Sources;
-using Nude.Models.Tags;
-using Nude.Models.Tickets.Parsing;
-using Nude.Models.Urls;
-using Nude.Models.Users;
-using Nude.Models.Users.Accounts;
-using Nude.Models.Users.Subscriptions;
+using Nude.API.Models.Formats;
+using Nude.API.Models.Mangas;
+using Nude.API.Models.Mangas.Meta;
+using Nude.API.Models.Servers;
+using Nude.API.Models.Tags;
+using Nude.API.Models.Tickets;
+using Nude.API.Models.Tickets.Contexts;
+using Nude.API.Models.Tickets.Results;
+using Nude.API.Models.Urls;
 
 namespace Nude.Data.Infrastructure.Contexts;
 
-public sealed class AppDbContext : DatabaseContext
+public class AppDbContext : DatabaseContext
 {
-    public AppDbContext(DbContextOptions options) : base(options)
-    {
-    }
+    public AppDbContext(DbContextOptions options) : base(options) { }
 
-    public DbSet<Manga> Mangas => Set<Manga>();
+    public DbSet<Server> Servers => Set<Server>();
+    
+    public DbSet<MangaEntry> Mangas => Set<MangaEntry>();
+    public DbSet<MangaExternalMeta> MangaExternalMetas => Set<MangaExternalMeta>();
+    
     public DbSet<Url> Urls => Set<Url>();
-    public DbSet<MangaImage> MangaImages => Set<MangaImage>();
-    public DbSet<Author> Authors => Set<Author>();
     public DbSet<Tag> Tags => Set<Tag>();
-    public DbSet<Source> Sources => Set<Source>();
-    public DbSet<ParsingTicket> ParsingTickets => Set<ParsingTicket>();
-    public DbSet<ParsingMeta> ParsingMetas => Set<ParsingMeta>();
-    public DbSet<FeedBackInfo> FeedBackInfos => Set<FeedBackInfo>();
-    public DbSet<ParsingResult> ParsingResults => Set<ParsingResult>();
-    public DbSet<Subscriber> Subscribers => Set<Subscriber>();
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Account> Accounts => Set<Account>();
-    public DbSet<TelegramAccount> TelegramAccounts => Set<TelegramAccount>();
-    public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
-    public DbSet<Subscription> Subscription => Set<Subscription>();
+    public DbSet<MangaImage> MangaImages => Set<MangaImage>();
+    
+    public DbSet<FormattedContent> FormattedContents => Set<FormattedContent>();
+    public DbSet<TelegraphContent> TelegraphContents => Set<TelegraphContent>();
+    
+    public DbSet<ContentTicket> ContentTickets => Set<ContentTicket>();
+    public DbSet<ContentResult> ContentResults => Set<ContentResult>();
+    public DbSet<ContentTicketContext> TicketContexts => Set<ContentTicketContext>();
+    
+    public DbSet<ContentFormatTicket> FormatTickets => Set<ContentFormatTicket>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<ParsingTicket>()
-            .HasOne(x => x.Meta)
-            .WithOne(x => x.Ticket)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        modelBuilder.Entity<ParsingTicket>()
-            .HasOne(x => x.Result)
-            .WithOne(x => x.Ticket)
-            .OnDelete(DeleteBehavior.Cascade);
-        
-        modelBuilder.Entity<User>()
-            .HasOne(x => x.UserSubscription)
-            .WithOne(x => x.Owner)
-            .HasForeignKey<UserSubscription>()
-            .OnDelete(DeleteBehavior.Cascade);
-        //
-        // modelBuilder.Entity<Subscription>()
-        //     .HasMany(x => x.UserSubscriptions)
-        //     .WithOne(x => x.Subscription)
-        //     .OnDelete(DeleteBehavior.Cascade);
-        
-        base.OnModelCreating(modelBuilder);
-    }
+    #region Feature
+
+    // public DbSet<User> Users => Set<User>();
+    // public DbSet<Account> Accounts => Set<Account>();
+    // public DbSet<TelegramAccount> TelegramAccounts => Set<TelegramAccount>();
+    // public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
+    // public DbSet<Subscription> Subscription => Set<Subscription>();
+
+    #endregion
 }

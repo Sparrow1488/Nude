@@ -14,13 +14,9 @@ using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
-using Nude.Bot.Tg.Http;
 using Nude.Bot.Tg.Http.Routes;
 using Nude.Bot.Tg.Services.Background;
-using Nude.Bot.Tg.Services.Convert;
-using Nude.Bot.Tg.Services.Manga;
 using Nude.Bot.Tg.Services.Messages.Store;
-using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Services.Resolvers;
 using Nude.Bot.Tg.Telegram.Handlers;
 using Serilog;
@@ -91,10 +87,7 @@ void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
     opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
 }
 
-builder.Services.AddDbContext<FixedBotDbContext>(ConfigureDatabase);
 builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
-
-// builder.Services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
 
 #endregion
 
@@ -105,10 +98,7 @@ builder.Services.AddHostedService<BotBgService>();
 
 #region Services
 
-builder.Services.AddScoped<ITelegraphMangaService, TelegraphMangaService>();
-builder.Services.AddScoped<IConvertTicketsService, ConvertTicketsService>();
 builder.Services.AddScoped<IMessagesStore, MessageStore>();
-builder.Services.AddScoped<ITelegramMessagesService, TelegramMessagesService>();
 
 #endregion
 

@@ -1,20 +1,31 @@
-using Nude.Bot.Tg.Services.Manga;
+using Nude.API.Contracts.Formats.Responses;
+using Nude.API.Models.Formats;
+using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
 
 public class RandomEndpoint : TelegramUpdateCommandEndpoint
 {
-    private readonly ITelegraphMangaService _tghMangaService;
+    private readonly INudeClient _client;
 
-    public RandomEndpoint(ITelegraphMangaService tghMangaService) : base("/random")
+    public RandomEndpoint(INudeClient client) : base("/random")
     {
-        _tghMangaService = tghMangaService;
+        _client = client;
     }
     
     public override async Task HandleAsync()
     {
-        var manga = await _tghMangaService.GetRandomAsync();
-        //await MessageAsync(await MessagesStore.GetTghMessageAsync(manga!));
+        var manga = await _client.GetRandomMangaAsync(FormatType.Telegraph);
+        if (manga != null)
+        {
+            var telegraph = (TelegraphContentResponse) manga.Value.Formats.First(
+                x => x is TelegraphContentResponse);
+            
+            await MessageAsync(await MessagesStore.GetReadMangaMessageAsync(telegraph.Url));
+            return;
+        }
+
+        await MessageAsync("Увы, не найдено ни одной манги!");
     }
 }

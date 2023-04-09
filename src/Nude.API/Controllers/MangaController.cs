@@ -11,12 +11,12 @@ namespace Nude.API.Controllers;
 public class MangaController : ControllerBase
 {
     private readonly IMapper _mapper;
-    private readonly FixedAppDbContext _context;
+    private readonly AppDbContext _context;
     private readonly IMangaService _service;
 
     public MangaController(
         IMapper mapper,
-        FixedAppDbContext context,
+        AppDbContext context,
         IMangaService service)
     {
         _mapper = mapper;

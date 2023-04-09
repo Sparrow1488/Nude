@@ -9,11 +9,11 @@ using Nude.Data.Infrastructure.Contexts;
 
 #nullable disable
 
-namespace Nude.API.Migrations.FixedAppDb
+namespace Nude.API.Migrations
 {
-    [DbContext(typeof(FixedAppDbContext))]
-    [Migration("20230408222813_0.0.9")]
-    partial class _009
+    [DbContext(typeof(AppDbContext))]
+    [Migration("20230409180812_0.0.1")]
+    partial class _001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -138,6 +138,26 @@ namespace Nude.API.Migrations.FixedAppDb
                     b.HasKey("Id");
 
                     b.ToTable("MangaExternalMetas");
+                });
+
+            modelBuilder.Entity("Nude.API.Models.Servers.Server", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NotificationsCallbackUrl")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Servers");
                 });
 
             modelBuilder.Entity("Nude.API.Models.Tags.Tag", b =>
@@ -278,30 +298,6 @@ namespace Nude.API.Migrations.FixedAppDb
                     b.HasKey("Id");
 
                     b.ToTable("ContentResults");
-                });
-
-            modelBuilder.Entity("Nude.API.Models.Tickets.Subscribers.Subscriber", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CallbackUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("EntityId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("EntityType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Subscribers");
                 });
 
             modelBuilder.Entity("Nude.API.Models.Urls.Url", b =>

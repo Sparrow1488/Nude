@@ -22,7 +22,7 @@ namespace Nude.API.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("MangaTag", b =>
+            modelBuilder.Entity("MangaEntryTag", b =>
                 {
                     b.Property<int>("MangasId")
                         .HasColumnType("integer");
@@ -34,10 +34,10 @@ namespace Nude.API.Migrations
 
                     b.HasIndex("TagsId");
 
-                    b.ToTable("MangaTag");
+                    b.ToTable("MangaEntryTag");
                 });
 
-            modelBuilder.Entity("Nude.Models.Authors.Author", b =>
+            modelBuilder.Entity("Nude.API.Models.Formats.FormattedContent", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -45,25 +45,32 @@ namespace Nude.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Discriminator")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int?>("MangaEntryId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Authors");
+                    b.HasIndex("MangaEntryId");
+
+                    b.ToTable("FormattedContents");
+
+                    b.HasDiscriminator<string>("Discriminator").HasValue("FormattedContent");
                 });
 
-            modelBuilder.Entity("Nude.Models.Mangas.Manga", b =>
+            modelBuilder.Entity("Nude.API.Models.Mangas.MangaEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("integer");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -72,16 +79,7 @@ namespace Nude.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("ExternalId")
-                        .HasColumnType("text");
-
-                    b.Property<int>("Likes")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("OriginUrlId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("SourceId")
+                    b.Property<int?>("ExternalMetaId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
@@ -93,16 +91,12 @@ namespace Nude.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthorId");
-
-                    b.HasIndex("OriginUrlId");
-
-                    b.HasIndex("SourceId");
+                    b.HasIndex("ExternalMetaId");
 
                     b.ToTable("Mangas");
                 });
 
-            modelBuilder.Entity("Nude.Models.Mangas.MangaImage", b =>
+            modelBuilder.Entity("Nude.API.Models.Mangas.MangaImage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -110,7 +104,7 @@ namespace Nude.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("MangaId")
+                    b.Property<int>("MangaEntryId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UrlId")
@@ -118,14 +112,14 @@ namespace Nude.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MangaId");
+                    b.HasIndex("MangaEntryId");
 
                     b.HasIndex("UrlId");
 
                     b.ToTable("MangaImages");
                 });
 
-            modelBuilder.Entity("Nude.Models.Sources.Source", b =>
+            modelBuilder.Entity("Nude.API.Models.Mangas.Meta.MangaExternalMeta", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -133,15 +127,38 @@ namespace Nude.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
+                    b.Property<string>("SourceId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SourceUrl")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Sources");
+                    b.ToTable("MangaExternalMetas");
                 });
 
-            modelBuilder.Entity("Nude.Models.Tags.Tag", b =>
+            modelBuilder.Entity("Nude.API.Models.Servers.Server", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("NotificationsCallbackUrl")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Servers");
+                });
+
+            modelBuilder.Entity("Nude.API.Models.Tags.Tag", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -150,8 +167,10 @@ namespace Nude.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("NormalizeValue")
-                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -162,7 +181,7 @@ namespace Nude.API.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.FeedBackInfo", b =>
+            modelBuilder.Entity("Nude.API.Models.Tickets.ContentFormatTicket", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -170,15 +189,28 @@ namespace Nude.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CallbackUrl")
-                        .HasColumnType("text");
+                    b.Property<int>("ContextId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("FormatType")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("ResultId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.ToTable("FeedBackInfos");
+                    b.HasIndex("ContextId");
+
+                    b.HasIndex("ResultId");
+
+                    b.ToTable("FormatTickets");
                 });
 
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.ParsingMeta", b =>
+            modelBuilder.Entity("Nude.API.Models.Tickets.ContentTicket", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -186,28 +218,25 @@ namespace Nude.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("EntityType")
+                    b.Property<int>("ContextId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("SourceItemId")
-                        .HasColumnType("text");
+                    b.Property<int?>("ResultId")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("SourceUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("TicketId")
+                    b.Property<int>("Status")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TicketId")
-                        .IsUnique();
+                    b.HasIndex("ContextId");
 
-                    b.ToTable("ParsingMetas");
+                    b.HasIndex("ResultId");
+
+                    b.ToTable("ContentTickets");
                 });
 
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.ParsingResult", b =>
+            modelBuilder.Entity("Nude.API.Models.Tickets.Contexts.ContentFormatTicketContext", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -216,28 +245,19 @@ namespace Nude.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("EntityId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("StatusCode")
+                    b.Property<string>("EntityType")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("TicketId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TicketId")
-                        .IsUnique();
-
-                    b.ToTable("ParsingResults");
+                    b.ToTable("ContentFormatTicketContext");
                 });
 
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.ParsingTicket", b =>
+            modelBuilder.Entity("Nude.API.Models.Tickets.Contexts.ContentTicketContext", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -245,15 +265,19 @@ namespace Nude.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("ContentId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContentUrl")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ParsingTickets");
+                    b.ToTable("TicketContexts");
                 });
 
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.Subscriber", b =>
+            modelBuilder.Entity("Nude.API.Models.Tickets.Results.ContentResult", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -261,29 +285,26 @@ namespace Nude.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("FeedBackInfoId")
-                        .HasColumnType("integer");
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("NotifyStatus")
-                        .HasColumnType("integer");
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FeedBackInfoId");
-
-                    b.ToTable("Subscribers");
+                    b.ToTable("ContentResults");
                 });
 
-            modelBuilder.Entity("Nude.Models.Urls.Url", b =>
+            modelBuilder.Entity("Nude.API.Models.Urls.Url", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Value")
                         .IsRequired()
@@ -294,280 +315,106 @@ namespace Nude.API.Migrations
                     b.ToTable("Urls");
                 });
 
-            modelBuilder.Entity("Nude.Models.Users.Accounts.Account", b =>
+            modelBuilder.Entity("Nude.API.Models.Formats.TelegraphContent", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                    b.HasBaseType("Nude.API.Models.Formats.FormattedContent");
 
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Discriminator")
+                    b.Property<string>("Url")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OwnerId");
-
-                    b.ToTable("Accounts");
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Account");
+                    b.HasDiscriminator().HasValue("TelegraphContent");
                 });
 
-            modelBuilder.Entity("Nude.Models.Users.Subscriptions.Subscription", b =>
+            modelBuilder.Entity("MangaEntryTag", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Subscription");
-                });
-
-            modelBuilder.Entity("Nude.Models.Users.Subscriptions.UserSubscription", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("IssuedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("SubscriptionId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubscriptionId");
-
-                    b.ToTable("UserSubscriptions");
-                });
-
-            modelBuilder.Entity("Nude.Models.Users.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("ParsingTicketSubscriber", b =>
-                {
-                    b.Property<int>("SubscribersId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TicketsId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("SubscribersId", "TicketsId");
-
-                    b.HasIndex("TicketsId");
-
-                    b.ToTable("ParsingTicketSubscriber");
-                });
-
-            modelBuilder.Entity("Nude.Models.Users.Accounts.TelegramAccount", b =>
-                {
-                    b.HasBaseType("Nude.Models.Users.Accounts.Account");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasDiscriminator().HasValue("TelegramAccount");
-                });
-
-            modelBuilder.Entity("MangaTag", b =>
-                {
-                    b.HasOne("Nude.Models.Mangas.Manga", null)
+                    b.HasOne("Nude.API.Models.Mangas.MangaEntry", null)
                         .WithMany()
                         .HasForeignKey("MangasId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Nude.Models.Tags.Tag", null)
+                    b.HasOne("Nude.API.Models.Tags.Tag", null)
                         .WithMany()
                         .HasForeignKey("TagsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Nude.Models.Mangas.Manga", b =>
+            modelBuilder.Entity("Nude.API.Models.Formats.FormattedContent", b =>
                 {
-                    b.HasOne("Nude.Models.Authors.Author", "Author")
-                        .WithMany("Mangas")
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Nude.Models.Urls.Url", "OriginUrl")
-                        .WithMany()
-                        .HasForeignKey("OriginUrlId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Nude.Models.Sources.Source", "Source")
-                        .WithMany("Mangas")
-                        .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Author");
-
-                    b.Navigation("OriginUrl");
-
-                    b.Navigation("Source");
+                    b.HasOne("Nude.API.Models.Mangas.MangaEntry", null)
+                        .WithMany("Formats")
+                        .HasForeignKey("MangaEntryId");
                 });
 
-            modelBuilder.Entity("Nude.Models.Mangas.MangaImage", b =>
+            modelBuilder.Entity("Nude.API.Models.Mangas.MangaEntry", b =>
                 {
-                    b.HasOne("Nude.Models.Mangas.Manga", "Manga")
+                    b.HasOne("Nude.API.Models.Mangas.Meta.MangaExternalMeta", "ExternalMeta")
+                        .WithMany()
+                        .HasForeignKey("ExternalMetaId");
+
+                    b.Navigation("ExternalMeta");
+                });
+
+            modelBuilder.Entity("Nude.API.Models.Mangas.MangaImage", b =>
+                {
+                    b.HasOne("Nude.API.Models.Mangas.MangaEntry", "MangaEntry")
                         .WithMany("Images")
-                        .HasForeignKey("MangaId")
+                        .HasForeignKey("MangaEntryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Nude.Models.Urls.Url", "Url")
+                    b.HasOne("Nude.API.Models.Urls.Url", "Url")
                         .WithMany()
                         .HasForeignKey("UrlId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Manga");
+                    b.Navigation("MangaEntry");
 
                     b.Navigation("Url");
                 });
 
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.ParsingMeta", b =>
+            modelBuilder.Entity("Nude.API.Models.Tickets.ContentFormatTicket", b =>
                 {
-                    b.HasOne("Nude.Models.Tickets.Parsing.ParsingTicket", "Ticket")
-                        .WithOne("Meta")
-                        .HasForeignKey("Nude.Models.Tickets.Parsing.ParsingMeta", "TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ticket");
-                });
-
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.ParsingResult", b =>
-                {
-                    b.HasOne("Nude.Models.Tickets.Parsing.ParsingTicket", "Ticket")
-                        .WithOne("Result")
-                        .HasForeignKey("Nude.Models.Tickets.Parsing.ParsingResult", "TicketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Ticket");
-                });
-
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.Subscriber", b =>
-                {
-                    b.HasOne("Nude.Models.Tickets.Parsing.FeedBackInfo", "FeedBackInfo")
+                    b.HasOne("Nude.API.Models.Tickets.Contexts.ContentFormatTicketContext", "Context")
                         .WithMany()
-                        .HasForeignKey("FeedBackInfoId")
+                        .HasForeignKey("ContextId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("FeedBackInfo");
-                });
-
-            modelBuilder.Entity("Nude.Models.Users.Accounts.Account", b =>
-                {
-                    b.HasOne("Nude.Models.Users.User", "Owner")
-                        .WithMany("Accounts")
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("Nude.Models.Users.Subscriptions.UserSubscription", b =>
-                {
-                    b.HasOne("Nude.Models.Users.User", "Owner")
-                        .WithOne("UserSubscription")
-                        .HasForeignKey("Nude.Models.Users.Subscriptions.UserSubscription", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Nude.Models.Users.Subscriptions.Subscription", "Subscription")
-                        .WithMany("UserSubscriptions")
-                        .HasForeignKey("SubscriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
-
-                    b.Navigation("Subscription");
-                });
-
-            modelBuilder.Entity("ParsingTicketSubscriber", b =>
-                {
-                    b.HasOne("Nude.Models.Tickets.Parsing.Subscriber", null)
+                    b.HasOne("Nude.API.Models.Formats.FormattedContent", "Result")
                         .WithMany()
-                        .HasForeignKey("SubscribersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ResultId");
 
-                    b.HasOne("Nude.Models.Tickets.Parsing.ParsingTicket", null)
+                    b.Navigation("Context");
+
+                    b.Navigation("Result");
+                });
+
+            modelBuilder.Entity("Nude.API.Models.Tickets.ContentTicket", b =>
+                {
+                    b.HasOne("Nude.API.Models.Tickets.Contexts.ContentTicketContext", "Context")
                         .WithMany()
-                        .HasForeignKey("TicketsId")
+                        .HasForeignKey("ContextId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Nude.API.Models.Tickets.Results.ContentResult", "Result")
+                        .WithMany()
+                        .HasForeignKey("ResultId");
+
+                    b.Navigation("Context");
+
+                    b.Navigation("Result");
                 });
 
-            modelBuilder.Entity("Nude.Models.Authors.Author", b =>
+            modelBuilder.Entity("Nude.API.Models.Mangas.MangaEntry", b =>
                 {
-                    b.Navigation("Mangas");
-                });
+                    b.Navigation("Formats");
 
-            modelBuilder.Entity("Nude.Models.Mangas.Manga", b =>
-                {
                     b.Navigation("Images");
-                });
-
-            modelBuilder.Entity("Nude.Models.Sources.Source", b =>
-                {
-                    b.Navigation("Mangas");
-                });
-
-            modelBuilder.Entity("Nude.Models.Tickets.Parsing.ParsingTicket", b =>
-                {
-                    b.Navigation("Meta")
-                        .IsRequired();
-
-                    b.Navigation("Result")
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Nude.Models.Users.Subscriptions.Subscription", b =>
-                {
-                    b.Navigation("UserSubscriptions");
-                });
-
-            modelBuilder.Entity("Nude.Models.Users.User", b =>
-                {
-                    b.Navigation("Accounts");
-
-                    b.Navigation("UserSubscription")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

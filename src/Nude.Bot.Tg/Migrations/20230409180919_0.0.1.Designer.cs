@@ -11,8 +11,8 @@ using Nude.Data.Infrastructure.Contexts;
 namespace Nude.Bot.Tg.Migrations
 {
     [DbContext(typeof(BotDbContext))]
-    [Migration("20230302210553_0.0.2")]
-    partial class _002
+    [Migration("20230409180919_0.0.1")]
+    partial class _001
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,28 +23,7 @@ namespace Nude.Bot.Tg.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Nude.Models.Mangas.TghManga", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ExternalId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("TghUrl")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("TghMangas");
-                });
-
-            modelBuilder.Entity("Nude.Models.Tickets.Converting.ConvertingTicket", b =>
+            modelBuilder.Entity("Nude.API.Models.Messages.UserMessages", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -55,16 +34,26 @@ namespace Nude.Bot.Tg.Migrations
                     b.Property<long>("ChatId")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("ParsingTicketId")
+                    b.Property<long>("MessageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TicketType")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserKey")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.ToTable("ConvertingTickets");
+                    b.ToTable("Messages");
                 });
 #pragma warning restore 612, 618
         }

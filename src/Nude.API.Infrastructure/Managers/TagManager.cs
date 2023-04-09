@@ -7,9 +7,9 @@ namespace Nude.API.Infrastructure.Managers;
 
 public class TagManager : ITagManager
 {
-    private readonly FixedAppDbContext _context;
+    private readonly AppDbContext _context;
 
-    public TagManager(FixedAppDbContext context)
+    public TagManager(AppDbContext context)
     {
         _context = context;
     }

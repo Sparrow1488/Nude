@@ -24,7 +24,7 @@ public class MessageStore : IMessagesStore
         return new MessageItem(text, ParseMode.MarkdownV2);
     }
 
-    public Task<MessageItem> GetTghMessageAsync(string manga)
+    public Task<MessageItem> GetReadMangaMessageAsync(string manga)
     {
         var text = $"[Читать онлине]({manga})";
         return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));

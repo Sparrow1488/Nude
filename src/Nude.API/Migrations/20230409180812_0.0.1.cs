@@ -1,14 +1,43 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Nude.API.Migrations.FixedAppDb
+namespace Nude.API.Migrations
 {
     public partial class _001 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "ContentFormatTicketContext",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EntityId = table.Column<string>(type: "text", nullable: false),
+                    EntityType = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContentFormatTicketContext", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ContentResults",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    EntityId = table.Column<string>(type: "text", nullable: false),
+                    Code = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ContentResults", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "MangaExternalMetas",
                 columns: table => new
@@ -24,31 +53,17 @@ namespace Nude.API.Migrations.FixedAppDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "ReceiveContexts",
+                name: "Servers",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ContentUrl = table.Column<string>(type: "text", nullable: false),
-                    ContentId = table.Column<string>(type: "text", nullable: true)
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    NotificationsCallbackUrl = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReceiveContexts", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ReceiveResults",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    EntityId = table.Column<string>(type: "text", nullable: false),
-                    Code = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ReceiveResults", x => x.Id);
+                    table.PrimaryKey("PK_Servers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -58,12 +73,26 @@ namespace Nude.API.Migrations.FixedAppDb
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Value = table.Column<string>(type: "text", nullable: false),
-                    NormalizeValue = table.Column<string>(type: "text", nullable: false),
+                    NormalizeValue = table.Column<string>(type: "text", nullable: true),
                     Type = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tags", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketContexts",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ContentUrl = table.Column<string>(type: "text", nullable: false),
+                    ContentId = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketContexts", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -102,7 +131,7 @@ namespace Nude.API.Migrations.FixedAppDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "ReceiveRequests",
+                name: "ContentTickets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -113,18 +142,18 @@ namespace Nude.API.Migrations.FixedAppDb
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReceiveRequests", x => x.Id);
+                    table.PrimaryKey("PK_ContentTickets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ReceiveRequests_ReceiveContexts_ContextId",
+                        name: "FK_ContentTickets_ContentResults_ResultId",
+                        column: x => x.ResultId,
+                        principalTable: "ContentResults",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_ContentTickets_TicketContexts_ContextId",
                         column: x => x.ContextId,
-                        principalTable: "ReceiveContexts",
+                        principalTable: "TicketContexts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ReceiveRequests_ReceiveResults_ResultId",
-                        column: x => x.ResultId,
-                        principalTable: "ReceiveResults",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -135,17 +164,41 @@ namespace Nude.API.Migrations.FixedAppDb
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Type = table.Column<int>(type: "integer", nullable: false),
                     Discriminator = table.Column<string>(type: "text", nullable: false),
-                    MangaId = table.Column<int>(type: "integer", nullable: true),
+                    MangaEntryId = table.Column<int>(type: "integer", nullable: true),
                     Url = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FormattedContents", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FormattedContents_Mangas_MangaId",
-                        column: x => x.MangaId,
+                        name: "FK_FormattedContents_Mangas_MangaEntryId",
+                        column: x => x.MangaEntryId,
                         principalTable: "Mangas",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MangaEntryTag",
+                columns: table => new
+                {
+                    MangasId = table.Column<int>(type: "integer", nullable: false),
+                    TagsId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MangaEntryTag", x => new { x.MangasId, x.TagsId });
+                    table.ForeignKey(
+                        name: "FK_MangaEntryTag_Mangas_MangasId",
+                        column: x => x.MangasId,
+                        principalTable: "Mangas",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MangaEntryTag_Tags_TagsId",
+                        column: x => x.TagsId,
+                        principalTable: "Tags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -155,14 +208,14 @@ namespace Nude.API.Migrations.FixedAppDb
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UrlId = table.Column<int>(type: "integer", nullable: false),
-                    MangaId = table.Column<int>(type: "integer", nullable: false)
+                    MangaEntryId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_MangaImages", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_MangaImages_Mangas_MangaId",
-                        column: x => x.MangaId,
+                        name: "FK_MangaImages_Mangas_MangaEntryId",
+                        column: x => x.MangaEntryId,
                         principalTable: "Mangas",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -175,83 +228,66 @@ namespace Nude.API.Migrations.FixedAppDb
                 });
 
             migrationBuilder.CreateTable(
-                name: "MangaTag",
-                columns: table => new
-                {
-                    MangasId = table.Column<int>(type: "integer", nullable: false),
-                    TagsId = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MangaTag", x => new { x.MangasId, x.TagsId });
-                    table.ForeignKey(
-                        name: "FK_MangaTag_Mangas_MangasId",
-                        column: x => x.MangasId,
-                        principalTable: "Mangas",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MangaTag_Tags_TagsId",
-                        column: x => x.TagsId,
-                        principalTable: "Tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Subscribers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    NotifyStatus = table.Column<int>(type: "integer", nullable: false),
-                    CallbackUrl = table.Column<string>(type: "text", nullable: true),
-                    ReceiveContentRequestId = table.Column<int>(type: "integer", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Subscribers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Subscribers_ReceiveRequests_ReceiveContentRequestId",
-                        column: x => x.ReceiveContentRequestId,
-                        principalTable: "ReceiveRequests",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "FormattingRequests",
+                name: "FormatTickets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     FormatType = table.Column<int>(type: "integer", nullable: false),
                     Status = table.Column<int>(type: "integer", nullable: false),
-                    ResultId = table.Column<int>(type: "integer", nullable: true)
+                    ResultId = table.Column<int>(type: "integer", nullable: true),
+                    ContextId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FormattingRequests", x => x.Id);
+                    table.PrimaryKey("PK_FormatTickets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_FormattingRequests_FormattedContents_ResultId",
+                        name: "FK_FormatTickets_ContentFormatTicketContext_ContextId",
+                        column: x => x.ContextId,
+                        principalTable: "ContentFormatTicketContext",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_FormatTickets_FormattedContents_ResultId",
                         column: x => x.ResultId,
                         principalTable: "FormattedContents",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_FormattedContents_MangaId",
-                table: "FormattedContents",
-                column: "MangaId");
+                name: "IX_ContentTickets_ContextId",
+                table: "ContentTickets",
+                column: "ContextId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FormattingRequests_ResultId",
-                table: "FormattingRequests",
+                name: "IX_ContentTickets_ResultId",
+                table: "ContentTickets",
                 column: "ResultId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MangaImages_MangaId",
+                name: "IX_FormattedContents_MangaEntryId",
+                table: "FormattedContents",
+                column: "MangaEntryId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FormatTickets_ContextId",
+                table: "FormatTickets",
+                column: "ContextId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FormatTickets_ResultId",
+                table: "FormatTickets",
+                column: "ResultId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MangaEntryTag_TagsId",
+                table: "MangaEntryTag",
+                column: "TagsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MangaImages_MangaEntryId",
                 table: "MangaImages",
-                column: "MangaId");
+                column: "MangaEntryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MangaImages_UrlId",
@@ -262,62 +298,45 @@ namespace Nude.API.Migrations.FixedAppDb
                 name: "IX_Mangas_ExternalMetaId",
                 table: "Mangas",
                 column: "ExternalMetaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_MangaTag_TagsId",
-                table: "MangaTag",
-                column: "TagsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReceiveRequests_ContextId",
-                table: "ReceiveRequests",
-                column: "ContextId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReceiveRequests_ResultId",
-                table: "ReceiveRequests",
-                column: "ResultId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Subscribers_ReceiveContentRequestId",
-                table: "Subscribers",
-                column: "ReceiveContentRequestId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "FormattingRequests");
+                name: "ContentTickets");
+
+            migrationBuilder.DropTable(
+                name: "FormatTickets");
+
+            migrationBuilder.DropTable(
+                name: "MangaEntryTag");
 
             migrationBuilder.DropTable(
                 name: "MangaImages");
 
             migrationBuilder.DropTable(
-                name: "MangaTag");
+                name: "Servers");
 
             migrationBuilder.DropTable(
-                name: "Subscribers");
+                name: "ContentResults");
+
+            migrationBuilder.DropTable(
+                name: "TicketContexts");
+
+            migrationBuilder.DropTable(
+                name: "ContentFormatTicketContext");
 
             migrationBuilder.DropTable(
                 name: "FormattedContents");
 
             migrationBuilder.DropTable(
-                name: "Urls");
-
-            migrationBuilder.DropTable(
                 name: "Tags");
 
             migrationBuilder.DropTable(
-                name: "ReceiveRequests");
+                name: "Urls");
 
             migrationBuilder.DropTable(
                 name: "Mangas");
-
-            migrationBuilder.DropTable(
-                name: "ReceiveContexts");
-
-            migrationBuilder.DropTable(
-                name: "ReceiveResults");
 
             migrationBuilder.DropTable(
                 name: "MangaExternalMetas");
