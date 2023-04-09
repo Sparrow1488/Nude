@@ -64,7 +64,8 @@ public class MangaEndpoint : TelegramUpdateEndpoint
             return;
         }
 
-        var callbackUrl = _configuration["Http:BaseUrl"] + "/callback";
+        var userKey = Guid.NewGuid().ToString();
+        var callbackUrl = _configuration["Http:BaseUrl"] + "/callback?userKey=" + userKey;
         var request = new ContentTicketRequest
         {
             SourceUrl = MessageText,
@@ -73,17 +74,18 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         
         var response = await _nudeClient.CreateContentTicket(request);
         
-        await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
+        var botMessage = await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
         
         using var scope = _services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<FixedBotDbContext>();
         await context.AddAsync(new UserMessages
         {
             ChatId = ChatId,
-            MessageId = Update.Message!.MessageId, 
+            MessageId = botMessage.MessageId, 
             UserId = Update.Message.From!.Id,
             TicketId = response!.Value.Id,
-            TicketType = nameof(ContentTicket)
+            TicketType = nameof(ContentTicket),
+            UserKey = userKey
         });
         await context.SaveChangesAsync();
     }

@@ -86,7 +86,11 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
             await _ticketService.UpdateStatusAsync(ticket, FormattingStatus.Success);
             await _ticketService.UpdateResultAsync(ticket, format);
 
-            await NotifySubscribersAsync(ticket);
+            var resultDetails = new ContentFormattedResultDetails
+            {
+                Id = ticket.Result!.Id.ToString()
+            };
+            await NotifySubscribersAsync(ticket, resultDetails);
             
             EndStopwatchDiagnostics();
             

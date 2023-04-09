@@ -122,7 +122,7 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
-app.MapPost("/callback", async (HttpContext ctx) =>
+app.MapPost("/callback", async (string userKey, HttpContext ctx) =>
 {
     using var content = new StreamContent(ctx.Request.Body);
     var subjectJson = await content.ReadAsStringAsync();
@@ -142,7 +142,7 @@ app.MapPost("/callback", async (HttpContext ctx) =>
     var subject = JsonConvert.DeserializeObject<NotificationSubject>(subjectJson, jsonSettings);
 
     var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
-    await callbackRoute.OnCallbackAsync(subject!);
+    await callbackRoute.OnCallbackAsync(userKey, subject!);
     
     ctx.Response.StatusCode = StatusCodes.Status200OK;
     await ctx.Response.WriteAsync("ok");

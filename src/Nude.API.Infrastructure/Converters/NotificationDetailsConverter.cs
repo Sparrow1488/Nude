@@ -29,6 +29,7 @@ public class NotificationDetailsConverter : JsonConverter<NotificationDetails>
                 {
                     nameof(FormatProgressDetails) => jObject.ToObject<FormatProgressDetails>(),
                     nameof(ContentTicketDetails) => jObject.ToObject<ContentTicketDetails>(),
+                    nameof(ContentFormattedResultDetails) => jObject.ToObject<ContentFormattedResultDetails>(),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }
