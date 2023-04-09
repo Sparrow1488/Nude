@@ -22,17 +22,23 @@ public class FormattedContentResponseConverter : JsonConverter<FormattedContentR
         bool hasExistingValue,
         JsonSerializer serializer)
     {
-        var jObject = JObject.Load(reader);
-
-        var formatTypeValue = jObject["type"]?.Value<long>();
-        // var formatTypeValue = jObject["Type"]?.Value<long>();
-        var formatType = (FormatType) formatTypeValue;
-        if (formatType != null && formatType == FormatType.Telegraph)
+        try
         {
-            return jObject.ToObject<TelegraphContentResponse>();
-            // return jObject.Value<TelegraphContentResponse>();
+            var jObject = JObject.Load(reader);
+
+            var formatTypeValue = jObject["type"]?.Value<long>();
+            // var formatTypeValue = jObject["Type"]?.Value<long>();
+            var formatType = (FormatType) formatTypeValue;
+            if (formatType != null && formatType == FormatType.Telegraph)
+            {
+                return jObject.ToObject<TelegraphContentResponse>();
+                // return jObject.Value<TelegraphContentResponse>();
+            }
         }
-        
+        catch
+        {
+        }
+
         return null;
     }
 }

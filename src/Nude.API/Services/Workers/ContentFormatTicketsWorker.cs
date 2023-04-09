@@ -93,7 +93,9 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
             return;
         }
 
-        throw new NotImplementedException();
+        _logger.LogError("NotImplementedException");
+        return;
+        // throw new NotImplementedException();
     }
 
     private async Task OnFormatProgressUpdatedAsync(ContentFormatTicket ticket, IDictionary variables)

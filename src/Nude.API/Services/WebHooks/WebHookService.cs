@@ -23,7 +23,7 @@ public class WebHookService : IWebHookService
         if (Uri.TryCreate(callbackUrl, UriKind.Absolute, out var url))
         {
             using var client = new HttpClient();
-            client.Timeout = TimeSpan.FromSeconds(10);
+            client.Timeout = TimeSpan.FromSeconds(50);
 
             var json = JsonConvert.SerializeObject(content, Formatting.Indented);
             using var request = new StringContent(json, Encoding.UTF8, "application/json");

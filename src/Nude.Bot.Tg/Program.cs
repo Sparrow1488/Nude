@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Buffers;
+using System.Reflection;
+using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -6,9 +8,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
@@ -120,13 +124,25 @@ var app = builder.Build();
 
 app.MapPost("/callback", async (HttpContext ctx) =>
 {
-    var subject = await ctx.Request.ReadFromJsonAsync<NotificationSubject>();
+    using var content = new StreamContent(ctx.Request.Body);
+    var subjectJson = await content.ReadAsStringAsync();
     
-    var json = JsonConvert.SerializeObject(subject, Formatting.Indented);
-    Console.WriteLine(json);
+    var jsonSettings = new JsonSerializerSettings
+    {
+        Formatting = Formatting.Indented,
+        ContractResolver = new DefaultContractResolver
+        {
+            // NamingStrategy = new SnakeCaseNamingStrategy()
+        }
+    };
+    jsonSettings.Converters.Add(new NotificationDetailsConverter());
+    jsonSettings.Converters.Add(new FormattedContentResponseConverter());
+    
+    // TODO: ОТПРАВЛЯТЬ С АПИ ОТВЕТ В SNAKE CASE
+    var subject = JsonConvert.DeserializeObject<NotificationSubject>(subjectJson, jsonSettings);
 
     var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
-    await callbackRoute.OnCallbackAsync(subject);
+    await callbackRoute.OnCallbackAsync(subject!);
     
     ctx.Response.StatusCode = StatusCodes.Status200OK;
     await ctx.Response.WriteAsync("ok");

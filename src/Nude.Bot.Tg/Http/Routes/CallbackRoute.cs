@@ -5,7 +5,9 @@ using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Models.Formats;
+using Nude.API.Models.Mangas;
 using Nude.API.Models.Notifications;
+using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Services.Messages.Store;
@@ -50,27 +52,37 @@ public class CallbackRoute
             subject.Status);
         
         var entity = await  _context.Messages.FirstOrDefaultAsync(x => 
-            x.Id == int.Parse(subject.EntityId) && x.TicketType.Equals(subject.EntityType));
+            x.TicketId == int.Parse(subject.EntityId) && x.TicketType == subject.EntityType);
+        
+        if (subject.Details is FormatProgressDetails progress)
+        {
+            _logger.LogInformation($"MANGA UPLOADING PROGRESS {progress.CurrentImage}/{progress.TotalImages}");    
+            return;
+        }
 
         if (subject.EntityType.Equals(nameof(ContentTicket)))
         {
-            var callback = _configuration.GetRequiredSection("Http:BaseUrl") + "/callback";
+            var callback = _configuration.GetRequiredSection("Http:BaseUrl").Value + "/callback";
 
             var request = new FormatTicketRequest
             {
                 EntryId = subject.EntityId,
-                EntryType = subject.EntityType,
+                EntryType = nameof(MangaEntry),
                 FormatType = FormatType.Telegraph,
                 CallbackUrl = callback
             };
-            var respons = await _client.CreateFormatTicket(request);
-            await _bot.SendTextMessageAsync(entity!.ChatId, "Форматируем мангу");
+            var response = await _client.CreateFormatTicket(request);
+            
+            _logger.LogInformation("RECEIVE FORMAT TICKET RESPONSE, status: " + response.Value.Status);
+            // await _bot.SendTextMessageAsync(entity!.ChatId, "Форматируем мангу");
         }
 
         if (subject.EntityType.Equals(nameof(ContentFormatTicket)))
         {
-            await _bot.SendTextMessageAsync(entity!.ChatId, "");
+            _logger.LogInformation("КОНВЕРТИРУЕМ МАНГУ");
+
+            _logger.LogInformation("КОНВЕРТИРУЕМ МАНГУ");
+            // await _bot.SendTextMessageAsync(entity!.ChatId, "Конвертируем мангу");
         }
-        
     }
 }

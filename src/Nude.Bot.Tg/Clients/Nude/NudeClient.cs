@@ -1,4 +1,5 @@
 using System.Net.Http.Json;
+using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -87,8 +88,8 @@ public class NudeClient : INudeClient
     public async Task<FormatTicketResponse?> CreateFormatTicket(FormatTicketRequest request)
     {
         FormatTicketResponse? response = null;
-        await PostAsync<FormatTicketRequest,FormatTicketResponse>(
-            "/format-ticket",
+        await PostAsync<FormatTicketRequest, FormatTicketResponse>(
+            "/format-tickets",
             request,
             (_, res) => response = res,
             _ => response = null);
@@ -99,7 +100,7 @@ public class NudeClient : INudeClient
     {
         FormatTicketResponse? response = null;
         await GetAsync<FormatTicketResponse>(
-            $"/format-ticket/{id}",
+            $"/format-tickets/{id}",
             (_, res) => response = res,
             _ => response = null);
         return response;
@@ -125,14 +126,17 @@ public class NudeClient : INudeClient
             onError.Invoke(response);
         }
     }
-    private async Task PostAsync<TRec,TRes>(
+    private async Task PostAsync<TRec, TRes>(
         string path,
         TRec request,
         Action<HttpResponseMessage, TRes> onSuccess, 
         Action<HttpResponseMessage> onError)
     {
         using var client = CreateHttpClient();
-        var response = await client.PostAsJsonAsync(_baseUrl + path, request);
+        var jsonRequest = JsonConvert.SerializeObject(request, _jsonSerializerSettings);
+        var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+        
+        var response = await client.PostAsync(_baseUrl + path, content);
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();

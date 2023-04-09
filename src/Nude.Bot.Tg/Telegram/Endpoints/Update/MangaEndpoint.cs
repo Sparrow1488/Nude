@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Tickets.Requests;
@@ -27,6 +28,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     private readonly IConvertTicketsService _ticketsService;
     private readonly ITelegramMessagesService _tgMessagesService;
     private readonly FixedBotDbContext _context;
+    private readonly IServiceProvider _services;
 
     public MangaEndpoint(
         INudeClient nudeClient,
@@ -36,6 +38,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         IConvertTicketsService ticketsService,
         ITelegramMessagesService tgMessagesService,
         FixedBotDbContext context,
+        IServiceProvider services,
         ILogger<MangaEndpoint> logger)
     {
         _logger = logger;
@@ -45,6 +48,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         _mangaService = mangaService;
         _ticketsService = ticketsService;
         _context = context;
+        _services = services;
         _tgMessagesService = tgMessagesService;
     }
     
@@ -71,7 +75,9 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         
         await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
         
-        await _context.AddAsync(new UserMessages
+        using var scope = _services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<FixedBotDbContext>();
+        await context.AddAsync(new UserMessages
         {
             ChatId = ChatId,
             MessageId = Update.Message!.MessageId, 
@@ -79,7 +85,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
             TicketId = response!.Value.Id,
             TicketType = nameof(ContentTicket)
         });
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
     public override bool CanHandle() => AvailableSources.IsAvailable(Update.Message?.Text ?? "");
