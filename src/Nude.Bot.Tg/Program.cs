@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
-using Nude.API.Infrastructure.Extensions;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
@@ -21,7 +21,6 @@ using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Messages.Telegram;
 using Nude.Bot.Tg.Services.Resolvers;
 using Nude.Bot.Tg.Telegram.Handlers;
-using Nude.Models.Tickets.Parsing;
 using Serilog;
 using Serilog.Events;
 using Telegram.Bot;
@@ -90,8 +89,10 @@ void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
     opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
 }
 
+builder.Services.AddDbContext<FixedBotDbContext>(ConfigureDatabase);
 builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
-builder.Services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
+
+// builder.Services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
 
 #endregion
 
@@ -117,12 +118,17 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
-app.MapPost("/callback", async ctx =>
+app.MapPost("/callback", async (
+    HttpContext ctx) =>
 {
     var subject = await ctx.Request.ReadFromJsonAsync<NotificationSubject>();
+    
+    var json = JsonConvert.SerializeObject(subject, Formatting.Indented);
+    Console.WriteLine(json);
+    
+    ctx.Response.StatusCode = StatusCodes.Status200OK;
     await ctx.Response.WriteAsync("ok");
-    
-    
+
     // var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
     // await callbackRoute.OnCallbackAsync(ticketId, status);
 });

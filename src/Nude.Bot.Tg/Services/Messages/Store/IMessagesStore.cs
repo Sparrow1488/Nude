@@ -1,5 +1,3 @@
-using Nude.Models.Mangas;
-
 namespace Nude.Bot.Tg.Services.Messages.Store;
 
 public interface IMessagesStore

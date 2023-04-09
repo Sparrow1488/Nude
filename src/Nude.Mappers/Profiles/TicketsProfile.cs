@@ -1,5 +1,4 @@
 using AutoMapper;
-using Nude.API.Contracts.Tickets;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.Contexts;

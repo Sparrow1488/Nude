@@ -120,6 +120,20 @@ public class MangaService : IMangaService
                 x.ExternalMeta != null && x.ExternalMeta.SourceId == id);
     }
 
+    public Task<MangaEntry?> FindBySourceUrlAsync(string url, FormatType? type)
+    {
+        var queryable = _context.Mangas
+            .IncludeDependencies()
+            .Where(x => x.ExternalMeta.SourceUrl == url);
+
+        if (type != null)
+        {
+            queryable = queryable.Where(x => x.Formats.Any(x => x.Type == type));
+        }
+
+        return queryable.FirstOrDefaultAsync();
+    }
+
     public async Task<MangaEntry> AddFormatAsync(MangaEntry manga, FormattedContent format)
     {
         if (manga.Formats == null)

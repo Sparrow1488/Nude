@@ -40,7 +40,7 @@ public class DefaultTelegraphClient : ITelegraphClient
         
         _logger.LogInformation($"Creating tgh page titled '{title}' with {imagesList.Count} images");
 
-        var nodes = CreateTelegraphNodes(title, imagesList).ToList();
+        var nodes = CreateTelegraphNodes(text, imagesList).ToList();
         var page = await _telegraph.CreatePage(title, nodes);
         
         _logger.LogInformation("Created tgh page success ({url})", page.Url);
@@ -48,13 +48,14 @@ public class DefaultTelegraphClient : ITelegraphClient
         return page.Url;
     }
 
-    private static IEnumerable<Node> CreateTelegraphNodes(string title, IEnumerable<string> images)
+    private static IEnumerable<Node> CreateTelegraphNodes(
+        string text, IEnumerable<string> images)
     {
         var imagePage = 1;
         var tghImages = images.Select(x => Node.ImageFigure(x, imagePage++.ToString()));
         var nodes = new List<Node>
         {
-            Node.P(title)
+            Node.P(text)
         };
         nodes.AddRange(tghImages);
 

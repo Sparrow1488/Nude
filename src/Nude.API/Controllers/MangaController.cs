@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Manga.Responses;
+using Nude.API.Models.Formats;
 using Nude.API.Services.Mangas;
 using Nude.Data.Infrastructure.Contexts;
 
@@ -59,9 +60,9 @@ public class MangaController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> FindBySourceId(string sourceId)
+    public async Task<IActionResult> FindBySourceUrl(string sourceUrl, FormatType? format)
     {
-        var manga = await _service.FindBySourceIdAsync(sourceId);
+        var manga = await _service.FindBySourceUrlAsync(sourceUrl, format);
 
         if (manga != null)
         {

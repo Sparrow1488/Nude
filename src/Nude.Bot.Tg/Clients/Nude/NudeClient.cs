@@ -1,13 +1,11 @@
 using System.Net.Http.Json;
-using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Nude.API.Contracts.Manga.Responses;
-using Nude.API.Contracts.Parsing.Requests;
-using Nude.API.Contracts.Parsing.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
+using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Formats;
 
 namespace Nude.Bot.Tg.Clients.Nude;
@@ -20,6 +18,7 @@ public class NudeClient : INudeClient
     public NudeClient(IConfiguration configuration)
     {
         _baseUrl = configuration["Nude.API:BaseUrl"] ?? throw new Exception("No Nude.API BaseUrl in config");
+        
         _jsonSerializerSettings = new JsonSerializerSettings
         {
             Formatting = Formatting.Indented,
@@ -28,6 +27,8 @@ public class NudeClient : INudeClient
                 NamingStrategy = new SnakeCaseNamingStrategy()
             }
         };
+        
+        _jsonSerializerSettings.Converters.Add(new FormattedContentResponseConverter());
     }
 
     public async Task<NewMangaResponse?> GetMangaByIdAsync(int id)
@@ -40,11 +41,11 @@ public class NudeClient : INudeClient
         return result;
     }
 
-    public async Task<NewMangaResponse?> GetMangaByUrlAsync(string url,FormatType format)
+    public async Task<NewMangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType format)
     {
         NewMangaResponse? result = null;
         await GetAsync<NewMangaResponse>(
-            $"/manga?url={url}?format={format}",
+            $"/manga?sourceUrl={sourceUrl}&format={format}",
             (_, res) => result = res,
             _ => result = null);
 
@@ -67,7 +68,7 @@ public class NudeClient : INudeClient
         await PostAsync<ContentTicketRequest, ContentTicketResponse>(
             "/content-tickets", 
             request,
-            (_,res)=> response = res,
+            (_,res) => response = res,
             _ => response = null
         );
         return response;
@@ -131,7 +132,7 @@ public class NudeClient : INudeClient
         Action<HttpResponseMessage> onError)
     {
         using var client = CreateHttpClient();
-        var response = await client.PostAsJsonAsync(_baseUrl, request);
+        var response = await client.PostAsJsonAsync(_baseUrl + path, request);
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();

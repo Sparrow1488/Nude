@@ -1,7 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Nude.API.Contracts.Parsing.Requests;
-using Nude.API.Contracts.Tickets;
+using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Models.Tickets;
 using Nude.API.Services.Subscribers;
