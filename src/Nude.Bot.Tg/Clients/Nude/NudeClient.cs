@@ -52,9 +52,14 @@ public class NudeClient : INudeClient
         return result;
     }
 
-    public Task<NewMangaResponse?> GetRandomMangaAsync()
+    public async Task<NewMangaResponse?> GetRandomMangaAsync()
     {
-        throw new NotImplementedException();
+        NewMangaResponse? response = null;
+        await GetAsync<NewMangaResponse>(
+                "/manga/random",
+                (_, res) => response = res,
+                _ => response = null);
+        return response;
     }
 
     public async Task<ContentTicketResponse?> CreateContentTicket(ContentTicketRequest request)
@@ -69,19 +74,35 @@ public class NudeClient : INudeClient
         return response;
     }
 
-    public Task<ContentTicketResponse?> GetContentTicketById(int id)
+    public async Task<ContentTicketResponse?> GetContentTicketById(int id)
     {
-        throw new NotImplementedException();
+        ContentTicketResponse? response = null;
+        await GetAsync<ContentTicketResponse>(
+            $"/content-tickets/{id}",
+            (_, res) => response = res,
+            _ => response = null);
+        return response;
     }
 
-    public Task<FormatTicketResponse?> CreateFormatTicket(FormatTicketRequest request)
+    public async Task<FormatTicketResponse?> CreateFormatTicket(FormatTicketRequest request)
     {
-        throw new NotImplementedException();
+        FormatTicketResponse? response = null;
+        await PostAsync<FormatTicketRequest,FormatTicketResponse>(
+            "/format-ticket",
+            request,
+            (_, res) => response = res,
+            _ => response = null);
+        return response;
     }
 
-    public Task<FormatTicketResponse?> GetFormatTicketById(int id)
+    public async Task<FormatTicketResponse?> GetFormatTicketById(int id)
     {
-        throw new NotImplementedException();
+        FormatTicketResponse? response = null;
+        await GetAsync<FormatTicketResponse>(
+            $"/format-ticket/{id}",
+            (_, res) => response = res,
+            _ => response = null);
+        return response;
     }
 
 
