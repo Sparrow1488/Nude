@@ -89,8 +89,10 @@ void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
     opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
 }
 
+builder.Services.AddDbContext<FixedBotDbContext>(ConfigureDatabase);
 builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
-builder.Services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
+
+// builder.Services.AddDbContextFactory<BotDbContext>(ConfigureDatabase); // NOTE: commit this row to create new migration
 
 #endregion
 

@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Parsing.Requests;
+using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Formats;
@@ -31,7 +32,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     private readonly ITelegraphMangaService _mangaService;
     private readonly IConvertTicketsService _ticketsService;
     private readonly ITelegramMessagesService _tgMessagesService;
-    private readonly FixetBotDbContext _context;
+    private readonly FixedBotDbContext _context;
 
     public MangaEndpoint(
         INudeClient nudeClient,
@@ -40,7 +41,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         ITelegraphMangaService mangaService,
         IConvertTicketsService ticketsService,
         ITelegramMessagesService tgMessagesService,
-        FixetBotDbContext context,
+        FixedBotDbContext context,
         ILogger<MangaEndpoint> logger)
     {
         _logger = logger;
@@ -64,23 +65,25 @@ public class MangaEndpoint : TelegramUpdateEndpoint
             await MessageAsync(await _messages.GetTghMessageAsync(tghFormat.Url));
             return;
         }
-        else
+
+        var callbackUrl = _configuration["Http:BaseUrl"] + "/callback";
+        var request = new ContentTicketRequest
         {
-            var callbackUrl = _configuration["Http:BaseUrl"] + "/callback";
-            var request = new ContentTicketRequest
-            {
-                SourceUrl = MessageText,
-                CallbackUrl = callbackUrl
-            };
-            var response = await _nudeClient.CreateContentTicket(request);
-            await MessageAsync(new MessageItem("Нужно немного подождать...", ParseMode.MarkdownV2));
-            _context.Add(new UserMessages
-            {
-                ChatId = Update.Message.Chat.Id,
-                MessageId = Update.Message.MessageId, 
-                UserId = Update.Message.From.Id
-            });
-        }
+            SourceUrl = MessageText,
+            CallbackUrl = callbackUrl
+        };
+        
+        var response = await _nudeClient.CreateContentTicket(request);
+        
+        await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
+        
+        await _context.AddAsync(new UserMessages
+        {
+            ChatId = ChatId,
+            MessageId = Update.Message!.MessageId, 
+            UserId = Update.Message.From!.Id
+        });
+        await _context.SaveChangesAsync();
     }
 
     public override bool CanHandle() => AvailableSources.IsAvailable(Update.Message?.Text ?? "");

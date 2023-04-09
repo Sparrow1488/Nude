@@ -40,11 +40,11 @@ public class NudeClient : INudeClient
         return result;
     }
 
-    public async Task<NewMangaResponse?> GetMangaByUrlAsync(string url,FormatType format)
+    public async Task<NewMangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType format)
     {
         NewMangaResponse? result = null;
         await GetAsync<NewMangaResponse>(
-            $"/manga?url={url}?format={format}",
+            $"/manga?sourceUrl={sourceUrl}&format={format}",
             (_, res) => result = res,
             _ => result = null);
 
@@ -62,7 +62,7 @@ public class NudeClient : INudeClient
         await PostAsync<ContentTicketRequest, ContentTicketResponse>(
             "/content-tickets", 
             request,
-            (_,res)=> response = res,
+            (_,res) => response = res,
             _ => response = null
         );
         return response;
@@ -110,7 +110,7 @@ public class NudeClient : INudeClient
         Action<HttpResponseMessage> onError)
     {
         using var client = CreateHttpClient();
-        var response = await client.PostAsJsonAsync(_baseUrl, request);
+        var response = await client.PostAsJsonAsync(_baseUrl + path, request);
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();
