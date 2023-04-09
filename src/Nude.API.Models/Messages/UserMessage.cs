@@ -8,4 +8,6 @@ public class UserMessages : IEntity
     public long UserId { get; set; }
     public long ChatId { get; set; }
     public long MessageId;
+    public int TicketId { get; set; }
+    public string TicketType { get; set; } 
 }
