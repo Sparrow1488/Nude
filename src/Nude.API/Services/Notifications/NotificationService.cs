@@ -1,39 +1,37 @@
-using Nude.API.Infrastructure.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using Nude.API.Models.Notifications;
-using Nude.API.Models.Tickets.Subscribers;
 using Nude.API.Services.Notifications.Results;
-using Nude.API.Services.Subscribers;
 using Nude.API.Services.WebHooks;
+using Nude.Data.Infrastructure.Contexts;
 
 namespace Nude.API.Services.Notifications;
 
 public class NotificationService : INotificationService
 {
+    private readonly FixedAppDbContext _context;
     private readonly IWebHookService _webHookService;
-    private readonly ISubscribersService _subscribersService;
 
     public NotificationService(
-        IWebHookService webHookService,
-        ISubscribersService subscribersService)
+        FixedAppDbContext context,
+        IWebHookService webHookService)
     {
+        _context = context;
         _webHookService = webHookService;
-        _subscribersService = subscribersService;
     }
     
-    public async Task<NotificationResult> NotifyAsync(Subscriber subscriber, NotificationSubject subject)
+    public async Task<NotificationResult> NotifyAsync(NotificationSubject subject)
     {
-        if (!string.IsNullOrWhiteSpace(subscriber.CallbackUrl))
+        var servers = await _context.Servers
+            .ToListAsync();
+
+        var callbackServer = servers.Where(x => x.NotificationsCallbackUrl != null);
+        foreach (var server in callbackServer)
         {
-            var result = await _webHookService.SendAsync(subscriber.CallbackUrl, subject);
-            if (result.IsSuccess)
-            {
-                await _subscribersService.DeleteAsync(subscriber);
-            }
+            var result = await _webHookService.SendAsync(server.NotificationsCallbackUrl!, subject);
             return CreateResult(result.IsSuccess, result.Exception);
         }
 
-        var exception = new UnknownCommunicationTypeException("Supported only WebHooks communication type");
-        return CreateResult(false, exception);
+        return CreateResult(true, null);
     }
 
     private static NotificationResult CreateResult(bool success, Exception? exception)

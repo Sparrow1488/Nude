@@ -1,6 +1,4 @@
-﻿using System.Buffers;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -122,7 +120,7 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
-app.MapPost("/callback", async (string userKey, HttpContext ctx) =>
+app.MapPost("/callback", async ctx =>
 {
     using var content = new StreamContent(ctx.Request.Body);
     var subjectJson = await content.ReadAsStringAsync();
@@ -142,7 +140,7 @@ app.MapPost("/callback", async (string userKey, HttpContext ctx) =>
     var subject = JsonConvert.DeserializeObject<NotificationSubject>(subjectJson, jsonSettings);
 
     var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
-    await callbackRoute.OnCallbackAsync(userKey, subject!);
+    await callbackRoute.OnCallbackAsync(subject!);
     
     ctx.Response.StatusCode = StatusCodes.Status200OK;
     await ctx.Response.WriteAsync("ok");

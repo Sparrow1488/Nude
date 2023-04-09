@@ -11,7 +11,6 @@ using Nude.API.Services.Formatters;
 using Nude.API.Services.Formatters.Variables;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
-using Nude.API.Services.Subscribers;
 using Nude.API.Services.Tickets;
 
 #region Rider annotations
@@ -28,7 +27,6 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
     private const string CurrentDiagnosticMethodName = nameof(ContentFormatTicketsWorker);
     
     private readonly IMangaService _mangaService;
-    private readonly ISubscribersService _subscribersService;
     private readonly INotificationService _notificationService;
     private readonly IContentFormatTicketService _ticketService;
     private readonly IContentFormatterService _formatterService;
@@ -36,14 +34,12 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
 
     public ContentFormatTicketsWorker(
         IMangaService mangaService,
-        ISubscribersService subscribersService,
         INotificationService notificationService,
         IContentFormatTicketService ticketService,
         IContentFormatterService formatterService,
         ILogger<ContentFormatTicketsWorker> logger)
     {
         _mangaService = mangaService;
-        _subscribersService = subscribersService;
         _notificationService = notificationService;
         _ticketService = ticketService;
         _formatterService = formatterService;
@@ -70,7 +66,7 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
             var manga = await _mangaService.GetByIdAsync(int.Parse(ticket.Context.EntityId));
             var images = manga!.Images.Select(x => x.Url.Value);
             
-            images = new List<string>(images.Take(3)); // TODO: У МЕНЯ ХУЕВЫЙ ИНЕТ!!! УДАЛИТЬ!!!
+            images = new List<string>(images.Take(2)); // TODO: У МЕНЯ ХУЕВЫЙ ИНЕТ!!! УДАЛИТЬ!!!
 
             _formatterService.FormatProgressUpdated += 
                 variables => OnFormatProgressUpdatedAsync(ticket, variables); 
@@ -86,11 +82,12 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
             await _ticketService.UpdateStatusAsync(ticket, FormattingStatus.Success);
             await _ticketService.UpdateResultAsync(ticket, format);
 
-            var resultDetails = new ContentFormattedResultDetails
+            var resultDetails = new FormatTicketStatusChangedDetails
             {
-                Id = ticket.Result!.Id.ToString()
+                Status = ticket.Status,
+                MangaId = int.Parse(ticket.Context.EntityId)
             };
-            await NotifySubscribersAsync(ticket, resultDetails);
+            await NotifySubscribersAsync(resultDetails);
             
             EndStopwatchDiagnostics();
             
@@ -98,13 +95,14 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
         }
 
         _logger.LogError("NotImplementedException");
-        return;
-        // throw new NotImplementedException();
     }
 
     private async Task OnFormatProgressUpdatedAsync(ContentFormatTicket ticket, IDictionary variables)
     {
-        var details = new FormatProgressDetails();
+        var details = new FormatTicketProgressDetails
+        {
+            TicketId = ticket.Id
+        };
         
         var totalImages = variables[FormatProgressVariables.TotalImages]?.ToString();
         var currentImage = variables[FormatProgressVariables.CurrentImageProcessing]?.ToString();
@@ -114,28 +112,13 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
         if (!string.IsNullOrWhiteSpace(currentImage))
             details.CurrentImage = int.Parse(currentImage);
 
-        await NotifySubscribersAsync(ticket, details);
+        await NotifySubscribersAsync(details);
     }
 
-    private async Task NotifySubscribersAsync(
-        ContentFormatTicket ticket, NotificationDetails? details = null)
+    private async Task NotifySubscribersAsync(NotificationDetails? details = null)
     {
-        var ticketId = ticket.Id.ToString();
-        const string ticketType = nameof(ContentFormatTicket);
-
-        var subject = new NotificationSubject
-        {
-            EntityId = ticketId,
-            EntityType = ticketType,
-            Status = ticket.Status.ToString(),
-            Details = details
-        };
-        
-        var subs = await _subscribersService.FindAsync(ticketId, ticketType);
-        foreach (var sub in subs)
-        {
-            await _notificationService.NotifyAsync(sub, subject);
-        }
+        var subject = new NotificationSubject { EventDetails = details };
+        await _notificationService.NotifyAsync(subject);
     }
 
     private void StartStopwatchDiagnostics()

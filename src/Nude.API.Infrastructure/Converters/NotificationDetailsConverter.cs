@@ -27,9 +27,9 @@ public class NotificationDetailsConverter : JsonConverter<NotificationDetails>
             {
                 return detailsType switch
                 {
-                    nameof(FormatProgressDetails) => jObject.ToObject<FormatProgressDetails>(),
-                    nameof(ContentTicketDetails) => jObject.ToObject<ContentTicketDetails>(),
-                    nameof(ContentFormattedResultDetails) => jObject.ToObject<ContentFormattedResultDetails>(),
+                    nameof(FormatTicketProgressDetails) => jObject.ToObject<FormatTicketProgressDetails>(),
+                    nameof(ContentTicketStatusChangedDetails) => jObject.ToObject<ContentTicketStatusChangedDetails>(),
+                    nameof(FormatTicketStatusChangedDetails) => jObject.ToObject<FormatTicketStatusChangedDetails>(),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }

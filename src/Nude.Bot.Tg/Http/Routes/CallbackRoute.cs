@@ -1,22 +1,18 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Tickets.Requests;
-using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
-using Nude.API.Models.Tickets;
+using Nude.API.Models.Tickets.States;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Utils;
 using Nude.Data.Infrastructure.Contexts;
-using Nude.Models.Tickets.Converting;
-using Nude.Models.Tickets.Parsing;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
@@ -47,18 +43,14 @@ public class CallbackRoute
         _bot = bot;
     }
     
-    public async Task OnCallbackAsync(string userKey, NotificationSubject subject)
+    public async Task OnCallbackAsync(NotificationSubject subject)
     {
-        _logger.LogInformation(
-            "Callback received parsing ticket ({id}), status:{status}",
-            subject.EntityId,
-            subject.Status);
-        
-        var userMessage = await  _context.Messages.FirstOrDefaultAsync(x => 
-            x.UserKey == userKey);
+        var userMessage = await _context.Messages
+            .OrderByDescending(x => x.Id)
+            .FirstOrDefaultAsync();
         
         // Прогресс форматирования
-        if (subject.Details is FormatProgressDetails progress)
+        if (subject.EventDetails is FormatTicketProgressDetails progress)
         {
             // _logger.LogInformation($"MANGA UPLOADING PROGRESS {progress.CurrentImage}/{progress.TotalImages}");
             await EditMessageAsync(userMessage, $"Загрузка {progress.CurrentImage} из {progress.TotalImages}");
@@ -66,15 +58,15 @@ public class CallbackRoute
         }
 
         // Содержимое спизжено, если Success, то создаем ContentFormatTicket
-        if (subject.EntityType.Equals(nameof(ContentTicket)))
+        if (subject.EventDetails is ContentTicketStatusChangedDetails ticketDetails)
         {
-            if (subject.Status == "Success")
+            if (ticketDetails.Status == ReceiveStatus.Success)
             {
                 var callback = _configuration.GetRequiredSection("Http:BaseUrl").Value + "/callback?userKey=" + userMessage?.UserKey;
 
                 var request = new FormatTicketRequest
                 {
-                    EntryId = subject.EntityId,
+                    EntryId = ticketDetails.MangaId.ToString()!,
                     EntryType = nameof(MangaEntry),
                     FormatType = FormatType.Telegraph,
                     CallbackUrl = callback
@@ -86,19 +78,19 @@ public class CallbackRoute
             }
             else
             {
-                await EditMessageAsync(userMessage, "Какая то ошибка");
+                await EditMessageAsync(userMessage, "Не удалось получить содержимое по запросу");
             }
         }
 
         // Все готово, лови ссылку
-        if (subject.EntityType.Equals(nameof(ContentFormatTicket)))
+        if (subject.EventDetails is FormatTicketStatusChangedDetails formatDetails)
         {
-            if (subject.Status == "Success")
+            if (formatDetails.Status == FormattingStatus.Success)
             {
-                var resultDetails = subject.Details as ContentFormattedResultDetails;
-                var manga = await _client.GetMangaByIdAsync(int.Parse(resultDetails!.Id));
-                var tgh = manga.Value.Formats.First(x => x is TelegraphContentResponse);
-                await EditMessageAsync(userMessage, ((TelegraphContentResponse)tgh).Url);
+                var manga = await _client.GetMangaByIdAsync(formatDetails.MangaId!.Value);
+                var tgh = manga!.Value.Formats.First(x => x is TelegraphContentResponse);
+                var url = ((TelegraphContentResponse) tgh).Url;
+                await EditMessageAsync(userMessage, url, ParseMode.Html);
             }
             else
             {
@@ -107,11 +99,11 @@ public class CallbackRoute
         }
     }
 
-    private async Task EditMessageAsync(UserMessages? message, string text)
+    private async Task EditMessageAsync(UserMessages? message, string text, ParseMode mode = ParseMode.MarkdownV2)
     {
         if (message != null)
         {
-            var messageItem = new MessageItem(text, ParseMode.MarkdownV2);
+            var messageItem = new MessageItem(text, mode);
             var messageId = int.Parse(message.MessageId.ToString());
             await BotUtils.EditMessageAsync(_bot, message.ChatId, messageId, messageItem);
         }

@@ -2,11 +2,11 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;
+using Nude.API.Models.Servers;
 using Nude.API.Models.Tags;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.Contexts;
 using Nude.API.Models.Tickets.Results;
-using Nude.API.Models.Tickets.Subscribers;
 using Nude.API.Models.Urls;
 
 namespace Nude.Data.Infrastructure.Contexts;
@@ -15,6 +15,8 @@ public class FixedAppDbContext : DatabaseContext
 {
     public FixedAppDbContext(DbContextOptions options) : base(options) { }
 
+    public DbSet<Server> Servers => Set<Server>();
+    
     public DbSet<MangaEntry> Mangas => Set<MangaEntry>();
     public DbSet<MangaExternalMeta> MangaExternalMetas => Set<MangaExternalMeta>();
     
@@ -30,8 +32,6 @@ public class FixedAppDbContext : DatabaseContext
     public DbSet<ContentTicketContext> TicketContexts => Set<ContentTicketContext>();
     
     public DbSet<ContentFormatTicket> FormatTickets => Set<ContentFormatTicket>();
-    
-    public DbSet<Subscriber> Subscribers => Set<Subscriber>();
 
     #region Feature
 
