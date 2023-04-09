@@ -147,4 +147,3 @@ app.MapPost("/callback", async ctx =>
 });
 
 await app.RunAsync(cancellationSource.Token);
-await HttpServer.StartListenAsync(app.Services, cancellationSource.Token);
