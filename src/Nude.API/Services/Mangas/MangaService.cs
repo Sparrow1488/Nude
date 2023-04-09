@@ -112,6 +112,20 @@ public class MangaService : IMangaService
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
+    public async Task<MangaEntry?> GetRandomAsync(FormatType? format = null)
+    {
+        var queryable = _context.Mangas.AsQueryable();
+        if (format != null)
+        {
+            queryable = queryable.Where(x => x.Formats.Any(x => x.Type == format));
+        }
+
+        var ids = await queryable.Select(x => x.Id).ToListAsync();
+        var mangaId = ids[Random.Shared.Next(0, ids.Count - 1)];
+        
+        return await GetByIdAsync(mangaId);
+    }
+
     public Task<MangaEntry?> FindBySourceIdAsync(string id)
     {
         return _context.Mangas
@@ -120,15 +134,15 @@ public class MangaService : IMangaService
                 x.ExternalMeta != null && x.ExternalMeta.SourceId == id);
     }
 
-    public Task<MangaEntry?> FindBySourceUrlAsync(string url, FormatType? type)
+    public Task<MangaEntry?> FindBySourceUrlAsync(string url, FormatType? format = null)
     {
         var queryable = _context.Mangas
             .IncludeDependencies()
             .Where(x => x.ExternalMeta.SourceUrl == url);
 
-        if (type != null)
+        if (format != null)
         {
-            queryable = queryable.Where(x => x.Formats.Any(x => x.Type == type));
+            queryable = queryable.Where(x => x.Formats.Any(x => x.Type == format));
         }
 
         return queryable.FirstOrDefaultAsync();

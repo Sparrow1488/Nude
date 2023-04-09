@@ -31,20 +31,20 @@ public class NudeClient : INudeClient
         _jsonSerializerSettings.Converters.Add(new FormattedContentResponseConverter());
     }
 
-    public async Task<NewMangaResponse?> GetMangaByIdAsync(int id)
+    public async Task<MangaResponse?> GetMangaByIdAsync(int id)
     {
-        NewMangaResponse? result = null;
-        await GetAsync<NewMangaResponse>(
+        MangaResponse? result = null;
+        await GetAsync<MangaResponse>(
             $"/manga/{id}",
             (_, res) => result = res,
             _ => result = null);
         return result;
     }
 
-    public async Task<NewMangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType? format = null)
+    public async Task<MangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType? format = null)
     {
-        NewMangaResponse? result = null;
-        await GetAsync<NewMangaResponse>(
+        MangaResponse? result = null;
+        await GetAsync<MangaResponse>(
             $"/manga?sourceUrl={sourceUrl}&format={format}",
             (_, res) => result = res,
             _ => result = null);
@@ -52,10 +52,10 @@ public class NudeClient : INudeClient
         return result;
     }
 
-    public async Task<NewMangaResponse?> GetRandomMangaAsync(FormatType? format = null)
+    public async Task<MangaResponse?> GetRandomMangaAsync(FormatType? format = null)
     {
-        NewMangaResponse? response = null;
-        await GetAsync<NewMangaResponse>(
+        MangaResponse? response = null;
+        await GetAsync<MangaResponse>(
                 "/manga/random?format=" + format,
                 (_, res) => response = res,
                 _ => response = null);

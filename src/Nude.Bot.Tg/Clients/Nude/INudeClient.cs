@@ -7,9 +7,9 @@ namespace Nude.Bot.Tg.Clients.Nude;
 
 public interface INudeClient
 {
-    Task<NewMangaResponse?> GetMangaByIdAsync(int id);
-    Task<NewMangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType? format = null);
-    Task<NewMangaResponse?> GetRandomMangaAsync(FormatType? format = null);
+    Task<MangaResponse?> GetMangaByIdAsync(int id);
+    Task<MangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType? format = null);
+    Task<MangaResponse?> GetRandomMangaAsync(FormatType? format = null);
     Task<ContentTicketResponse?> CreateContentTicket(ContentTicketRequest request);
     Task<FormatTicketResponse?> CreateFormatTicket(FormatTicketRequest request);
     Task<ContentTicketResponse?> GetContentTicketById(int id);
