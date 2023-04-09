@@ -1,12 +1,19 @@
 using Nude.API.Contracts.Manga.Responses;
+using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Parsing.Responses;
+using Nude.API.Contracts.Tickets.Requests;
+using Nude.API.Contracts.Tickets.Responses;
+using Nude.API.Models.Formats;
 
 namespace Nude.Bot.Tg.Clients.Nude;
 
 public interface INudeClient
 {
-    Task<MangaResponse?> GetMangaByIdAsync(int id);
-    Task<MangaResponse?> GetMangaByUrlAsync(string url);
-    Task<ParsingResponse?> GetParsingTicketAsync(int id);
-    Task<ParsingResponse> CreateParsingTicketAsync(string mangaUrl, string callback);
+    Task<NewMangaResponse?> GetMangaByIdAsync(int id);
+    Task<NewMangaResponse?> GetMangaByUrlAsync(string url,FormatType format);
+    Task<NewMangaResponse?> GetRandomMangaAsync();
+    Task<ContentTicketResponse?> CreateContentTicket(ContentTicketRequest request);
+    Task<ContentTicketResponse?> GetContentTicketById(int id);
+    Task<FormatTicketResponse?> CreateFormatTicket(FormatTicketRequest request);
+    Task<FormatTicketResponse?> GetFormatTicketById(int id);
 }

@@ -15,6 +15,6 @@ public class RandomEndpoint : TelegramUpdateCommandEndpoint
     public override async Task HandleAsync()
     {
         var manga = await _tghMangaService.GetRandomAsync();
-        await MessageAsync(await MessagesStore.GetTghMessageAsync(manga!));
+        //await MessageAsync(await MessagesStore.GetTghMessageAsync(manga!));
     }
 }

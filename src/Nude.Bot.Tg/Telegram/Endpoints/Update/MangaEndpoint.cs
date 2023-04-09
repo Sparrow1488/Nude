@@ -1,6 +1,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Nude.API.Contracts.Formats.Responses;
+using Nude.API.Contracts.Parsing.Requests;
+using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Models.Formats;
+using Nude.API.Models.Messages;
+using Nude.API.Models.Tickets;
+using Nude.API.Models.Tickets.States;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Services.Convert;
 using Nude.Bot.Tg.Services.Manga;
@@ -10,6 +17,8 @@ using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Models.Messages.Telegram;
 using Nude.Models.Tickets.Converting;
 using Nude.Models.Tickets.Parsing;
+using Nude.Data.Infrastructure.Contexts;
+using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
 
@@ -22,6 +31,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     private readonly ITelegraphMangaService _mangaService;
     private readonly IConvertTicketsService _ticketsService;
     private readonly ITelegramMessagesService _tgMessagesService;
+    private readonly FixetBotDbContext _context;
 
     public MangaEndpoint(
         INudeClient nudeClient,
@@ -30,6 +40,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         ITelegraphMangaService mangaService,
         IConvertTicketsService ticketsService,
         ITelegramMessagesService tgMessagesService,
+        FixetBotDbContext context,
         ILogger<MangaEndpoint> logger)
     {
         _logger = logger;
@@ -38,45 +49,53 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         _messages = messages;
         _mangaService = mangaService;
         _ticketsService = ticketsService;
+        _context = context;
         _tgMessagesService = tgMessagesService;
     }
     
     public override async Task HandleAsync()
     {
-        var mangaResponse = await _nudeClient.GetMangaByUrlAsync(MessageText);
+        var mangaResponse = await _nudeClient.GetMangaByUrlAsync(MessageText, FormatType.Telegraph);
 
         if (mangaResponse is not null)
         {
             var manga = mangaResponse.Value;
-    
-            var tghExists = await _mangaService.GetByExternalIdAsync(manga.ExternalId);
-            if (tghExists is not null)
-            {
-                await MessageAsync(await _messages.GetTghMessageAsync(tghExists));
-                return;
-            }
+            var tghFormat = (TelegraphContentResponse) manga.Formats.First(x => x is TelegraphContentResponse);
+            await MessageAsync(await _messages.GetTghMessageAsync(tghFormat.Url));
+            return;
         }
-
-        var callbackUrl = _configuration["Http:BaseUrl"] + "/callback";
-
-        var response = await _nudeClient.CreateParsingTicketAsync(MessageText, callbackUrl);
-        var convertStatus = response.Status == ParsingStatus.Success
-            ? ConvertingStatus.ConvertWaiting
-            : ConvertingStatus.ParseWaiting;
-        
-        var ticket = await _ticketsService.CreateAsync(response.Id, ChatId, convertStatus);
-
-        var message = await MessageAsync("Обработка не займет много времени. Я напишу Вам, когда все будет готово:)\n");
-        
-        var convertingMessage = new TelegramConvertingMessage
+        else
         {
-            MessageId = message.MessageId,
-            Text = message.Text,
-            ChatId = ChatId,
-            ConvertTicketId = ticket.Id
-        };
-        await _tgMessagesService.CreateMessageAsync(convertingMessage);
+            var callbackUrl = _configuration["Http:BaseUrl"] + "/callback";
+            var request = new ContentTicketRequest
+            {
+                SourceUrl = MessageText,
+                CallbackUrl = callbackUrl
+            };
+            var response = await _nudeClient.CreateContentTicket(request);
+            await MessageAsync(new MessageItem("Нужно немного подождать...", ParseMode.MarkdownV2));
+            _context.Add(new UserMessages
+            {
+                ChatId = Update.Message.Chat.Id,
+                MessageId = Update.Message.MessageId, 
+                UserId = Update.Message.From.Id
+            });
+        }
     }
 
     public override bool CanHandle() => AvailableSources.IsAvailable(Update.Message?.Text ?? "");
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

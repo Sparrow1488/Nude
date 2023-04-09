@@ -3,7 +3,7 @@ using Nude.API.Models.Messages;
 
 namespace Nude.Data.Infrastructure.Contexts;
 
-public class MessageDbContext : DatabaseContext
+public class FixetBotDbContext : DatabaseContext
 {
     public DbSet<UserMessages> Messages => Set<UserMessages>();
 }

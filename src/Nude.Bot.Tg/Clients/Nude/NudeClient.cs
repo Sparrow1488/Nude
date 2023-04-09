@@ -1,3 +1,4 @@
+using System.Net.Http.Json;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -5,6 +6,9 @@ using Newtonsoft.Json.Serialization;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Parsing.Requests;
 using Nude.API.Contracts.Parsing.Responses;
+using Nude.API.Contracts.Tickets.Requests;
+using Nude.API.Contracts.Tickets.Responses;
+using Nude.API.Models.Formats;
 
 namespace Nude.Bot.Tg.Clients.Nude;
 
@@ -26,60 +30,59 @@ public class NudeClient : INudeClient
         };
     }
 
-    public async Task<MangaResponse?> GetMangaByIdAsync(int id)
+    public async Task<NewMangaResponse?> GetMangaByIdAsync(int id)
     {
-        MangaResponse? result = null;
-        await GetAsync<MangaResponse>(
+        NewMangaResponse? result = null;
+        await GetAsync<NewMangaResponse>(
             $"/manga/{id}",
             (_, res) => result = res,
             _ => result = null);
-
         return result;
     }
 
-    public async Task<MangaResponse?> GetMangaByUrlAsync(string url)
+    public async Task<NewMangaResponse?> GetMangaByUrlAsync(string url,FormatType format)
     {
-        MangaResponse? result = null;
-        await GetAsync<MangaResponse>(
-            $"/manga?url={url}",
+        NewMangaResponse? result = null;
+        await GetAsync<NewMangaResponse>(
+            $"/manga?url={url}?format={format}",
             (_, res) => result = res,
             _ => result = null);
 
         return result;
     }
 
-    public async Task<ParsingResponse?> GetParsingTicketAsync(int id)
+    public Task<NewMangaResponse?> GetRandomMangaAsync()
     {
-        using var client = CreateHttpClient();
-        ParsingResponse? result = null;
-        await GetAsync<ParsingResponse>(
-            $"/parsing/tickets/{id}",
-            (_, res) => result = res,
-            _ => result = null);
-
-        return result;
+        throw new NotImplementedException();
     }
 
-    public async Task<ParsingResponse> CreateParsingTicketAsync(string mangaUrl, string callback)
+    public async Task<ContentTicketResponse?> CreateContentTicket(ContentTicketRequest request)
     {
-        using var client = CreateHttpClient();
-        var requestJson = JsonConvert.SerializeObject(
-            new ParsingCreateRequest
-            {
-                SourceUrl = mangaUrl,
-                CallbackUrl = callback
-            }, _jsonSerializerSettings);
-        var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
-
-        var response = await client.PostAsync($"{_baseUrl}/parsing/tickets", content);
-        if (response.IsSuccessStatusCode)
-        {
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<ParsingResponse>(json, _jsonSerializerSettings);
-        }
-
-        throw new Exception($"HttpResponse Status:{response.StatusCode}");
+        ContentTicketResponse? response = null;
+        await PostAsync<ContentTicketRequest, ContentTicketResponse>(
+            "/content-tickets", 
+            request,
+            (_,res)=> response = res,
+            _ => response = null
+        );
+        return response;
     }
+
+    public Task<ContentTicketResponse?> GetContentTicketById(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<FormatTicketResponse?> CreateFormatTicket(FormatTicketRequest request)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<FormatTicketResponse?> GetFormatTicketById(int id)
+    {
+        throw new NotImplementedException();
+    }
+
 
     private async Task GetAsync<TRes>(
         string path,
@@ -100,7 +103,26 @@ public class NudeClient : INudeClient
             onError.Invoke(response);
         }
     }
-
+    private async Task PostAsync<TRec,TRes>(
+        string path,
+        TRec request,
+        Action<HttpResponseMessage, TRes> onSuccess, 
+        Action<HttpResponseMessage> onError)
+    {
+        using var client = CreateHttpClient();
+        var response = await client.PostAsJsonAsync(_baseUrl, request);
+        if (response.IsSuccessStatusCode)
+        {
+            var json = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<TRes>(json, _jsonSerializerSettings)
+                         ?? throw new JsonException("Fail to deserialize response object");
+            onSuccess.Invoke(response, result);
+        }
+        else
+        {
+            onError.Invoke(response);
+        }
+    }
     private static HttpClient CreateHttpClient()
     {
         return new HttpClient();
