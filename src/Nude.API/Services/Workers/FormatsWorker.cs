@@ -21,30 +21,27 @@ using Nude.Data.Infrastructure.Contexts;
 
 namespace Nude.API.Services.Workers;
 
-public class ContentFormatTicketsWorker : IBackgroundWorker
+public class FormatsWorker : IBackgroundWorker
 {
     private readonly Stopwatch _stopwatch;
-    private const string CurrentDiagnosticMethodName = nameof(ContentFormatTicketsWorker);
+    private const string CurrentDiagnosticMethodName = nameof(FormatsWorker);
 
     private readonly AppDbContext _context;
     private readonly IMangaService _mangaService;
     private readonly INotificationService _notificationService;
-    private readonly IContentFormatTicketService _ticketService;
     private readonly IContentFormatterService _formatterService;
-    private readonly ILogger<ContentFormatTicketsWorker> _logger;
+    private readonly ILogger<FormatsWorker> _logger;
 
-    public ContentFormatTicketsWorker(
+    public FormatsWorker(
         AppDbContext context,
         IMangaService mangaService,
         INotificationService notificationService,
-        IContentFormatTicketService ticketService,
         IContentFormatterService formatterService,
-        ILogger<ContentFormatTicketsWorker> logger)
+        ILogger<FormatsWorker> logger)
     {
         _context = context;
         _mangaService = mangaService;
         _notificationService = notificationService;
-        _ticketService = ticketService;
         _formatterService = formatterService;
         _logger = logger;
         _stopwatch = new Stopwatch();
@@ -84,7 +81,7 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
 
             await _mangaService.AddFormatAsync(manga, format);
 
-            var resultDetails = new ContentFormatReadyDetails
+            var resultDetails = new FormattingStatusDetails
             {
                 Status = FormattingStatus.Success,
                 ContentKey = contentKey
@@ -106,7 +103,7 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
 
     private async Task OnFormatProgressUpdatedAsync(string contentKey, IDictionary variables)
     {
-        var details = new ContentFormatProgressDetails
+        var details = new FormattingProgressDetails
         {
             ContentKey = contentKey
         };

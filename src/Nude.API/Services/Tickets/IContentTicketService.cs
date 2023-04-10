@@ -7,6 +7,7 @@ public interface IContentTicketService
     Task<ContentTicket> CreateAsync(string contentUrl);
     Task<ContentTicket?> GetByIdAsync(int id);
     Task<ContentTicket?> FindSimilarAsync(string sourceUrl);
-    Task<ContentTicket?> GetWaitingAsync();
+    Task<ICollection<ContentTicket>> GetSimilarWaitingAsync();
     Task DeleteAsync(ContentTicket ticket);
+    Task DeleteRangeAsync(IEnumerable<ContentTicket> tickets);
 }

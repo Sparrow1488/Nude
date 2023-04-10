@@ -51,16 +51,28 @@ public class ContentTicketService : IContentTicketService
             .FirstOrDefaultAsync(x => x.ContentUrl.Contains(sourceUrl));
     }
 
-    public Task<ContentTicket?> GetWaitingAsync()
+    public async Task<ICollection<ContentTicket>> GetSimilarWaitingAsync()
     {
-        return _context.ContentTickets
-            .IncludeDependencies()
-            .FirstOrDefaultAsync();
+        var ticket = await _context.ContentTickets.FirstOrDefaultAsync();
+        if (ticket != null)
+        {
+            return await _context.ContentTickets
+                .Where(x => x.ContentKey == ticket.ContentKey)
+                .ToListAsync();
+        }
+
+        return new List<ContentTicket>();
     }
 
     public async Task DeleteAsync(ContentTicket ticket)
     {
         _context.Remove(ticket);
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteRangeAsync(IEnumerable<ContentTicket> tickets)
+    {
+        _context.RemoveRange(tickets);
         await _context.SaveChangesAsync();
     }
 }

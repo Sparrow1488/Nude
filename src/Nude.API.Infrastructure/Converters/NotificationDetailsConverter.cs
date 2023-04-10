@@ -34,9 +34,9 @@ public class NotificationDetailsConverter : JsonConverter<NotificationDetails>
 
         return detailsType switch
         {
-            nameof(ContentFormatProgressDetails) => jObject.ToObject<ContentFormatProgressDetails>(),
-            nameof(ContentTicketStatusChangedDetails) => jObject.ToObject<ContentTicketStatusChangedDetails>(),
-            nameof(ContentFormatReadyDetails) => jObject.ToObject<ContentFormatReadyDetails>(),
+            nameof(FormattingProgressDetails) => jObject.ToObject<FormattingProgressDetails>(),
+            nameof(ContentTicketChangedDetails) => jObject.ToObject<ContentTicketChangedDetails>(),
+            nameof(FormattingStatusDetails) => jObject.ToObject<FormattingStatusDetails>(),
             _ => throw new NoJsonConverterException(
                 $"Not all methods are configured in {nameof(NotificationDetailsConverter)}")
         };

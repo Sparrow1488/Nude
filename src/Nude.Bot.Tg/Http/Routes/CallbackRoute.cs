@@ -2,9 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
-using Nude.API.Contracts.Tickets.Requests;
-using Nude.API.Models.Formats;
-using Nude.API.Models.Mangas;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
@@ -45,60 +42,75 @@ public class CallbackRoute
     
     public async Task OnCallbackAsync(Notification subject)
     {
+        var contentKey = (subject.Details as ContentNotificationDetails)!.ContentKey;
+        var messages = await GetUserMessagesAsync(contentKey);
+        
         // Прогресс форматирования
-        if (subject.Details is ContentFormatProgressDetails progress)
+        if (subject.Details is FormattingProgressDetails progress)
         {
-            var message = await GetUserMessageAsync(progress.ContentKey);
-            await EditMessageAsync(message, $"Загрузка {progress.CurrentImage} из {progress.TotalImages}");
+            await EditMessagesAsync(messages, $"Загрузка {progress.CurrentImage} из {progress.TotalImages}");
             return;
         }
 
-        // Содержимое спизжено, если Success, то создаем ContentFormatTicket
-        if (subject.Details is ContentTicketStatusChangedDetails ticketDetails)
+        if (subject.Details is ContentTicketChangedDetails ticketDetails)
         {
-            var message = await GetUserMessageAsync(ticketDetails.ContentKey);
-
-            if (ticketDetails.Status == ReceiveStatus.Success)
+            switch (ticketDetails.Status)
             {
-                await EditMessageAsync(message, $"Пиздим мангу");
-            }
-            else
-            {
-                await EditMessageAsync(message, "Не удалось получить содержимое по запросу");
+                case ReceiveStatus.Started:
+                    await EditMessagesAsync(messages, $"Пиздим мангу");
+                    break;
+                case ReceiveStatus.Success:
+                    await EditMessagesAsync(messages, $"Спиздили мангу");
+                    break;
+                case ReceiveStatus.Failed:
+                    await EditMessagesAsync(messages, "Не удалось получить содержимое по запросу");
+                    await DeleteMessagesAsync(messages);
+                    break;
             }
         }
 
         // Все готово, лови ссылку
-        if (subject.Details is ContentFormatReadyDetails formatDetails)
+        if (subject.Details is FormattingStatusDetails formatDetails)
         {
-            var message = await GetUserMessageAsync(formatDetails.ContentKey);
             if (formatDetails.Status == FormattingStatus.Success)
             {
                 var manga = await _client.GetMangaByContentKeyAsync(formatDetails.ContentKey);
                 var tgh = manga!.Value.Formats.First(x => x is TelegraphContentResponse);
                 var url = ((TelegraphContentResponse) tgh).Url;
-                await EditMessageAsync(message, url, ParseMode.Html);
+                await EditMessagesAsync(messages, url, ParseMode.Html);
+
+                await DeleteMessagesAsync(messages);
             }
             else
             {
-                await EditMessageAsync(message, $"Начали конвертировать мангу");
+                await EditMessagesAsync(messages, $"Начали конвертировать мангу");
             }
         }
     }
 
-    private Task<UserMessages?> GetUserMessageAsync(string contentKey)
+    private Task<List<UserMessages>> GetUserMessagesAsync(string contentKey)
     {
         return _context.Messages
-            .FirstOrDefaultAsync(x => x.ContentKey == contentKey);
+            .Where(x => x.ContentKey == contentKey)
+            .ToListAsync();
     }
 
-    private async Task EditMessageAsync(UserMessages? message, string text, ParseMode mode = ParseMode.MarkdownV2)
+    private async Task EditMessagesAsync(IEnumerable<UserMessages> messages, string text, ParseMode mode = ParseMode.MarkdownV2)
     {
-        if (message != null)
+        foreach (var message in messages)
         {
             var messageItem = new MessageItem(text, mode);
             var messageId = int.Parse(message.MessageId.ToString());
             await BotUtils.EditMessageAsync(_bot, message.ChatId, messageId, messageItem);
+        }
+    }
+
+    private async Task DeleteMessagesAsync(IEnumerable<UserMessages> messages)
+    {
+        if (messages.Any())
+        {
+            _context.RemoveRange(messages);
+            await _context.SaveChangesAsync();
         }
     }
 }

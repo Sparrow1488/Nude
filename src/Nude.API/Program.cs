@@ -120,7 +120,7 @@ builder.Services.AddAutoMapper(x => x.AddMaps(profilesAssembly));
 
 #region Background Service
 
-builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(ContentFormatTicketsWorker));
+builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(FormatsWorker));
 
 #endregion
 
