@@ -1,5 +1,6 @@
 using System.Text;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Services.WebHooks.Results;
@@ -14,7 +15,7 @@ public class WebHookService : IWebHookService
     public WebHookService(ILogger<WebHookService> logger)
     {
         _logger = logger;
-        _settings = JsonSettingsProvider.Create();
+        _settings = JsonSettingsProvider.Create(new DefaultNamingStrategy());
     }
     
     public async Task<SendingResult> SendAsync<T>(string callbackUrl, T content)

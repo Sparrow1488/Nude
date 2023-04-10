@@ -43,14 +43,14 @@ public class CallbackRoute
         _bot = bot;
     }
     
-    public async Task OnCallbackAsync(NotificationSubject subject)
+    public async Task OnCallbackAsync(Notification subject)
     {
         var userMessage = await _context.Messages
             .OrderByDescending(x => x.Id)
             .FirstOrDefaultAsync();
         
         // Прогресс форматирования
-        if (subject.EventDetails is FormatTicketProgressDetails progress)
+        if (subject.Details is FormatTicketProgressDetails progress)
         {
             // _logger.LogInformation($"MANGA UPLOADING PROGRESS {progress.CurrentImage}/{progress.TotalImages}");
             await EditMessageAsync(userMessage, $"Загрузка {progress.CurrentImage} из {progress.TotalImages}");
@@ -58,7 +58,7 @@ public class CallbackRoute
         }
 
         // Содержимое спизжено, если Success, то создаем ContentFormatTicket
-        if (subject.EventDetails is ContentTicketStatusChangedDetails ticketDetails)
+        if (subject.Details is ContentTicketStatusChangedDetails ticketDetails)
         {
             if (ticketDetails.Status == ReceiveStatus.Success)
             {
@@ -83,7 +83,7 @@ public class CallbackRoute
         }
 
         // Все готово, лови ссылку
-        if (subject.EventDetails is FormatTicketStatusChangedDetails formatDetails)
+        if (subject.Details is FormatTicketStatusChangedDetails formatDetails)
         {
             if (formatDetails.Status == FormattingStatus.Success)
             {

@@ -113,7 +113,7 @@ public class ContentTicketsWorker : IBackgroundWorker
         if (result.EntryType == nameof(MangaEntry))
             details.MangaId = result.EntryId;
         
-        var subject = new NotificationSubject { EventDetails = details };
+        var subject = new Notification { Details = details };
         await _notificationService.NotifyAsync(subject);
     }
 }

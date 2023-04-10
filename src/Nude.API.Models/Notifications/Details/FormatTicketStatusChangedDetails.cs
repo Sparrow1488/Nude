@@ -6,5 +6,5 @@ public class FormatTicketStatusChangedDetails : NotificationDetails
 {
     public int? MangaId { get; set; }
     public FormattingStatus Status { get; set; }
-    public override string DetailsType => nameof(FormatTicketStatusChangedDetails);
+    public override string Type => nameof(FormatTicketStatusChangedDetails);
 }

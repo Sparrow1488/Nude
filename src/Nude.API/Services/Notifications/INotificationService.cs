@@ -5,5 +5,5 @@ namespace Nude.API.Services.Notifications;
 
 public interface INotificationService
 {
-    Task<NotificationResult> NotifyAsync(NotificationSubject subject);
+    Task<NotificationResult> NotifyAsync(Notification subject);
 }

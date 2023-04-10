@@ -7,9 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
 using Nude.Bot.Tg.Clients.Nude;
@@ -79,23 +81,6 @@ builder.Services.AddScoped<IMessagesStore, MessageStore>();
 
 #endregion
 
-
-var subj = new NotificationSubject
-{
-    EventDetails = new FormatTicketProgressDetails
-    {
-        CurrentImage = 100,
-        TotalImages = 500,
-        TicketId = 123
-    }
-};
-
-var settings = JsonSettingsProvider.Create();
-var json = JsonConvert.SerializeObject(subj, settings);
-
-var result = JsonConvert.DeserializeObject<NotificationSubject>(json, settings);
-
-
 var cancellationSource = new CancellationTokenSource(); 
 Console.CancelKeyPress += (_, _) =>
 {
@@ -109,9 +94,9 @@ app.MapPost("/callback", async ctx =>
     using var content = new StreamContent(ctx.Request.Body);
     var subjectJson = await content.ReadAsStringAsync();
 
-    var subject = JsonConvert.DeserializeObject<NotificationSubject>(
+    var subject = JsonConvert.DeserializeObject<Notification>(
         subjectJson, 
-        JsonSettingsProvider.Create()
+        JsonSettingsProvider.Create(new DefaultNamingStrategy())
     );
 
     var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
@@ -122,3 +107,8 @@ app.MapPost("/callback", async ctx =>
 });
 
 await app.RunAsync(cancellationSource.Token);
+
+public struct Simple
+{
+    public string TestProperty { get; set; }
+}

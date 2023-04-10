@@ -19,7 +19,7 @@ public class NotificationService : INotificationService
         _webHookService = webHookService;
     }
     
-    public async Task<NotificationResult> NotifyAsync(NotificationSubject subject)
+    public async Task<NotificationResult> NotifyAsync(Notification subject)
     {
         var servers = await _context.Servers
             .ToListAsync();

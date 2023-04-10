@@ -20,7 +20,7 @@ public class NudeClient : INudeClient
     {
         _baseUrl = configuration["Nude.API:BaseUrl"] ?? throw new Exception("No Nude.API BaseUrl in config");
 
-        _jsonSerializerSettings = JsonSettingsProvider.Create();
+        _jsonSerializerSettings = JsonSettingsProvider.CreateDefault();
     }
 
     public async Task<MangaResponse?> GetMangaByIdAsync(int id)

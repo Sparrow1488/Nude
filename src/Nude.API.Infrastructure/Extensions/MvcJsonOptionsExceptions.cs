@@ -7,7 +7,7 @@ public static class MvcJsonOptionsExceptions
 {
     public static void BindOptions(this MvcNewtonsoftJsonOptions options)
     {
-        var settings = JsonSettingsProvider.Create();
+        var settings = JsonSettingsProvider.CreateDefault();
         
         options.SerializerSettings.Culture = settings.Culture;
         options.SerializerSettings.Formatting = settings.Formatting;

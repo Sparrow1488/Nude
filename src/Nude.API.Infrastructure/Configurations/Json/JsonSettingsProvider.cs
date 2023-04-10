@@ -6,14 +6,19 @@ namespace Nude.API.Infrastructure.Configurations.Json;
 
 public static class JsonSettingsProvider
 {
-    public static JsonSerializerSettings Create()
+    public static JsonSerializerSettings CreateDefault()
+    {
+        return Create(new SnakeCaseNamingStrategy());
+    }
+    
+    public static JsonSerializerSettings Create(NamingStrategy namingStrategy)
     {
         var settings = new JsonSerializerSettings
         {
             Formatting = Formatting.Indented,
             ContractResolver = new DefaultContractResolver
             {
-                NamingStrategy = new SnakeCaseNamingStrategy()
+                NamingStrategy = namingStrategy
             }
         };
         

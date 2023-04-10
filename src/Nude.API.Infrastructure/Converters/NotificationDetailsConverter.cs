@@ -24,34 +24,22 @@ public class NotificationDetailsConverter : JsonConverter<NotificationDetails>
         bool hasExistingValue, 
         JsonSerializer serializer)
     {
-        if (!reader.Read() || reader.Path.Contains("event"))
+        var jObject = JObject.Load(reader);
+        if (jObject.Type != JTokenType.Object)
         {
             return null;
         }
-        
-        try
-        {
-            var detailsJson = reader.ReadAsString();
-            var jObject = JObject.Load(reader);
-            if (jObject.Type != JTokenType.Object)
-            {
-                return null;
-            }
 
-            var detailsType = jObject["details_type"]?.Value<string>(); // FIX: с мелкой
+        var detailsType = jObject["Type"]?.Value<string>();
+        // var detailsType = jObject["type"]?.Value<string>();
 
-            return detailsType switch
-            {
-                nameof(FormatTicketProgressDetails) => jObject.ToObject<FormatTicketProgressDetails>(),
-                nameof(ContentTicketStatusChangedDetails) => jObject.ToObject<ContentTicketStatusChangedDetails>(),
-                nameof(FormatTicketStatusChangedDetails) => jObject.ToObject<FormatTicketStatusChangedDetails>(),
-                _ => throw new NoJsonConverterException(
-                    $"Not all methods are configured in {nameof(NotificationDetailsConverter)}")
-            };
-        }
-        catch
+        return detailsType switch
         {
-            return null;
-        }
+            nameof(FormatTicketProgressDetails) => jObject.ToObject<FormatTicketProgressDetails>(),
+            nameof(ContentTicketStatusChangedDetails) => jObject.ToObject<ContentTicketStatusChangedDetails>(),
+            nameof(FormatTicketStatusChangedDetails) => jObject.ToObject<FormatTicketStatusChangedDetails>(),
+            _ => throw new NoJsonConverterException(
+                $"Not all methods are configured in {nameof(NotificationDetailsConverter)}")
+        };
     }
 }

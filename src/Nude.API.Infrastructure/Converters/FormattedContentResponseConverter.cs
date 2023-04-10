@@ -35,7 +35,7 @@ public class FormattedContentResponseConverter : JsonConverter<FormattedContentR
         var formatType = (FormatType) formatTypeValue;
         return formatType switch
         {
-            FormatType.Telegraph => jObject.ToObject<TelegraphContentResponse>(),
+            FormatType.Telegraph => jObject.ToObject<TelegraphContentResponse>(serializer),
             _ => throw new NoJsonConverterException($"Not all methods are configured in {nameof(FormattedContentResponseConverter)}")
         };
     }

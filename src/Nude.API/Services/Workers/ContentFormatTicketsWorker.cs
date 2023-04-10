@@ -129,7 +129,7 @@ public class ContentFormatTicketsWorker : IBackgroundWorker
 
     private async Task NotifySubscribersAsync(NotificationDetails? details = null)
     {
-        var subject = new NotificationSubject { EventDetails = details };
+        var subject = new Notification { Details = details };
         await _notificationService.NotifyAsync(subject);
     }
 
