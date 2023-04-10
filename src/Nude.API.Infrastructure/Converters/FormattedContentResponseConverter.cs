@@ -25,18 +25,22 @@ public class FormattedContentResponseConverter : JsonConverter<FormattedContentR
         bool hasExistingValue,
         JsonSerializer serializer)
     {
-        if (!reader.Read()) return null;
+        if (reader.TokenType == JsonToken.Null)
+        {
+            return null;
+        }
         
         var jObject = JObject.Load(reader);
-        var formatTypeValue = jObject["type"]?.Value<long>();
-        
+        var formatTypeValue = jObject["Type"]?.Value<long>();
+
         if (formatTypeValue == null) return null;
-        
+
         var formatType = (FormatType) formatTypeValue;
         return formatType switch
         {
-            FormatType.Telegraph => jObject.ToObject<TelegraphContentResponse>(serializer),
-            _ => throw new NoJsonConverterException($"Not all methods are configured in {nameof(FormattedContentResponseConverter)}")
+            FormatType.Telegraph => jObject.ToObject<TelegraphContentResponse>(),
+            _ => throw new NoJsonConverterException(
+                $"Not all methods are configured in {nameof(FormattedContentResponseConverter)}")
         };
     }
 }

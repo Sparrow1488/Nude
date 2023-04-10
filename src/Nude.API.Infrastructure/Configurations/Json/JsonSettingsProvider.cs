@@ -8,10 +8,10 @@ public static class JsonSettingsProvider
 {
     public static JsonSerializerSettings CreateDefault()
     {
-        return Create(new SnakeCaseNamingStrategy());
+        return Create(new DefaultNamingStrategy());
     }
     
-    public static JsonSerializerSettings Create(NamingStrategy namingStrategy)
+    private static JsonSerializerSettings Create(NamingStrategy namingStrategy)
     {
         var settings = new JsonSerializerSettings
         {

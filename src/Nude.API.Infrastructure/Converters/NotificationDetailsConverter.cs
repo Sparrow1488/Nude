@@ -24,14 +24,13 @@ public class NotificationDetailsConverter : JsonConverter<NotificationDetails>
         bool hasExistingValue, 
         JsonSerializer serializer)
     {
-        var jObject = JObject.Load(reader);
-        if (jObject.Type != JTokenType.Object)
+        if (reader.TokenType == JsonToken.Null)
         {
             return null;
         }
-
+        
+        var jObject = JObject.Load(reader);
         var detailsType = jObject["Type"]?.Value<string>();
-        // var detailsType = jObject["type"]?.Value<string>();
 
         return detailsType switch
         {

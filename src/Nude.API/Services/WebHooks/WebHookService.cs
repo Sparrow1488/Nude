@@ -15,7 +15,7 @@ public class WebHookService : IWebHookService
     public WebHookService(ILogger<WebHookService> logger)
     {
         _logger = logger;
-        _settings = JsonSettingsProvider.Create(new DefaultNamingStrategy());
+        _settings = JsonSettingsProvider.CreateDefault();
     }
     
     public async Task<SendingResult> SendAsync<T>(string callbackUrl, T content)

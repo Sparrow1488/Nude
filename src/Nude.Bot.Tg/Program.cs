@@ -8,6 +8,8 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Nude.API.Contracts.Formats.Responses;
+using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
@@ -81,7 +83,7 @@ builder.Services.AddScoped<IMessagesStore, MessageStore>();
 
 #endregion
 
-var cancellationSource = new CancellationTokenSource(); 
+var cancellationSource = new CancellationTokenSource();
 Console.CancelKeyPress += (_, _) =>
 {
     cancellationSource.Cancel();
@@ -96,7 +98,7 @@ app.MapPost("/callback", async ctx =>
 
     var subject = JsonConvert.DeserializeObject<Notification>(
         subjectJson, 
-        JsonSettingsProvider.Create(new DefaultNamingStrategy())
+        JsonSettingsProvider.CreateDefault()
     );
 
     var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
