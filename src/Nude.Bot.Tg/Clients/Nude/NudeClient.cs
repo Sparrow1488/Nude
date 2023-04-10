@@ -1,12 +1,10 @@
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Infrastructure.Configurations.Json;
-using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Formats;
 
 namespace Nude.Bot.Tg.Clients.Nude;
@@ -38,6 +36,17 @@ public class NudeClient : INudeClient
         MangaResponse? result = null;
         await GetAsync<MangaResponse>(
             $"/manga?sourceUrl={sourceUrl}&format={format}",
+            (_, res) => result = res,
+            _ => result = null);
+
+        return result;
+    }
+
+    public async Task<MangaResponse?> GetMangaByContentKeyAsync(string contentKey, FormatType? format = null)
+    {
+        MangaResponse? result = null;
+        await GetAsync<MangaResponse>(
+            $"/manga?contentKey={contentKey}&format={format}",
             (_, res) => result = res,
             _ => result = null);
 

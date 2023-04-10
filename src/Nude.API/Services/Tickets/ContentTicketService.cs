@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Tickets;
-using Nude.API.Models.Tickets.Contexts;
-using Nude.API.Models.Tickets.Results;
-using Nude.API.Models.Tickets.States;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.Data.Infrastructure.Extensions;
 
@@ -23,43 +21,20 @@ public class ContentTicketService : IContentTicketService
         _context = context;
     }
     
-    public async Task<ContentTicket> CreateAsync(string sourceUrl)
+    public async Task<ContentTicket> CreateAsync(string contentUrl)
     {
+        var entryType = EntryTypeDetector.ByContentUrl(contentUrl);
+        
         var request = new ContentTicket
         {
-            Status = ReceiveStatus.WaitToProcess,
-            Context = new ContentTicketContext
-            {
-                ContentUrl = sourceUrl
-            }
+            ContentKey = ContentKeyHelper.CreateContentKey(entryType, contentUrl),
+            ContentUrl = contentUrl
         };
 
         await _context.AddAsync(request);
         await _context.SaveChangesAsync();
 
         return request;
-    }
-
-    public async Task<ContentTicket> UpdateStatusAsync(ContentTicket ticket, ReceiveStatus status)
-    {
-        if (ticket.Status != status)
-        {
-            ticket.Status = status;
-            await _context.SaveChangesAsync();
-        }
-        
-        return ticket;
-    }
-
-    public async Task<ContentTicket> UpdateResultAsync(ContentTicket ticket, string entityId, string code)
-    {
-        ticket.Result ??= new ContentResult();
-
-        ticket.Result.Code = code;
-        ticket.Result.EntityId = entityId;
-        await _context.SaveChangesAsync();
-
-        return ticket;
     }
 
     public Task<ContentTicket?> GetByIdAsync(int id)
@@ -73,37 +48,19 @@ public class ContentTicketService : IContentTicketService
     {
         return _context.ContentTickets
             .IncludeDependencies()
-            .FirstOrDefaultAsync(x => x.Context.ContentUrl.Contains(sourceUrl));
+            .FirstOrDefaultAsync(x => x.ContentUrl.Contains(sourceUrl));
     }
 
     public Task<ContentTicket?> GetWaitingAsync()
     {
         return _context.ContentTickets
             .IncludeDependencies()
-            .FirstOrDefaultAsync(x => x.Status == ReceiveStatus.WaitToProcess);
+            .FirstOrDefaultAsync();
     }
 
-    // public async Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback)
-    // {
-    //     // ArgumentNullException.ThrowIfNull(callback);
-    //     //
-    //     // var alreadySubscribed = ticket.Subscribers.Any(x => x.CallbackUrl == callback);
-    //     //
-    //     // if (!alreadySubscribed)
-    //     // {
-    //     //     var subscriber = new Subscriber
-    //     //     {
-    //     //         CallbackUrl = callback,
-    //     //         ContentTicketId = ticket.Id,
-    //     //         NotifyStatus = NotifyStatus.All
-    //     //     };
-    //     //     
-    //     //     await _context.AddAsync(subscriber);
-    //     //     await _context.SaveChangesAsync();
-    //     //     
-    //     //     ticket.Subscribers.Add(subscriber);
-    //     // }
-    //     //
-    //     // return ticket.Subscribers.First(x => x.CallbackUrl == callback);
-    // }
+    public async Task DeleteAsync(ContentTicket ticket)
+    {
+        _context.Remove(ticket);
+        await _context.SaveChangesAsync();
+    }
 }

@@ -5,9 +5,10 @@ using Nude.API.Models.Tags;
 
 namespace Nude.API.Models.Mangas;
 
-public class MangaEntry : IAuditable
+public class MangaEntry : IAuditable, IContentEntry
 {
     public int Id { get; set; }
+    public string ContentKey { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
     public MangaExternalMeta? ExternalMeta { get; set; }

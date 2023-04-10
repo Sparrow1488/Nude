@@ -9,6 +9,7 @@ public interface INudeClient
 {
     Task<MangaResponse?> GetMangaByIdAsync(int id);
     Task<MangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType? format = null);
+    Task<MangaResponse?> GetMangaByContentKeyAsync(string contentKey, FormatType? format = null);
     Task<MangaResponse?> GetRandomMangaAsync(FormatType? format = null);
     Task<ContentTicketResponse?> CreateContentTicket(ContentTicketRequest request);
     Task<FormatTicketResponse?> CreateFormatTicket(FormatTicketRequest request);

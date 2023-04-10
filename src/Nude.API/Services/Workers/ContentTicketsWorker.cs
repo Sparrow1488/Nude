@@ -1,6 +1,5 @@
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
-using Nude.API.Models.Mangas;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets;
@@ -45,10 +44,11 @@ public class ContentTicketsWorker : IBackgroundWorker
                 return;
             }
 
-            var contentUrl = Ticket.Context.ContentUrl;
+            var contentUrl = Ticket.ContentUrl;
             if (!AvailableSources.IsAvailable(contentUrl))
             {
-                await _ticketService.UpdateStatusAsync(Ticket, ReceiveStatus.Failed);
+                await NotifySubscribersAsync(Ticket, ReceiveStatus.Success, null);
+                await _ticketService.DeleteAsync(Ticket);
                 _logger.LogWarning("Ticket source url is not yet available ({url})", contentUrl);
                 return;
             }
@@ -57,18 +57,18 @@ public class ContentTicketsWorker : IBackgroundWorker
 
             LogResult(stealingResult);
 
-            var newTicketStatus = stealingResult.IsSuccess
-                ? ReceiveStatus.Success
-                : ReceiveStatus.Failed;
-
-            await _ticketService.UpdateStatusAsync(Ticket, newTicketStatus);
-            await _ticketService.UpdateResultAsync(Ticket, stealingResult.EntryId.ToString(), "...");
-
-            await NotifySubscribersAsync(Ticket, stealingResult);
+            await NotifySubscribersAsync(Ticket, ReceiveStatus.Success, stealingResult);
         }
         catch (Exception ex)
         {
             await HandleExceptionAsync(ex);
+        }
+        finally
+        {
+            if (Ticket != null)
+            {
+                await _ticketService.DeleteAsync(Ticket);
+            }
         }
     }
 
@@ -82,8 +82,7 @@ public class ContentTicketsWorker : IBackgroundWorker
             Exception = exception
         };
         
-        await _ticketService.UpdateStatusAsync(Ticket, ReceiveStatus.Failed);
-        await NotifySubscribersAsync(Ticket, stealingResult);
+        await NotifySubscribersAsync(Ticket, ReceiveStatus.Failed, stealingResult);
     }
 
     private void LogResult(ContentStealingResult result)
@@ -102,16 +101,17 @@ public class ContentTicketsWorker : IBackgroundWorker
         }
     }
 
-    private async Task NotifySubscribersAsync(ContentTicket ticket, ContentStealingResult result)
+    private async Task NotifySubscribersAsync(
+        ContentTicket ticket,
+        ReceiveStatus status,
+        ContentStealingResult? result)
     {
         var details = new ContentTicketStatusChangedDetails
         {
             TicketId = ticket.Id,
-            Status = ticket.Status,
+            Status = status,
+            ContentKey = result?.ContentKey
         };
-        
-        if (result.EntryType == nameof(MangaEntry))
-            details.MangaId = result.EntryId;
         
         var subject = new Notification { Details = details };
         await _notificationService.NotifyAsync(subject);

@@ -36,6 +36,7 @@ public class MangaService : IMangaService
     public async Task<MangaCreationResult> CreateAsync(
         string title, 
         string description, 
+        string contentKey,
         IEnumerable<string> images, 
         IEnumerable<string>? tags = null, 
         string? author = null,
@@ -51,6 +52,7 @@ public class MangaService : IMangaService
         {
             Title = title,
             Description = description,
+            ContentKey = contentKey,
             Images = mangaImages
         };
 
@@ -145,6 +147,20 @@ public class MangaService : IMangaService
             queryable = queryable.Where(x => x.Formats.Any(x => x.Type == format));
         }
 
+        return queryable.FirstOrDefaultAsync();
+    }
+
+    public Task<MangaEntry?> FindByContentKeyAsync(string contentKey, FormatType? format = null)
+    {
+        var queryable = _context.Mangas
+            .IncludeDependencies()
+            .Where(x => x.ContentKey == contentKey);
+
+        if (format != null)
+        {
+            queryable = queryable.Where(x => x.Formats.Any(x => x.Type == format));
+        }
+        
         return queryable.FirstOrDefaultAsync();
     }
 
