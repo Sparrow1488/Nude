@@ -1,0 +1,13 @@
+using Nude.API.Models.Abstractions;
+using Nude.API.Models.Mangas;
+
+namespace Nude.API.Models.Formats;
+
+public abstract class Format : IEntity
+{
+    public int Id { get; set; }
+    public virtual FormatType Type { get; set; }
+    
+    public MangaEntry MangaEntry { get; set; }
+    public int MangaEntryId { get; set; }
+}

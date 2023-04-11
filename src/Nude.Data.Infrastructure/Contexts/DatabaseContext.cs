@@ -13,6 +13,12 @@ public abstract class DatabaseContext : DbContext
     {
     }
     
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder);
+        optionsBuilder.UseSnakeCaseNamingConvention();
+    }
+    
     public override Task<int> SaveChangesAsync(CancellationToken ctk = default)
     {
         GetAuditableEntitiesWithState(EntityState.Modified)

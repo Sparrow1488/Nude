@@ -7,7 +7,7 @@ public interface IContentFormatterService
 {
     event Func<IDictionary, Task> FormatProgressUpdated;
         
-    Task<FormattedContent> FormatAsync(
+    Task<Format> FormatAsync(
         string title, 
         string text, 
         IEnumerable<string> images,

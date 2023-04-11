@@ -16,24 +16,23 @@ public class AppDbContext : DatabaseContext
     public DbSet<Server> Servers => Set<Server>();
     
     public DbSet<MangaEntry> Mangas => Set<MangaEntry>();
-    public DbSet<MangaExternalMeta> MangaExternalMetas => Set<MangaExternalMeta>();
+    public DbSet<ExternalMeta> ExternalMetas => Set<ExternalMeta>();
     
     public DbSet<Url> Urls => Set<Url>();
     public DbSet<Tag> Tags => Set<Tag>();
     public DbSet<MangaImage> MangaImages => Set<MangaImage>();
     
-    public DbSet<FormattedContent> FormattedContents => Set<FormattedContent>();
-    public DbSet<TelegraphContent> TelegraphContents => Set<TelegraphContent>();
+    public DbSet<Format> Formats => Set<Format>();
+    public DbSet<TelegraphFormat> TelegraphFormats => Set<TelegraphFormat>();
     
     public DbSet<ContentTicket> ContentTickets => Set<ContentTicket>();
 
-    #region Feature
-
-    // public DbSet<User> Users => Set<User>();
-    // public DbSet<Account> Accounts => Set<Account>();
-    // public DbSet<TelegramAccount> TelegramAccounts => Set<TelegramAccount>();
-    // public DbSet<UserSubscription> UserSubscriptions => Set<UserSubscription>();
-    // public DbSet<Subscription> Subscription => Set<Subscription>();
-
-    #endregion
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<MangaEntry>()
+            .HasMany(x => x.Formats)
+            .WithOne(x => x.MangaEntry)
+            .HasForeignKey(x => x.MangaEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+    }
 }

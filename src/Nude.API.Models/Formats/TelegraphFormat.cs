@@ -1,6 +1,6 @@
 namespace Nude.API.Models.Formats;
 
-public class TelegraphContent : WebContent
+public class TelegraphFormat : WebFormat
 {
     public override FormatType Type => FormatType.Telegraph;
 }

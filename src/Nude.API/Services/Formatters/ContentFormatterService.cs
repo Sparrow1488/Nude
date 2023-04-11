@@ -26,7 +26,7 @@ public class ContentFormatterService : IContentFormatterService
 
     public event Func<IDictionary, Task>? FormatProgressUpdated;
 
-    public async Task<FormattedContent> FormatAsync(
+    public async Task<Format> FormatAsync(
         string title, 
         string text, 
         IEnumerable<string> images, 
@@ -39,7 +39,7 @@ public class ContentFormatterService : IContentFormatterService
             var tghImages = await UploadTelegraphImagesAsync(imagesList);
             var pageUrl = await _telegraph.CreatePageAsync(title, text, tghImages);
 
-            return new TelegraphContent { Url = pageUrl };
+            return new TelegraphFormat { Url = pageUrl };
         }
 
         throw new NotImplementedException();

@@ -6,22 +6,22 @@ using Nude.API.Models.Formats;
 
 namespace Nude.API.Infrastructure.Converters;
 
-public class FormattedContentResponseConverter : JsonConverter<FormattedContentResponse>
+public class FormattedContentResponseConverter : JsonConverter<FormatResponse>
 {
     public override bool CanWrite => false;
 
     public override void WriteJson(
         JsonWriter writer, 
-        FormattedContentResponse? value, 
+        FormatResponse? value, 
         JsonSerializer serializer)
     {
         throw new NotImplementedException();
     }
 
-    public override FormattedContentResponse? ReadJson(
+    public override FormatResponse? ReadJson(
         JsonReader reader, 
         Type objectType, 
-        FormattedContentResponse? value, 
+        FormatResponse? value, 
         bool hasExistingValue,
         JsonSerializer serializer)
     {
@@ -38,7 +38,7 @@ public class FormattedContentResponseConverter : JsonConverter<FormattedContentR
         var formatType = (FormatType) formatTypeValue;
         return formatType switch
         {
-            FormatType.Telegraph => jObject.ToObject<TelegraphContentResponse>(),
+            FormatType.Telegraph => jObject.ToObject<TelegraphFormatResponse>(),
             _ => throw new NoJsonConverterException(
                 $"Not all methods are configured in {nameof(FormattedContentResponseConverter)}")
         };

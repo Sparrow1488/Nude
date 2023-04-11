@@ -11,11 +11,11 @@ public class MangaEntry : IEntity, IAuditable, IContentEntry
     public string ContentKey { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
-    public MangaExternalMeta? ExternalMeta { get; set; }
+    public ExternalMeta? ExternalMeta { get; set; }
 
     public ICollection<Tag> Tags { get; set; }
     public ICollection<MangaImage> Images { get; set; }
-    public ICollection<FormattedContent> Formats { get; set; }
+    public ICollection<Format> Formats { get; set; }
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

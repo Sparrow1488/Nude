@@ -11,6 +11,6 @@ public struct MangaResponse
     public MangaExternalMetaResponse? External { get; set; }
 
     public List<TagResponse> Tags { get; set; }
-    public List<FormattedContentResponse> Formats { get; set; }
+    public List<FormatResponse> Formats { get; set; }
     public List<string> Images { get; set; }
 }

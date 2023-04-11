@@ -58,7 +58,7 @@ public class MangaService : IMangaService
 
         if (!string.IsNullOrWhiteSpace(externalSourceUrl))
         {
-            entry.ExternalMeta = new MangaExternalMeta
+            entry.ExternalMeta = new ExternalMeta
             {
                 SourceId = externalSourceId,
                 SourceUrl = externalSourceUrl
@@ -164,12 +164,12 @@ public class MangaService : IMangaService
         return queryable.FirstOrDefaultAsync();
     }
 
-    public async Task<MangaEntry> AddFormatAsync(MangaEntry manga, FormattedContent format)
+    public async Task<MangaEntry> AddFormatAsync(MangaEntry manga, Format format)
     {
         if (manga.Formats == null)
         {
             await _context.Entry(manga).Collection(nameof(manga.Formats)).LoadAsync();
-            manga.Formats ??= new List<FormattedContent>();
+            manga.Formats ??= new List<Format>();
         }
         
         manga.Formats.Add(format);

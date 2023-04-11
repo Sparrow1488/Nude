@@ -17,26 +17,17 @@ namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
 
 public class MangaEndpoint : TelegramUpdateEndpoint
 {
-    private readonly ILogger<MangaEndpoint> _logger;
     private readonly INudeClient _nudeClient;
-    private readonly IConfiguration _configuration;
     private readonly IMessagesStore _messages;
-    private readonly BotDbContext _context;
     private readonly IServiceProvider _services;
 
     public MangaEndpoint(
         INudeClient nudeClient,
-        IConfiguration configuration,
         IMessagesStore messages,
-        BotDbContext context,
-        IServiceProvider services,
-        ILogger<MangaEndpoint> logger)
+        IServiceProvider services)
     {
-        _logger = logger;
         _nudeClient = nudeClient;
-        _configuration = configuration;
         _messages = messages;
-        _context = context;
         _services = services;
     }
     
@@ -47,7 +38,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         if (mangaResponse is not null)
         {
             var manga = mangaResponse.Value;
-            var tghFormat = (TelegraphContentResponse) manga.Formats.First(x => x is TelegraphContentResponse);
+            var tghFormat = (TelegraphFormatResponse) manga.Formats.First(x => x is TelegraphFormatResponse);
             await MessageAsync(await _messages.GetReadMangaMessageAsync(tghFormat.Url));
             return;
         }
@@ -60,13 +51,12 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         using var scope = _services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<BotDbContext>();
         
-        await context.AddAsync(new UserMessages
+        await context.AddAsync(new UserMessage
         {
             ChatId = ChatId,
             MessageId = botMessage.MessageId, 
             UserId = Update.Message!.From!.Id,
             TicketId = response!.Value.Id,
-            TicketType = nameof(ContentTicket),
             ContentKey = response.Value.ContentKey
         });
         await context.SaveChangesAsync();

@@ -75,8 +75,8 @@ public class CallbackRoute
             if (formatDetails.Status == FormattingStatus.Success)
             {
                 var manga = await _client.FindMangaByContentKeyAsync(formatDetails.ContentKey);
-                var tgh = manga!.Value.Formats.First(x => x is TelegraphContentResponse);
-                var url = ((TelegraphContentResponse) tgh).Url;
+                var tgh = manga!.Value.Formats.First(x => x is TelegraphFormatResponse);
+                var url = ((TelegraphFormatResponse) tgh).Url;
                 await EditMessagesAsync(messages, url, ParseMode.Html);
 
                 await DeleteMessagesAsync(messages);
@@ -88,14 +88,14 @@ public class CallbackRoute
         }
     }
 
-    private Task<List<UserMessages>> GetUserMessagesAsync(string contentKey)
+    private Task<List<UserMessage>> GetUserMessagesAsync(string contentKey)
     {
         return _context.Messages
             .Where(x => x.ContentKey == contentKey)
             .ToListAsync();
     }
 
-    private async Task EditMessagesAsync(IEnumerable<UserMessages> messages, string text, ParseMode mode = ParseMode.MarkdownV2)
+    private async Task EditMessagesAsync(IEnumerable<UserMessage> messages, string text, ParseMode mode = ParseMode.MarkdownV2)
     {
         foreach (var message in messages)
         {
@@ -105,7 +105,7 @@ public class CallbackRoute
         }
     }
 
-    private async Task DeleteMessagesAsync(IEnumerable<UserMessages> messages)
+    private async Task DeleteMessagesAsync(IEnumerable<UserMessage> messages)
     {
         if (messages.Any())
         {

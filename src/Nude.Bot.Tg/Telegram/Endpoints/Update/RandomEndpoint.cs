@@ -19,8 +19,8 @@ public class RandomEndpoint : TelegramUpdateCommandEndpoint
         var manga = await _client.GetRandomMangaAsync(FormatType.Telegraph);
         if (manga != null)
         {
-            var telegraph = (TelegraphContentResponse) manga.Value.Formats.First(
-                x => x is TelegraphContentResponse);
+            var telegraph = (TelegraphFormatResponse) manga.Value.Formats.First(
+                x => x is TelegraphFormatResponse);
             
             await MessageAsync(await MessagesStore.GetReadMangaMessageAsync(telegraph.Url));
             return;

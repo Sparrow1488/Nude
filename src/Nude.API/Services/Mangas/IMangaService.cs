@@ -21,5 +21,5 @@ public interface IMangaService
     Task<MangaEntry?> FindBySourceIdAsync(string id);
     Task<MangaEntry?> FindBySourceUrlAsync(string url, FormatType? format = null);
     Task<MangaEntry?> FindByContentKeyAsync(string contentKey, FormatType? format = null);
-    Task<MangaEntry> AddFormatAsync(MangaEntry manga, FormattedContent format);
+    Task<MangaEntry> AddFormatAsync(MangaEntry manga, Format format);
 }

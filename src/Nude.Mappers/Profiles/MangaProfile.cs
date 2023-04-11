@@ -18,13 +18,13 @@ public class MangaProfile : Profile
             .ForMember(x => x.Formats, opt => opt.MapFrom(x => x.Formats))
             .ForMember(x => x.Images, opt => opt.MapFrom(x => x.Images.Select(x => x.Url.Value)));
 
-        CreateMap<MangaExternalMeta, MangaExternalMetaResponse>();
+        CreateMap<ExternalMeta, MangaExternalMetaResponse>();
         
         CreateMap<Tag, TagResponse>();
         
-        CreateMap<FormattedContent, FormattedContentResponse>()
+        CreateMap<Format, FormatResponse>()
             .IncludeAllDerived();
         
-        CreateMap<TelegraphContent, TelegraphContentResponse>();
+        CreateMap<TelegraphFormat, TelegraphFormatResponse>();
     }
 }

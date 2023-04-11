@@ -7,5 +7,5 @@ public class BotDbContext : DatabaseContext
 {
     public BotDbContext(DbContextOptions<BotDbContext> options) : base(options) { }
 
-    public DbSet<UserMessages> Messages => Set<UserMessages>();
+    public DbSet<UserMessage> Messages => Set<UserMessage>();
 }
