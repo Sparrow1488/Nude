@@ -9,6 +9,7 @@ public interface IMangaService
     Task<MangaCreationResult> CreateAsync(
         string title, 
         string description,
+        string contentKey,
         IEnumerable<string> images,
         IEnumerable<string>? tags = null,
         string? author = null,
@@ -19,5 +20,6 @@ public interface IMangaService
     Task<MangaEntry?> GetRandomAsync(FormatType? format = null);
     Task<MangaEntry?> FindBySourceIdAsync(string id);
     Task<MangaEntry?> FindBySourceUrlAsync(string url, FormatType? format = null);
+    Task<MangaEntry?> FindByContentKeyAsync(string contentKey, FormatType? format = null);
     Task<MangaEntry> AddFormatAsync(MangaEntry manga, FormattedContent format);
 }

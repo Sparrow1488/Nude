@@ -5,8 +5,6 @@ using Nude.API.Models.Mangas.Meta;
 using Nude.API.Models.Servers;
 using Nude.API.Models.Tags;
 using Nude.API.Models.Tickets;
-using Nude.API.Models.Tickets.Contexts;
-using Nude.API.Models.Tickets.Results;
 using Nude.API.Models.Urls;
 
 namespace Nude.Data.Infrastructure.Contexts;
@@ -28,10 +26,6 @@ public class AppDbContext : DatabaseContext
     public DbSet<TelegraphContent> TelegraphContents => Set<TelegraphContent>();
     
     public DbSet<ContentTicket> ContentTickets => Set<ContentTicket>();
-    public DbSet<ContentResult> ContentResults => Set<ContentResult>();
-    public DbSet<ContentTicketContext> TicketContexts => Set<ContentTicketContext>();
-    
-    public DbSet<ContentFormatTicket> FormatTickets => Set<ContentFormatTicket>();
 
     #region Feature
 

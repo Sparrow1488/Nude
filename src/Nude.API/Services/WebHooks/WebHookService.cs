@@ -1,6 +1,5 @@
 using System.Text;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Services.WebHooks.Results;

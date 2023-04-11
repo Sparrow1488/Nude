@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Infrastructure.Exceptions;
+using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Tickets;
-using Nude.API.Models.Tickets.Contexts;
-using Nude.API.Models.Tickets.Results;
-using Nude.API.Models.Tickets.States;
+using Nude.API.Services.Tickets.Results;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.Data.Infrastructure.Extensions;
 
@@ -23,43 +23,25 @@ public class ContentTicketService : IContentTicketService
         _context = context;
     }
     
-    public async Task<ContentTicket> CreateAsync(string sourceUrl)
+    public async Task<ContentTicketCreationResult> CreateAsync(string contentUrl)
     {
-        var request = new ContentTicket
+        var entryType = ContentAware.DetectEntryTypeByUrl(contentUrl);
+
+        if (!string.IsNullOrWhiteSpace(entryType))
         {
-            Status = ReceiveStatus.WaitToProcess,
-            Context = new ContentTicketContext
+            var request = new ContentTicket
             {
-                ContentUrl = sourceUrl
-            }
-        };
+                ContentKey = ContentKeyGenerator.Generate(entryType, contentUrl),
+                ContentUrl = contentUrl
+            };
 
-        await _context.AddAsync(request);
-        await _context.SaveChangesAsync();
-
-        return request;
-    }
-
-    public async Task<ContentTicket> UpdateStatusAsync(ContentTicket ticket, ReceiveStatus status)
-    {
-        if (ticket.Status != status)
-        {
-            ticket.Status = status;
+            await _context.AddAsync(request);
             await _context.SaveChangesAsync();
+            return new ContentTicketCreationResult { IsSuccess = true, Result = request };
         }
-        
-        return ticket;
-    }
 
-    public async Task<ContentTicket> UpdateResultAsync(ContentTicket ticket, string entityId, string code)
-    {
-        ticket.Result ??= new ContentResult();
-
-        ticket.Result.Code = code;
-        ticket.Result.EntityId = entityId;
-        await _context.SaveChangesAsync();
-
-        return ticket;
+        var exception = new ContentSourceNotAvailableException($"Input '{contentUrl}' is not available yet");
+        return new ContentTicketCreationResult { IsSuccess = false, Exception = exception };
     }
 
     public Task<ContentTicket?> GetByIdAsync(int id)
@@ -69,41 +51,25 @@ public class ContentTicketService : IContentTicketService
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public Task<ContentTicket?> FindSimilarAsync(string sourceUrl)
+    public async Task<ICollection<ContentTicket>> GetSimilarWaitingAsync()
     {
-        return _context.ContentTickets
-            .IncludeDependencies()
-            .FirstOrDefaultAsync(x => x.Context.ContentUrl.Contains(sourceUrl));
+        var ticket = await _context.ContentTickets
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync();
+        
+        if (ticket != null)
+        {
+            return await _context.ContentTickets
+                .Where(x => x.ContentKey == ticket.ContentKey)
+                .ToListAsync();
+        }
+
+        return new List<ContentTicket>();
     }
 
-    public Task<ContentTicket?> GetWaitingAsync()
+    public async Task DeleteRangeAsync(IEnumerable<ContentTicket> tickets)
     {
-        return _context.ContentTickets
-            .IncludeDependencies()
-            .FirstOrDefaultAsync(x => x.Status == ReceiveStatus.WaitToProcess);
+        _context.RemoveRange(tickets);
+        await _context.SaveChangesAsync();
     }
-
-    // public async Task<Subscriber> SubscribeAsync(ContentTicket ticket, string callback)
-    // {
-    //     // ArgumentNullException.ThrowIfNull(callback);
-    //     //
-    //     // var alreadySubscribed = ticket.Subscribers.Any(x => x.CallbackUrl == callback);
-    //     //
-    //     // if (!alreadySubscribed)
-    //     // {
-    //     //     var subscriber = new Subscriber
-    //     //     {
-    //     //         CallbackUrl = callback,
-    //     //         ContentTicketId = ticket.Id,
-    //     //         NotifyStatus = NotifyStatus.All
-    //     //     };
-    //     //     
-    //     //     await _context.AddAsync(subscriber);
-    //     //     await _context.SaveChangesAsync();
-    //     //     
-    //     //     ticket.Subscribers.Add(subscriber);
-    //     // }
-    //     //
-    //     // return ticket.Subscribers.First(x => x.CallbackUrl == callback);
-    // }
 }

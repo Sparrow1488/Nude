@@ -23,16 +23,26 @@ public class ContentTicketController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(ContentTicketRequest request)
     {
-        var ticket = await _service.FindSimilarAsync(request.SourceUrl)
-            ?? await _service.CreateAsync(request.SourceUrl);
+        var result = await _service.CreateAsync(request.SourceUrl);
 
-        return Ok(_mapper.Map<ContentTicketResponse>(ticket));
+        if (result.IsSuccess)
+        {
+            return Ok(_mapper.Map<ContentTicketResponse>(result.Result));
+        }
+
+        return BadRequest(result.Exception);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var ticket = await _service.GetByIdAsync(id);
-        return Ok(_mapper.Map<ContentTicketResponse>(ticket));
+        
+        if (ticket != null)
+        {
+            return Ok(_mapper.Map<ContentTicketResponse>(ticket));
+        }
+
+        return NotFound();
     }
 }

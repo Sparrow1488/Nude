@@ -1,12 +1,11 @@
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Infrastructure.Configurations.Json;
-using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Formats;
 
 namespace Nude.Bot.Tg.Clients.Nude;
@@ -14,10 +13,14 @@ namespace Nude.Bot.Tg.Clients.Nude;
 public class NudeClient : INudeClient
 {
     private readonly string _baseUrl;
+    private readonly ILogger<NudeClient> _logger;
     private readonly JsonSerializerSettings _jsonSerializerSettings;
     
-    public NudeClient(IConfiguration configuration)
+    public NudeClient(
+        ILogger<NudeClient> logger,
+        IConfiguration configuration)
     {
+        _logger = logger;
         _baseUrl = configuration["Nude.API:BaseUrl"] ?? throw new Exception("No Nude.API BaseUrl in config");
 
         _jsonSerializerSettings = JsonSettingsProvider.CreateDefault();
@@ -33,11 +36,22 @@ public class NudeClient : INudeClient
         return result;
     }
 
-    public async Task<MangaResponse?> GetMangaByUrlAsync(string sourceUrl, FormatType? format = null)
+    public async Task<MangaResponse?> FindMangaByUrlAsync(string sourceUrl, FormatType? format = null)
     {
         MangaResponse? result = null;
         await GetAsync<MangaResponse>(
             $"/manga?sourceUrl={sourceUrl}&format={format}",
+            (_, res) => result = res,
+            _ => result = null);
+
+        return result;
+    }
+
+    public async Task<MangaResponse?> FindMangaByContentKeyAsync(string contentKey, FormatType? format = null)
+    {
+        MangaResponse? result = null;
+        await GetAsync<MangaResponse>(
+            $"/manga?contentKey={contentKey}&format={format}",
             (_, res) => result = res,
             _ => result = null);
 
@@ -66,43 +80,13 @@ public class NudeClient : INudeClient
         return response;
     }
 
-    public async Task<ContentTicketResponse?> GetContentTicketById(int id)
-    {
-        ContentTicketResponse? response = null;
-        await GetAsync<ContentTicketResponse>(
-            $"/content-tickets/{id}",
-            (_, res) => response = res,
-            _ => response = null);
-        return response;
-    }
-
-    public async Task<FormatTicketResponse?> CreateFormatTicket(FormatTicketRequest request)
-    {
-        FormatTicketResponse? response = null;
-        await PostAsync<FormatTicketRequest, FormatTicketResponse>(
-            "/format-tickets",
-            request,
-            (_, res) => response = res,
-            _ => response = null);
-        return response;
-    }
-
-    public async Task<FormatTicketResponse?> GetFormatTicketById(int id)
-    {
-        FormatTicketResponse? response = null;
-        await GetAsync<FormatTicketResponse>(
-            $"/format-tickets/{id}",
-            (_, res) => response = res,
-            _ => response = null);
-        return response;
-    }
-
-
     private async Task GetAsync<TRes>(
         string path,
         Action<HttpResponseMessage, TRes> onSuccess, 
         Action<HttpResponseMessage> onError)
     {
+        _logger.LogInformation("");
+        
         using var client = CreateHttpClient();
         var response = await client.GetAsync(_baseUrl + path);
         if (response.IsSuccessStatusCode)
@@ -117,6 +101,7 @@ public class NudeClient : INudeClient
             onError.Invoke(response);
         }
     }
+    
     private async Task PostAsync<TRec, TRes>(
         string path,
         TRec request,
@@ -128,6 +113,9 @@ public class NudeClient : INudeClient
         var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
         
         var response = await client.PostAsync(_baseUrl + path, content);
+        
+        LogRequest("POST", path, response.StatusCode.ToString(), null);
+        
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();
@@ -140,8 +128,20 @@ public class NudeClient : INudeClient
             onError.Invoke(response);
         }
     }
+    
     private static HttpClient CreateHttpClient()
     {
         return new HttpClient();
+    }
+
+    private void LogRequest(string method, string path, string status, string? error)
+    {
+        _logger.LogInformation(
+            "Send '{method} {path}' with status result {status} ({error})",
+            method,
+            path,
+            status,
+            error ?? "no_error"
+        );
     }
 }

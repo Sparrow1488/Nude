@@ -1,10 +1,10 @@
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
-using Nude.API.Models.Mangas;
+using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Tickets.States;
+using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
 using Nude.API.Services.Stealers;
 using Nude.API.Services.Stealers.Results;
@@ -15,29 +15,34 @@ namespace Nude.API.Services.Workers;
 public class ContentTicketsWorker : IBackgroundWorker
 {
     private readonly IContentTicketService _ticketService;
+    private readonly IMangaService _mangaService;
     private readonly ILogger<ContentTicketsWorker> _logger;
     private readonly INotificationService _notificationService;
     private readonly IContentStealerService _contentStealerService;
 
     public ContentTicketsWorker(
         IContentTicketService ticketService,
+        IMangaService mangaService,
         ILogger<ContentTicketsWorker> logger,
         INotificationService notificationService,
         IContentStealerService contentStealerService)
     {
         _ticketService = ticketService;
+        _mangaService = mangaService;
         _logger = logger;
         _notificationService = notificationService;
         _contentStealerService = contentStealerService;
     }
 
     private ContentTicket? Ticket { get; set; }
+    private ICollection<ContentTicket> SimilarTickets { get; set; } = null!;
     
     public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
     {
         try
         {
-            Ticket = await _ticketService.GetWaitingAsync();
+            SimilarTickets = await _ticketService.GetSimilarWaitingAsync();
+            Ticket = SimilarTickets.FirstOrDefault();
 
             if (Ticket == null)
             {
@@ -45,30 +50,44 @@ public class ContentTicketsWorker : IBackgroundWorker
                 return;
             }
 
-            var contentUrl = Ticket.Context.ContentUrl;
-            if (!AvailableSources.IsAvailable(contentUrl))
+            var existsContent = await _mangaService.FindByContentKeyAsync(Ticket.ContentKey);
+            if (existsContent != null)
             {
-                await _ticketService.UpdateStatusAsync(Ticket, ReceiveStatus.Failed);
-                _logger.LogWarning("Ticket source url is not yet available ({url})", contentUrl);
+                _logger.LogInformation(
+                    "Content already exists, key:{url}",
+                    existsContent.ContentKey
+                );
+                
+                await NotifySubscribersAsync(Ticket, ReceiveStatus.Success);
                 return;
             }
 
-            var stealingResult = await _contentStealerService.StealContentAsync(contentUrl);
+            var contentUrl = Ticket.ContentUrl;
+            if (!ContentAware.IsSealingAvailable(contentUrl))
+            {
+                _logger.LogWarning("Ticket source url is not yet available ({url})", contentUrl);
 
+                await NotifySubscribersAsync(Ticket, ReceiveStatus.Failed);
+                return;
+            }
+
+            await NotifySubscribersAsync(Ticket, ReceiveStatus.Started);
+            
+            var stealingResult = await _contentStealerService.StealContentAsync(contentUrl);
             LogResult(stealingResult);
 
-            var newTicketStatus = stealingResult.IsSuccess
-                ? ReceiveStatus.Success
-                : ReceiveStatus.Failed;
-
-            await _ticketService.UpdateStatusAsync(Ticket, newTicketStatus);
-            await _ticketService.UpdateResultAsync(Ticket, stealingResult.EntryId.ToString(), "...");
-
-            await NotifySubscribersAsync(Ticket, stealingResult);
+            await NotifySubscribersAsync(Ticket, ReceiveStatus.Success);
         }
         catch (Exception ex)
         {
             await HandleExceptionAsync(ex);
+        }
+        finally
+        {
+            if (Ticket != null)
+            {
+                await _ticketService.DeleteRangeAsync(SimilarTickets);
+            }
         }
     }
 
@@ -76,21 +95,13 @@ public class ContentTicketsWorker : IBackgroundWorker
     {
         if (Ticket == null) return;
 
-        var stealingResult = new ContentStealingResult
-        {
-            IsSuccess = false,
-            Exception = exception
-        };
-        
-        await _ticketService.UpdateStatusAsync(Ticket, ReceiveStatus.Failed);
-        await NotifySubscribersAsync(Ticket, stealingResult);
+        await NotifySubscribersAsync(Ticket, ReceiveStatus.Failed);
     }
 
     private void LogResult(ContentStealingResult result)
     {
         if (result.IsSuccess)
         {
-            // TODO: receive stats (time)
             _logger.LogInformation("Content stolen success");
         }
         else
@@ -102,16 +113,16 @@ public class ContentTicketsWorker : IBackgroundWorker
         }
     }
 
-    private async Task NotifySubscribersAsync(ContentTicket ticket, ContentStealingResult result)
+    private async Task NotifySubscribersAsync(
+        ContentTicket ticket,
+        ReceiveStatus status)
     {
-        var details = new ContentTicketStatusChangedDetails
+        var details = new ContentTicketChangedDetails
         {
             TicketId = ticket.Id,
-            Status = ticket.Status,
+            Status = status,
+            ContentKey = ticket.ContentKey
         };
-        
-        if (result.EntryType == nameof(MangaEntry))
-            details.MangaId = result.EntryId;
         
         var subject = new Notification { Details = details };
         await _notificationService.NotifyAsync(subject);

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
+using Nude.API.Infrastructure.Utility;
 using Nude.Constants;
 using Nude.Parsers.Abstractions;
 using Nude.Parsers.HentaiChan;
@@ -27,7 +28,7 @@ public class MangaParserResolver : IMangaParserResolver
 
     public bool CanBeResolved(string mangaUrl)
     {
-        return AvailableSources.IsAvailable(mangaUrl);
+        return ContentAware.IsSealingAvailable(mangaUrl);
     }
 
     public async Task<IMangaParser> ResolveByUrlAsync(string mangaUrl)

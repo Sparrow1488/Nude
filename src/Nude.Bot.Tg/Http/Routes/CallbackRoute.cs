@@ -2,9 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
-using Nude.API.Contracts.Tickets.Requests;
-using Nude.API.Models.Formats;
-using Nude.API.Models.Mangas;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
@@ -45,67 +42,75 @@ public class CallbackRoute
     
     public async Task OnCallbackAsync(Notification subject)
     {
-        var userMessage = await _context.Messages
-            .OrderByDescending(x => x.Id)
-            .FirstOrDefaultAsync();
+        var contentKey = (subject.Details as ContentNotificationDetails)!.ContentKey;
+        var messages = await GetUserMessagesAsync(contentKey);
         
         // Прогресс форматирования
-        if (subject.Details is FormatTicketProgressDetails progress)
+        if (subject.Details is FormattingProgressDetails progress)
         {
-            // _logger.LogInformation($"MANGA UPLOADING PROGRESS {progress.CurrentImage}/{progress.TotalImages}");
-            await EditMessageAsync(userMessage, $"Загрузка {progress.CurrentImage} из {progress.TotalImages}");
+            await EditMessagesAsync(messages, $"Загрузка {progress.CurrentImage} из {progress.TotalImages}");
             return;
         }
 
-        // Содержимое спизжено, если Success, то создаем ContentFormatTicket
-        if (subject.Details is ContentTicketStatusChangedDetails ticketDetails)
+        if (subject.Details is ContentTicketChangedDetails ticketDetails)
         {
-            if (ticketDetails.Status == ReceiveStatus.Success)
+            switch (ticketDetails.Status)
             {
-                var callback = _configuration.GetRequiredSection("Http:BaseUrl").Value + "/callback?userKey=" + userMessage?.UserKey;
-
-                var request = new FormatTicketRequest
-                {
-                    EntryId = ticketDetails.MangaId.ToString()!,
-                    EntryType = nameof(MangaEntry),
-                    FormatType = FormatType.Telegraph,
-                    CallbackUrl = callback
-                };
-                var response = await _client.CreateFormatTicket(request);
-            
-                _logger.LogInformation("RECEIVE FORMAT TICKET RESPONSE, status: " + response.Value.Status);
-                await EditMessageAsync(userMessage, $"Пиздим мангу");
-            }
-            else
-            {
-                await EditMessageAsync(userMessage, "Не удалось получить содержимое по запросу");
+                case ReceiveStatus.Started:
+                    await EditMessagesAsync(messages, $"Пиздим мангу");
+                    break;
+                case ReceiveStatus.Success:
+                    await EditMessagesAsync(messages, $"Спиздили мангу");
+                    break;
+                case ReceiveStatus.Failed:
+                    await EditMessagesAsync(messages, "Не удалось получить содержимое по запросу");
+                    await DeleteMessagesAsync(messages);
+                    break;
             }
         }
 
         // Все готово, лови ссылку
-        if (subject.Details is FormatTicketStatusChangedDetails formatDetails)
+        if (subject.Details is FormattingStatusDetails formatDetails)
         {
             if (formatDetails.Status == FormattingStatus.Success)
             {
-                var manga = await _client.GetMangaByIdAsync(formatDetails.MangaId!.Value);
+                var manga = await _client.FindMangaByContentKeyAsync(formatDetails.ContentKey);
                 var tgh = manga!.Value.Formats.First(x => x is TelegraphContentResponse);
                 var url = ((TelegraphContentResponse) tgh).Url;
-                await EditMessageAsync(userMessage, url, ParseMode.Html);
+                await EditMessagesAsync(messages, url, ParseMode.Html);
+
+                await DeleteMessagesAsync(messages);
             }
             else
             {
-                await EditMessageAsync(userMessage, $"Начали конвертировать мангу");
+                await EditMessagesAsync(messages, $"Начали конвертировать мангу");
             }
         }
     }
 
-    private async Task EditMessageAsync(UserMessages? message, string text, ParseMode mode = ParseMode.MarkdownV2)
+    private Task<List<UserMessages>> GetUserMessagesAsync(string contentKey)
     {
-        if (message != null)
+        return _context.Messages
+            .Where(x => x.ContentKey == contentKey)
+            .ToListAsync();
+    }
+
+    private async Task EditMessagesAsync(IEnumerable<UserMessages> messages, string text, ParseMode mode = ParseMode.MarkdownV2)
+    {
+        foreach (var message in messages)
         {
             var messageItem = new MessageItem(text, mode);
             var messageId = int.Parse(message.MessageId.ToString());
             await BotUtils.EditMessageAsync(_bot, message.ChatId, messageId, messageItem);
+        }
+    }
+
+    private async Task DeleteMessagesAsync(IEnumerable<UserMessages> messages)
+    {
+        if (messages.Any())
+        {
+            _context.RemoveRange(messages);
+            await _context.SaveChangesAsync();
         }
     }
 }

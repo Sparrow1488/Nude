@@ -1,8 +1,6 @@
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
@@ -85,7 +83,6 @@ builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
-builder.Services.AddScoped<IContentFormatTicketService, ContentFormatTicketService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
@@ -122,7 +119,7 @@ builder.Services.AddAutoMapper(x => x.AddMaps(profilesAssembly));
 
 #region Background Service
 
-builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(ContentFormatTicketsWorker));
+builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(FormatsWorker));
 
 #endregion
 

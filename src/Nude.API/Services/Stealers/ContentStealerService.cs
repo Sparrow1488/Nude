@@ -1,4 +1,5 @@
 using Nude.API.Infrastructure.Services.Resolvers;
+using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Mangas;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Stealers.Results;
@@ -36,6 +37,7 @@ public class ContentStealerService : IContentStealerService
         var creationResult = await _mangaService.CreateAsync(
             result.Title,
             result.Description,
+            ContentKeyGenerator.Generate(nameof(MangaEntry), mangaUrl),
             result.Images,
             tags: result.Tags,
             author: result.Author,
@@ -52,8 +54,7 @@ public class ContentStealerService : IContentStealerService
         return new ContentStealingResult
         {
             IsSuccess = exception == null,
-            EntryId = creationResult.Entry!.Id,
-            EntryType = nameof(MangaEntry),
+            ContentKey = creationResult?.Entry?.ContentKey,
             Exception = exception
         };
     }
