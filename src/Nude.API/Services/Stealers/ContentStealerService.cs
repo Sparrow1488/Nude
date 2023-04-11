@@ -54,7 +54,7 @@ public class ContentStealerService : IContentStealerService
         return new ContentStealingResult
         {
             IsSuccess = exception == null,
-            ContentKey = creationResult?.Entry?.ContentKey,
+            ContentKey = creationResult?.Result?.ContentKey,
             Exception = exception
         };
     }

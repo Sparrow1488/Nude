@@ -28,14 +28,14 @@ public class FormatsWorker : IBackgroundWorker
     private readonly AppDbContext _context;
     private readonly IMangaService _mangaService;
     private readonly INotificationService _notificationService;
-    private readonly IContentFormatterService _formatterService;
+    private readonly IFormatterService _formatterService;
     private readonly ILogger<FormatsWorker> _logger;
 
     public FormatsWorker(
         AppDbContext context,
         IMangaService mangaService,
         INotificationService notificationService,
-        IContentFormatterService formatterService,
+        IFormatterService formatterService,
         ILogger<FormatsWorker> logger)
     {
         _context = context;
@@ -66,7 +66,7 @@ public class FormatsWorker : IBackgroundWorker
             var manga = await _mangaService.GetByIdAsync(mangaId);
             var images = manga!.Images.Select(x => x.Url.Value);
 
-            images = new List<string>(images.Take(2));
+            // images = new List<string>(images.Take(2));
 
             var contentKey = manga.ContentKey;
             _formatterService.FormatProgressUpdated +=

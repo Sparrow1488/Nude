@@ -87,7 +87,7 @@ builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 builder.Services.AddScoped<ITagManager, TagManager>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
 builder.Services.AddScoped<IContentStealerService, ContentStealerService>();
-builder.Services.AddScoped<IContentFormatterService, ContentFormatterService>();
+builder.Services.AddScoped<IFormatterService, FormatterService>();
 
 builder.Services.AddScoped<IWebHookService, WebHookService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();

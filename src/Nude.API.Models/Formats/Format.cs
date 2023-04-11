@@ -7,7 +7,7 @@ public abstract class Format : IEntity
 {
     public int Id { get; set; }
     public virtual FormatType Type { get; set; }
-    
-    public MangaEntry MangaEntry { get; set; }
+
+    public MangaEntry MangaEntry { get; set; } = null!;
     public int MangaEntryId { get; set; }
 }

@@ -74,7 +74,7 @@ public class MangaService : IMangaService
             await AddTagsAsync(entry, combinedTags);
         }
         
-        return new MangaCreationResult { IsSuccess = true, Entry = entry };
+        return new MangaCreationResult { IsSuccess = true, Result = entry };
     }
 
     private async Task<IEnumerable<Tag>> CombineTagsAsync(string? author, IEnumerable<string>? tags)

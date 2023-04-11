@@ -3,7 +3,7 @@ using Nude.API.Models.Formats;
 
 namespace Nude.API.Services.Formatters;
 
-public interface IContentFormatterService
+public interface IFormatterService
 {
     event Func<IDictionary, Task> FormatProgressUpdated;
         

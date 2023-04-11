@@ -11,14 +11,14 @@ using Nude.API.Services.Formatters.Variables;
 
 namespace Nude.API.Services.Formatters;
 
-public class ContentFormatterService : IContentFormatterService
+public class FormatterService : IFormatterService
 {
     private readonly ITelegraphClient _telegraph;
-    private readonly ILogger<ContentFormatterService> _logger;
+    private readonly ILogger<FormatterService> _logger;
 
-    public ContentFormatterService(
+    public FormatterService(
         ITelegraphClient telegraph,
-        ILogger<ContentFormatterService> logger)
+        ILogger<FormatterService> logger)
     {
         _telegraph = telegraph;
         _logger = logger;
