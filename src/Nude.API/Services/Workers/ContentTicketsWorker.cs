@@ -1,5 +1,5 @@
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Background;
+using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets;
@@ -35,7 +35,7 @@ public class ContentTicketsWorker : IBackgroundWorker
     }
 
     private ContentTicket? Ticket { get; set; }
-    private ICollection<ContentTicket> SimilarTickets { get; set; }
+    private ICollection<ContentTicket> SimilarTickets { get; set; } = null!;
     
     public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
     {
@@ -59,18 +59,15 @@ public class ContentTicketsWorker : IBackgroundWorker
                 );
                 
                 await NotifySubscribersAsync(Ticket, ReceiveStatus.Success);
-                await _ticketService.DeleteRangeAsync(SimilarTickets);
                 return;
             }
 
             var contentUrl = Ticket.ContentUrl;
-            if (!AvailableSources.IsAvailable(contentUrl))
+            if (!ContentAware.IsSealingAvailable(contentUrl))
             {
                 _logger.LogWarning("Ticket source url is not yet available ({url})", contentUrl);
 
                 await NotifySubscribersAsync(Ticket, ReceiveStatus.Failed);
-                await _ticketService.DeleteRangeAsync(SimilarTickets);
-                
                 return;
             }
 

@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Nude.API.Infrastructure.Configurations.Json;
-using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
@@ -17,6 +16,7 @@ using Nude.Bot.Tg.Services.Background;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Resolvers;
 using Nude.Bot.Tg.Telegram.Handlers;
+using Nude.Data.Infrastructure.Contexts;
 using Serilog;
 using Serilog.Events;
 using Telegram.Bot;
@@ -104,7 +104,10 @@ app.MapPost("/callback", async ctx =>
 
 await app.RunAsync(cancellationSource.Token);
 
-public struct Simple
+namespace Nude.Bot.Tg
 {
-    public string TestProperty { get; set; }
+    public struct Simple
+    {
+        public string TestProperty { get; set; }
+    }
 }

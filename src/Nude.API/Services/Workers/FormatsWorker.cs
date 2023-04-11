@@ -10,7 +10,6 @@ using Nude.API.Services.Formatters;
 using Nude.API.Services.Formatters.Variables;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
-using Nude.API.Services.Tickets;
 using Nude.Data.Infrastructure.Contexts;
 
 #region Rider annotations

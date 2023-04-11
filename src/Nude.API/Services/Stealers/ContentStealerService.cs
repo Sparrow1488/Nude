@@ -37,7 +37,7 @@ public class ContentStealerService : IContentStealerService
         var creationResult = await _mangaService.CreateAsync(
             result.Title,
             result.Description,
-            ContentKeyHelper.CreateContentKey(nameof(MangaEntry), mangaUrl),
+            ContentKeyGenerator.Generate(nameof(MangaEntry), mangaUrl),
             result.Images,
             tags: result.Tags,
             author: result.Author,

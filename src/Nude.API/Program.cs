@@ -83,7 +83,6 @@ builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
-builder.Services.AddScoped<IContentFormatTicketService, ContentFormatTicketService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();

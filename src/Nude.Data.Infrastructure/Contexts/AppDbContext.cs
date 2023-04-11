@@ -26,8 +26,6 @@ public class AppDbContext : DatabaseContext
     public DbSet<TelegraphContent> TelegraphContents => Set<TelegraphContent>();
     
     public DbSet<ContentTicket> ContentTickets => Set<ContentTicket>();
-    
-    public DbSet<ContentFormatTicket> FormatTickets => Set<ContentFormatTicket>();
 
     #region Feature
 

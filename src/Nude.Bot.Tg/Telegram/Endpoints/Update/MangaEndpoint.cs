@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Tickets;
@@ -42,7 +43,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     
     public override async Task HandleAsync()
     {
-        var mangaResponse = await _nudeClient.GetMangaByUrlAsync(MessageText, FormatType.Telegraph);
+        var mangaResponse = await _nudeClient.FindMangaByUrlAsync(MessageText, FormatType.Telegraph);
 
         if (mangaResponse is not null)
         {
@@ -72,7 +73,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         await context.SaveChangesAsync();
     }
 
-    public override bool CanHandle() => AvailableSources.IsAvailable(Update.Message?.Text ?? "");
+    public override bool CanHandle() => ContentAware.IsSealingAvailable(Update.Message?.Text ?? "");
 }
 
 

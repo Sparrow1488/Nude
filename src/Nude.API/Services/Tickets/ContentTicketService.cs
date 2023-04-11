@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Tickets;
+using Nude.API.Services.Tickets.Results;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.Data.Infrastructure.Extensions;
 
@@ -21,20 +23,25 @@ public class ContentTicketService : IContentTicketService
         _context = context;
     }
     
-    public async Task<ContentTicket> CreateAsync(string contentUrl)
+    public async Task<ContentTicketCreationResult> CreateAsync(string contentUrl)
     {
-        var entryType = EntryTypeDetector.ByContentUrl(contentUrl);
-        
-        var request = new ContentTicket
+        var entryType = ContentAware.DetectEntryTypeByUrl(contentUrl);
+
+        if (!string.IsNullOrWhiteSpace(entryType))
         {
-            ContentKey = ContentKeyHelper.CreateContentKey(entryType, contentUrl),
-            ContentUrl = contentUrl
-        };
+            var request = new ContentTicket
+            {
+                ContentKey = ContentKeyGenerator.Generate(entryType, contentUrl),
+                ContentUrl = contentUrl
+            };
 
-        await _context.AddAsync(request);
-        await _context.SaveChangesAsync();
+            await _context.AddAsync(request);
+            await _context.SaveChangesAsync();
+            return new ContentTicketCreationResult { IsSuccess = true, Result = request };
+        }
 
-        return request;
+        var exception = new ContentSourceNotAvailableException($"Input '{contentUrl}' is not available yet");
+        return new ContentTicketCreationResult { IsSuccess = false, Exception = exception };
     }
 
     public Task<ContentTicket?> GetByIdAsync(int id)
@@ -44,16 +51,12 @@ public class ContentTicketService : IContentTicketService
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public Task<ContentTicket?> FindSimilarAsync(string sourceUrl)
-    {
-        return _context.ContentTickets
-            .IncludeDependencies()
-            .FirstOrDefaultAsync(x => x.ContentUrl.Contains(sourceUrl));
-    }
-
     public async Task<ICollection<ContentTicket>> GetSimilarWaitingAsync()
     {
-        var ticket = await _context.ContentTickets.FirstOrDefaultAsync();
+        var ticket = await _context.ContentTickets
+            .OrderBy(x => x.Id)
+            .FirstOrDefaultAsync();
+        
         if (ticket != null)
         {
             return await _context.ContentTickets
@@ -62,12 +65,6 @@ public class ContentTicketService : IContentTicketService
         }
 
         return new List<ContentTicket>();
-    }
-
-    public async Task DeleteAsync(ContentTicket ticket)
-    {
-        _context.Remove(ticket);
-        await _context.SaveChangesAsync();
     }
 
     public async Task DeleteRangeAsync(IEnumerable<ContentTicket> tickets)
