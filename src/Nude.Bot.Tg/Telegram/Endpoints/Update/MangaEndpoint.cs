@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Tickets.Requests;
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Messages;

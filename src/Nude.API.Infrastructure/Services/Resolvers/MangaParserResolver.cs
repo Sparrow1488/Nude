@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Infrastructure.Utility;
 using Nude.Constants;

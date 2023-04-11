@@ -5,7 +5,7 @@ using Nude.API.Models.Tags;
 
 namespace Nude.API.Models.Mangas;
 
-public class MangaEntry : IAuditable, IContentEntry
+public class MangaEntry : IEntity, IAuditable, IContentEntry
 {
     public int Id { get; set; }
     public string ContentKey { get; set; }

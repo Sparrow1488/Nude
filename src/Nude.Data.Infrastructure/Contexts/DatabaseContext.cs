@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Nude.Models.Abstractions;
+using Nude.API.Models.Abstractions;
 
 namespace Nude.Data.Infrastructure.Contexts;
 
@@ -24,23 +24,23 @@ public abstract class DatabaseContext : DbContext
         return base.SaveChangesAsync(ctk);
     }
 
-    private static void OnCreateAuditableEntity(IAuditableBase auditable)
+    private static void OnCreateAuditableEntity(IAuditable auditable)
     {
         auditable.CreatedAt = DateTimeOffset.UtcNow;
         auditable.UpdatedAt = DateTimeOffset.UtcNow;
     }
     
-    private static void OnUpdateAuditableEntity(IAuditableBase auditable) =>
+    private static void OnUpdateAuditableEntity(IAuditable auditable) =>
         auditable.UpdatedAt = DateTimeOffset.UtcNow;
 
-    private List<IAuditableBase> GetAuditableEntitiesWithState(EntityState state)
+    private List<IAuditable> GetAuditableEntitiesWithState(EntityState state)
     {
         var entries = ChangeTracker.Entries();
         return entries.Where(x =>
                 x.State == state &&
-                x.Entity is IAuditableBase)
+                x.Entity is IAuditable)
             .Select(x => x.Entity)
-            .Cast<IAuditableBase>()
+            .Cast<IAuditable>()
             .ToList();
     }
 }
