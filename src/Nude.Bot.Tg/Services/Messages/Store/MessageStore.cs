@@ -13,7 +13,7 @@ public class MessageStore : IMessagesStore
     public MessageStore(IConfiguration configuration)
     {
         _configuration = configuration;
-        Task.Run(LoadMessages);
+       LoadMessages();
     }
 
     public Task<MessageItem> GetTicketStatusMessageAsync(
@@ -73,14 +73,14 @@ public class MessageStore : IMessagesStore
         ));
     }
 
-    private async Task<string> GetFileMessageTextAsync(string name)
+    private string GetFileMessageTextAsync(string name)
     {
         var messagesPath = _configuration["Resources:Path"] + "/Messages";
-        var startTextFile = await File.ReadAllTextAsync(messagesPath + name);
+        var startTextFile =File.ReadAllText(messagesPath + name);
         return startTextFile;
     }
 
-    private async Task LoadMessages()
+    private void LoadMessages()
     {
         string filter = "*.md";
         string key = string.Empty;
@@ -89,7 +89,7 @@ public class MessageStore : IMessagesStore
         for (int i=0; i < _paths.Length; i++)
         {
             key = _paths[i].Replace(".md","");
-            message = await GetFileMessageTextAsync(_paths[i]);
+            message = GetFileMessageTextAsync(_paths[i]);
             _messages.Add(key.ToLower(),message);
         }
     }
