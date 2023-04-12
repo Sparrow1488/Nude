@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Nude.API.Infrastructure.Exceptions;
+using Nude.API.Infrastructure.Exceptions.Base;
+using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Utility;
 using Nude.Constants;
 using Nude.Parsers.Abstractions;

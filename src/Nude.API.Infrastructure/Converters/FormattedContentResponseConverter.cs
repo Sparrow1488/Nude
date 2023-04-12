@@ -2,6 +2,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Infrastructure.Exceptions;
+using Nude.API.Infrastructure.Exceptions.Internal;
 using Nude.API.Models.Formats;
 
 namespace Nude.API.Infrastructure.Converters;
@@ -9,14 +10,6 @@ namespace Nude.API.Infrastructure.Converters;
 public class FormattedContentResponseConverter : JsonConverter<FormatResponse>
 {
     public override bool CanWrite => false;
-
-    public override void WriteJson(
-        JsonWriter writer, 
-        FormatResponse? value, 
-        JsonSerializer serializer)
-    {
-        throw new NotImplementedException();
-    }
 
     public override FormatResponse? ReadJson(
         JsonReader reader, 
@@ -39,8 +32,11 @@ public class FormattedContentResponseConverter : JsonConverter<FormatResponse>
         return formatType switch
         {
             FormatType.Telegraph => jObject.ToObject<TelegraphFormatResponse>(),
-            _ => throw new NoJsonConverterException(
-                $"Not all methods are configured in {nameof(FormattedContentResponseConverter)}")
+            _ => throw new JsonConverterForgotException(nameof(FormattedContentResponseConverter))
         };
     }
+    
+    
+    public override void WriteJson(JsonWriter writer, FormatResponse? value, JsonSerializer serializer)
+        => throw new NotImplementedException();
 }

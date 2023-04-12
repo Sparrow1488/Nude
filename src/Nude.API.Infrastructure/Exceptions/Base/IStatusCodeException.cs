@@ -1,4 +1,4 @@
-namespace Nude.API.Infrastructure.Exceptions;
+namespace Nude.API.Infrastructure.Exceptions.Base;
 
 public interface IStatusCodeException
 {

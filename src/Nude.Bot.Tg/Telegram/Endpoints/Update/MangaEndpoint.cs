@@ -1,12 +1,9 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Messages;
-using Nude.API.Models.Tickets;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;

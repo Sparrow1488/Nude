@@ -1,14 +1,16 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Manga.Responses;
+using Nude.API.Infrastructure.Exceptions.Base;
+using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Services.Mangas;
 
 namespace Nude.API.Controllers;
 
-[ApiController, Route("manga")]
-public class MangaController : ControllerBase
+[Route("manga")]
+public class MangaController : ApiController
 {
     private readonly IMapper _mapper;
     private readonly IMangaService _service;
@@ -31,7 +33,7 @@ public class MangaController : ControllerBase
             return Ok(_mapper.Map<MangaResponse>(manga));
         }
 
-        return NotFound();
+        return Exception(NotFoundException(id));
     }
     
     [HttpGet("random")]
@@ -44,7 +46,7 @@ public class MangaController : ControllerBase
             return Ok(_mapper.Map<MangaResponse>(manga));
         }
 
-        return NotFound();
+        return Exception(NotFoundException());
     }
 
     [HttpGet]
@@ -62,6 +64,15 @@ public class MangaController : ControllerBase
             return Ok(_mapper.Map<MangaResponse>(mangaEntry));
         }
 
-        return NotFound();
+        return Exception(NotFoundException());
+    }
+
+    private static NotFoundException NotFoundException(int? mangaId = null)
+    {
+        return new NotFoundException(
+            "Manga not found",
+            mangaId?.ToString(),
+            nameof(MangaEntry)
+        );
     }
 }

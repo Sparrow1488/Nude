@@ -2,12 +2,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
+using Nude.API.Infrastructure.Exceptions.Client;
+using Nude.API.Models.Tickets;
 using Nude.API.Services.Tickets;
 
 namespace Nude.API.Controllers;
 
-[ApiController, Route("content-tickets")]
-public class ContentTicketController : ControllerBase
+[Route("content-tickets")]
+public class ContentTicketController : ApiController
 {
     private readonly IMapper _mapper;
     private readonly IContentTicketService _service;
@@ -30,7 +32,7 @@ public class ContentTicketController : ControllerBase
             return Ok(_mapper.Map<ContentTicketResponse>(result.Result));
         }
 
-        return BadRequest(result.Exception);
+        return Exception(result.Exception!);
     }
 
     [HttpGet("{id}")]
@@ -43,6 +45,10 @@ public class ContentTicketController : ControllerBase
             return Ok(_mapper.Map<ContentTicketResponse>(ticket));
         }
 
-        return NotFound();
+        return Exception(new NotFoundException(
+            "Ticket not found",
+            id.ToString(),
+            nameof(ContentTicket))
+        );
     }
 }

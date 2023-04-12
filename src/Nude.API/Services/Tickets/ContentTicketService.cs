@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Exceptions;
+using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Tickets;
 using Nude.API.Services.Tickets.Results;
@@ -40,7 +41,7 @@ public class ContentTicketService : IContentTicketService
             return new ContentTicketCreationResult { IsSuccess = true, Result = request };
         }
 
-        var exception = new ContentSourceNotAvailableException($"Input '{contentUrl}' is not available yet");
+        var exception = new SourceNotAvailableException(contentUrl);
         return new ContentTicketCreationResult { IsSuccess = false, Exception = exception };
     }
 
