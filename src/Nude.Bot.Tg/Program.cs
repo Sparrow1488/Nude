@@ -107,7 +107,7 @@ builder.Services.AddHostedService<BotBgService>();
 
 builder.Services.AddScoped<ITelegraphMangaService, TelegraphMangaService>();
 builder.Services.AddScoped<IConvertTicketsService, ConvertTicketsService>();
-builder.Services.AddScoped<IMessagesStore, MessageStore>();
+builder.Services.AddSingleton<IMessagesStore, MessageStore>();
 builder.Services.AddScoped<ITelegramMessagesService, TelegramMessagesService>();
 
 #endregion
