@@ -9,6 +9,7 @@ using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Resolvers;
 using Nude.API.Services.Formatters;
+using Nude.API.Services.Images;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
 using Nude.API.Services.Stealers;
@@ -82,6 +83,7 @@ builder.Services.AddScoped<IAuthorizationHandler<IHentaiChanParser>, HentaiChanA
 builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
+builder.Services.AddScoped<IImagesService, ImagesService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();
