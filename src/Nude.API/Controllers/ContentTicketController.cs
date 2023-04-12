@@ -8,7 +8,7 @@ using Nude.API.Services.Tickets;
 
 namespace Nude.API.Controllers;
 
-[Route("content-tickets")]
+[Route("v2/content-tickets")]
 public class ContentTicketController : ApiController
 {
     private readonly IMapper _mapper;

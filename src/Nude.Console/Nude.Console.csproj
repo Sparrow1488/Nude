@@ -11,9 +11,11 @@
   </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="BooruSharp" Version="3.5.5" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.2-mauipre.1.22102.15" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.2-mauipre.1.22102.15" />
       <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
+      <PackageReference Include="NHentaiAPI" Version="1.5.0" />
       <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
     </ItemGroup>
 

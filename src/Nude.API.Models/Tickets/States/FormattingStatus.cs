@@ -2,8 +2,20 @@ namespace Nude.API.Models.Tickets.States;
 
 public enum FormattingStatus
 {
-    WaitToProcess = 0x00,
-    InProcess = 0x10,
-    Success = 0x20,
-    Failed = 0x30
+    /// <summary>
+    /// Пошел процесс форматирования
+    /// </summary>
+    Started = 0x00,
+    /// <summary>
+    /// Форматирование прошло успешно
+    /// </summary>
+    Success = 0x10,
+    /// <summary>
+    /// Произошел полный пиздец на стороне апи
+    /// </summary>
+    FailedInternalException = 0x20,
+    /// <summary>
+    /// Контента слишком много, мы не можем его обработать
+    /// </summary>
+    FailedTooLong = 0x20,
 }

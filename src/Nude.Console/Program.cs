@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using BooruSharp.Booru;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Nude.Authorization.Handlers;
@@ -25,6 +26,19 @@ var configuration = new ConfigurationBuilder()
 Log.Information("NudeApp started!");
 
 #endregion
+
+var booru = new Lolibooru();
+var images = await booru.GetRandomPostsAsync(100, "anal");
+
+var urls = images.Select(x => x.FileUrl);
+Console.WriteLine(string.Join("\n", urls));
+
+
+
+
+
+
+return;
 
 using IMangaParser parser = await CreateHentaiChanParser();
 

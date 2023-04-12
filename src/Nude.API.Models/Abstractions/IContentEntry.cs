@@ -1,6 +1,9 @@
+using Nude.API.Models.Formats;
+
 namespace Nude.API.Models.Abstractions;
 
 public interface IContentEntry
 {
-    public string ContentKey { get; set; }
+    string ContentKey { get; set; }
+    ICollection<Format> Formats { get; set; }
 }

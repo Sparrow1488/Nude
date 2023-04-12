@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Http;
 using Nude.API.Contracts.Errors.Responses;
-using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Infrastructure.Exceptions.Base;
 
 namespace Nude.API.Infrastructure.Extensions;

@@ -1,7 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Manga.Responses;
-using Nude.API.Infrastructure.Exceptions.Base;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
@@ -9,7 +8,7 @@ using Nude.API.Services.Mangas;
 
 namespace Nude.API.Controllers;
 
-[Route("manga")]
+[Route("v2/manga")]
 public class MangaController : ApiController
 {
     private readonly IMapper _mapper;

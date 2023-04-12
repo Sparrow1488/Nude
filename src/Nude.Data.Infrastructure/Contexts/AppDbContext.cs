@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;
-using Nude.API.Models.Servers;
 using Nude.API.Models.Tags;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Urls;
@@ -13,8 +12,6 @@ public class AppDbContext : DatabaseContext
 {
     public AppDbContext(DbContextOptions options) : base(options) { }
 
-    public DbSet<Server> Servers => Set<Server>();
-    
     public DbSet<MangaEntry> Mangas => Set<MangaEntry>();
     public DbSet<ExternalMeta> ExternalMetas => Set<ExternalMeta>();
     

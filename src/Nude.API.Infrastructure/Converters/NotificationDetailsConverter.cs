@@ -1,6 +1,5 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Nude.API.Infrastructure.Exceptions;
 using Nude.API.Infrastructure.Exceptions.Internal;
 using Nude.API.Models.Notifications.Details;
 
