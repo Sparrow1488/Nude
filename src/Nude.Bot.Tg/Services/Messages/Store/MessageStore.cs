@@ -34,12 +34,12 @@ public class MessageStore : IMessagesStore
         return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 
-    public Task<MessageItem> GetStartMessageAsync()
+    public async Task<MessageItem> GetStartMessageAsync()
     {
         var startText = _messages["start"];
-        var menuMessage = GetMenuMessageAsync().Result;
+        var menuMessage = await GetMenuMessageAsync();
         var text = startText + menuMessage.Text;
-        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
+        return new MessageItem(text, ParseMode.MarkdownV2);
     }
 
     public Task<MessageItem> GetCallbackFailedMessageAsync()
@@ -80,7 +80,7 @@ public class MessageStore : IMessagesStore
         return startTextFile;
     }
 
-    private async void LoadMessages()
+    private async Task LoadMessages()
     {
         string filter = "*.md";
         string key = string.Empty;
