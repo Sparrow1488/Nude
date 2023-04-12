@@ -5,23 +5,25 @@ namespace Nude.Bot.Tg.Services.Messages.Store;
 
 public class MessageStore : IMessagesStore
 {
+    private readonly Dictionary<string, string> _messages = new();
     private readonly IConfiguration _configuration;
 
     public MessageStore(IConfiguration configuration)
     {
         _configuration = configuration;
+       LoadMessages();
     }
 
-    public async Task<MessageItem> GetTicketStatusMessageAsync(
+    public Task<MessageItem> GetTicketStatusMessageAsync(
         string time,
         string reqStatus,
         string stage,
         string loaded, 
         string url)
     {
-        string text = await GetFileMessageTextAsync("/TicketInfo.md");
+        string text = _messages["ticketinfo"];
         text = string.Format(text, time, reqStatus, stage, loaded, url);
-        return new MessageItem(text, ParseMode.MarkdownV2);
+        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 
     public Task<MessageItem> GetReadMangaMessageAsync(string manga)
@@ -32,22 +34,22 @@ public class MessageStore : IMessagesStore
 
     public async Task<MessageItem> GetStartMessageAsync()
     {
-        var startText = await GetFileMessageTextAsync("/Start.md");
+        var startText = _messages["start"];
         var menuMessage = await GetMenuMessageAsync();
         var text = startText + menuMessage.Text;
         return new MessageItem(text, ParseMode.MarkdownV2);
     }
 
-    public async Task<MessageItem> GetCallbackFailedMessageAsync()
+    public Task<MessageItem> GetCallbackFailedMessageAsync()
     {
-        var text = await GetFileMessageTextAsync("/CallbackFailed.md");
-        return new MessageItem(text, ParseMode.MarkdownV2);
+        var text = _messages["callbackfailed"];
+        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 
-    public async Task<MessageItem> GetMenuMessageAsync()
+    public Task<MessageItem> GetMenuMessageAsync()
     {
-        var startText = await GetFileMessageTextAsync("/Menu.md");
-        return new MessageItem(startText, ParseMode.MarkdownV2);
+        var startText = _messages["menu"];
+        return Task.FromResult(new MessageItem(startText, ParseMode.MarkdownV2));
     }
 
     public Task<MessageItem> GetSourcesMessageAsync(List<string> sources)
@@ -69,10 +71,28 @@ public class MessageStore : IMessagesStore
         ));
     }
 
-    private async Task<string> GetFileMessageTextAsync(string name)
+    private void LoadMessages()
     {
+        const string filter = "*.md";
+
         var messagesPath = _configuration["Resources:Path"] + "/Messages";
-        var startTextFile = await File.ReadAllTextAsync(messagesPath + name);
-        return startTextFile;
+        var paths = Directory.GetFiles(messagesPath,filter);
+        foreach (var path in paths)
+        {
+            var fileName = Path.GetFileName(path);
+            
+            var key = fileName.Replace(".md","");
+            var message = GetFileText(path);
+            
+            _messages.Add(key.ToLower(),message);
+        }
+    }
+    
+    private static string GetFileText(string path)
+    {
+        if (!File.Exists(path))
+            throw new FileNotFoundException($"Not found message file on path '{path}'");
+        
+        return File.ReadAllText(path);
     }
 }

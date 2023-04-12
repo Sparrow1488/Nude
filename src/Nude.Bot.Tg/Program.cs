@@ -6,8 +6,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Converters;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
@@ -23,8 +25,12 @@ using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 
+#region Configuration
+
 builder.Host.ConfigureHostConfiguration(
     x => x.AddUserSecrets(Assembly.GetExecutingAssembly()));
+
+#endregion
 
 #region Logger
 
@@ -78,7 +84,7 @@ builder.Services.AddScoped<IMessagesStore, MessageStore>();
 
 #endregion
 
-var cancellationSource = new CancellationTokenSource();
+var cancellationSource = new CancellationTokenSource(); 
 Console.CancelKeyPress += (_, _) =>
 {
     cancellationSource.Cancel();
@@ -104,11 +110,3 @@ app.MapPost("/callback", async ctx =>
 });
 
 await app.RunAsync(cancellationSource.Token);
-
-namespace Nude.Bot.Tg
-{
-    public struct Simple
-    {
-        public string TestProperty { get; set; }
-    }
-}
