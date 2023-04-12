@@ -5,9 +5,8 @@ namespace Nude.Bot.Tg.Services.Messages.Store;
 
 public class MessageStore : IMessagesStore
 {
-    private const string _search_path = "./Resources/Messages"; 
-    private string[] _paths;
-    private Dictionary<string, string> _messages = new Dictionary<string, string>();
+    private const string SearchPath = "./Resources/Messages"; 
+    private readonly Dictionary<string, string> _messages = new();
     private readonly IConfiguration _configuration;
 
     public MessageStore(IConfiguration configuration)
@@ -82,14 +81,14 @@ public class MessageStore : IMessagesStore
 
     private void LoadMessages()
     {
-        string filter = "*.md";
-        string key = string.Empty;
-        string message = string.Empty;
-        _paths = Directory.GetFiles(_search_path,filter);
-        for (int i=0; i < _paths.Length; i++)
+        const string filter = "*.md";
+
+        var paths = Directory.GetFiles(SearchPath,filter);
+        foreach (var path in paths)
         {
-            key = _paths[i].Replace(".md","");
-            message = GetFileMessageTextAsync(_paths[i]);
+            var key = path.Replace(".md","");
+            var message = GetFileMessageTextAsync(path);
+            
             _messages.Add(key.ToLower(),message);
         }
     }
