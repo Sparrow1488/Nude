@@ -5,7 +5,7 @@ namespace Nude.Bot.Tg.Services.Messages.Store;
 
 public class MessageStore : IMessagesStore
 {
-    private const string _search_path = "../../../Resources/Messages"; 
+    private const string _search_path = "./Resources/Messages"; 
     private string[] _paths;
     private Dictionary<string, string> _messages = new Dictionary<string, string>();
     private readonly IConfiguration _configuration;
