@@ -13,6 +13,7 @@ using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http.Routes;
 using Nude.Bot.Tg.Services.Background;
+using Nude.Bot.Tg.Services.KeyBoard;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Resolvers;
 using Nude.Bot.Tg.Telegram.Handlers;
@@ -50,7 +51,7 @@ builder.Services.AddSingleton<ITelegramBotClient>(x =>
 
 builder.Services.AddHostedService<BotBgService>();
 builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
-
+builder.Services.AddSingleton<BotKeyBoardService> ();
 #endregion
 
 #region Endpoints & Routes
