@@ -2,11 +2,13 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Nude.API.Contracts.Errors.Responses;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Models.Formats;
+using Nude.Bot.Tg.models.Api;
 
 namespace Nude.Bot.Tg.Clients.Nude;
 
@@ -26,50 +28,59 @@ public class NudeClient : INudeClient
         _jsonSerializerSettings = JsonSettingsProvider.CreateDefault();
     }
 
-    public async Task<MangaResponse?> GetMangaByIdAsync(int id)
+    public async Task<ApiResult<MangaResponse>?> GetMangaByIdAsync(int id)
     {
-        MangaResponse? result = null;
+        ApiResult<MangaResponse> result = new ApiResult<MangaResponse>();
+        MangaResponse? response = null;
         await GetAsync<MangaResponse>(
             $"/manga/{id}",
-            (_, res) => result = res,
-            _ => result = null);
+            (_, res) => response = res,
+            _ => response = null);
+        
+        result.Result = (MangaResponse)response!;
         return result;
     }
 
-    public async Task<MangaResponse?> FindMangaByUrlAsync(string sourceUrl, FormatType? format = null)
+    public async Task<ApiResult<MangaResponse>?> FindMangaByUrlAsync(string sourceUrl, FormatType? format = null)
     {
-        MangaResponse? result = null;
+        ApiResult<MangaResponse> result = new ApiResult<MangaResponse>();
+        MangaResponse? response = null;
         await GetAsync<MangaResponse>(
             $"/manga?sourceUrl={sourceUrl}&format={format}",
-            (_, res) => result = res,
-            _ => result = null);
-
+            (_, res) => response = res,
+            _ => response = null);
+        result.Result = (MangaResponse)response!;
         return result;
     }
 
-    public async Task<MangaResponse?> FindMangaByContentKeyAsync(string contentKey, FormatType? format = null)
+    public async Task<ApiResult<MangaResponse>?> FindMangaByContentKeyAsync(string contentKey, FormatType? format = null)
     {
-        MangaResponse? result = null;
+        ApiResult<MangaResponse> result = new ApiResult<MangaResponse>();
+        MangaResponse? response = null;
         await GetAsync<MangaResponse>(
             $"/manga?contentKey={contentKey}&format={format}",
-            (_, res) => result = res,
-            _ => result = null);
+            (_, res) => response = res,
+            _ => response = null);
 
+        result.Result = (MangaResponse)response!;
         return result;
     }
 
-    public async Task<MangaResponse?> GetRandomMangaAsync(FormatType? format = null)
+    public async Task<ApiResult<MangaResponse>?> GetRandomMangaAsync(FormatType? format = null)
     {
+        ApiResult<MangaResponse> result = new ApiResult<MangaResponse>();
         MangaResponse? response = null;
         await GetAsync<MangaResponse>(
                 "/manga/random?format=" + format,
                 (_, res) => response = res,
                 _ => response = null);
-        return response;
+        result.Result = (MangaResponse)response!;
+        return result;
     }
 
-    public async Task<ContentTicketResponse?> CreateContentTicket(ContentTicketRequest request)
+    public async Task<ApiResult<ContentTicketResponse>?> CreateContentTicket(ContentTicketRequest request)
     {
+        ApiResult<ContentTicketResponse> result = new ApiResult<ContentTicketResponse>();
         ContentTicketResponse? response = null;
         await PostAsync<ContentTicketRequest, ContentTicketResponse>(
             "/content-tickets", 
@@ -77,13 +88,14 @@ public class NudeClient : INudeClient
             (_,res) => response = res,
             _ => response = null
         );
-        return response;
+        result.Result = (ContentTicketResponse)response!;
+        return result;
     }
 
     private async Task GetAsync<TRes>(
         string path,
         Action<HttpResponseMessage, TRes> onSuccess, 
-        Action<HttpResponseMessage> onError)
+        Action<ErrorResponse> onError)
     {
         _logger.LogInformation("");
         
@@ -98,7 +110,9 @@ public class NudeClient : INudeClient
         }
         else
         {
-            onError.Invoke(response);
+            var json = await response.Content.ReadAsStringAsync();
+            var res = JsonConvert.DeserializeObject<ErrorResponse>(json,_jsonSerializerSettings);
+            onError.Invoke(res);
         }
     }
     
@@ -106,7 +120,7 @@ public class NudeClient : INudeClient
         string path,
         TRec request,
         Action<HttpResponseMessage, TRes> onSuccess, 
-        Action<HttpResponseMessage> onError)
+        Action<ErrorResponse> onError)
     {
         using var client = CreateHttpClient();
         var jsonRequest = JsonConvert.SerializeObject(request, _jsonSerializerSettings);
@@ -125,7 +139,9 @@ public class NudeClient : INudeClient
         }
         else
         {
-            onError.Invoke(response);
+            var json = await response.Content.ReadAsStringAsync();
+            var res = JsonConvert.DeserializeObject<ErrorResponse>(json, _jsonSerializerSettings);
+            onError.Invoke(res);
         }
     }
     
