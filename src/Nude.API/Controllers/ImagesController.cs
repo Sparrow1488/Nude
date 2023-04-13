@@ -6,6 +6,7 @@ using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Images;
 using Nude.API.Services.Images;
+using Nude.API.Services.Images.Models;
 
 namespace Nude.API.Controllers;
 
@@ -45,31 +46,36 @@ public class ImagesController : ApiController
     {
         var parser = new Gelbooru();
 
+        var creationModels = new List<ImageCreationModel>();
         var images = new List<ImageEntry>();
         var posts = await parser.GetRandomPostsAsync(5, tags);
+        
         foreach (var post in posts)
         {
             var imageUrl = post.FileUrl.AbsoluteUri;
             var contentKey = ContentKeyGenerator.Generate(nameof(ImageEntry), imageUrl);
-
+            
             if (!await _service.ExistsAsync(contentKey))
             {
-                var result = await _service.CreateAsync(
-                    imageUrl,
-                    contentKey,
-                    post.Tags,
-                    null,
-                    post.ID.ToString(),
-                    post.PostUrl.AbsoluteUri
-                );
+                var model = new ImageCreationModel
+                {
+                    Url = imageUrl,
+                    ContentKey = contentKey,
+                    Tags = post.Tags,
+                    ExternalSourceId = post.ID.ToString(),
+                    ExternalSourceUrl = post.PostUrl.AbsoluteUri
+                };
 
-                images.Add(result.Result!);
+                creationModels.Add(model);
                 continue;
             }
 
             var exists = await _service.GetByContentKeyAsync(contentKey);
             images.Add(exists!);
         }
+
+        var result = await _service.CreateRangeAsync(creationModels);
+        images.AddRange(result.Result!);
 
         return Ok(_mapper.Map<ImageResponse[]>(images));
     }

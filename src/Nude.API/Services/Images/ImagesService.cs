@@ -3,9 +3,12 @@ using Nude.API.Infrastructure.Managers;
 using Nude.API.Models.Images;
 using Nude.API.Models.Mangas.Meta;
 using Nude.API.Models.Tags;
+using Nude.API.Services.Images.Models;
 using Nude.API.Services.Images.Results;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.Data.Infrastructure.Extensions;
+
+// ReSharper disable file PossibleMultipleEnumeration
 
 namespace Nude.API.Services.Images;
 
@@ -22,30 +25,48 @@ public class ImagesService : IImagesService
         _tagManager = tagManager;
     }
     
-    public async Task<ImageCreationResult> CreateAsync(
-        string url, 
-        string contentKey, 
-        IEnumerable<string>? tags = null, 
-        string? author = null,
-        string? externalSourceId = null, 
-        string? externalSourceUrl = null)
+    public async Task<ImageCreationResult> CreateAsync(ImageCreationModel model)
     {
-        var image = new ImageEntry
+        var result = await CreateRangeAsync(new[] { model });
+        return new ImageCreationResult
         {
-            Url = url,
-            ContentKey = contentKey,
-            ExternalMeta = new ExternalMeta
-            {
-                SourceId = externalSourceId,
-                SourceUrl = externalSourceUrl
-            },
-            Tags = await CombineTagsAsync(author, tags)
+            IsSuccess = true, 
+            Exception = result.Exception,
+            Result = result.Result?.FirstOrDefault() 
         };
+    }
 
-        await _context.AddAsync(image);
-        await _context.SaveChangesAsync();
+    public async Task<ImageRangeCreationResult> CreateRangeAsync(IEnumerable<ImageCreationModel> models)
+    {
+        var images = new List<ImageEntry>();
+        foreach (var model in models)
+        {
+            var image = new ImageEntry
+            {
+                Url = model.Url,
+                ContentKey = model.ContentKey,
+                ExternalMeta = new ExternalMeta
+                {
+                    SourceId = model.ExternalSourceId,
+                    SourceUrl = model.ExternalSourceUrl
+                },
+                Tags = await CombineTagsAsync(model.Author, model.Tags)
+            };
 
-        return new ImageCreationResult { IsSuccess = true, Result = image };
+            images.Add(image);
+        }
+
+        if (models.Any())
+        {
+            await _context.AddRangeAsync(images);
+            await _context.SaveChangesAsync();
+        }
+
+        return new ImageRangeCreationResult
+        {
+            IsSuccess = true,
+            Result = images
+        };
     }
 
     public Task<bool> ExistsAsync(string contentKey)
