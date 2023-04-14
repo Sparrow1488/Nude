@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Models.Collections;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Images;
 using Nude.API.Models.Mangas;
@@ -14,6 +15,7 @@ public class AppDbContext : DatabaseContext
     public AppDbContext(DbContextOptions options) : base(options) { }
 
     public DbSet<ImageEntry> Images { get; set; }
+    public DbSet<ImageCollection> ImageCollections { get; set; }
     public DbSet<MangaEntry> Mangas => Set<MangaEntry>();
     public DbSet<ExternalMeta> ExternalMetas => Set<ExternalMeta>();
     

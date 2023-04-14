@@ -1,3 +1,4 @@
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Models.Images;
@@ -104,6 +105,15 @@ public class ImagesService : IImagesService
         return _context.Images
             .IncludeDependencies()
             .FirstOrDefaultAsync(x => x.ContentKey == contentKey);
+    }
+
+    public async Task<ICollection<ImageEntry>> FindAsync(IEnumerable<string> contentKeys)
+    {
+        var keysArray = contentKeys.ToArray();
+        return await _context.Images
+            .IncludeDependencies()
+            .Where(x => keysArray.Contains(x.ContentKey))
+            .ToListAsync();
     }
 
     public Task<ICollection<ImageEntry>> FindByTagsAsync(IEnumerable<string> tags)

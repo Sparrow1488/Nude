@@ -11,5 +11,6 @@ public interface IImagesService
     Task<bool> ExistsAsync(string contentKey);
     Task<ImageEntry?> GetByIdAsync(int id);
     Task<ImageEntry?> GetByContentKeyAsync(string contentKey);
+    Task<ICollection<ImageEntry>> FindAsync(IEnumerable<string> contentKeys);
     Task<ICollection<ImageEntry>> FindByTagsAsync(IEnumerable<string> tags);
 }

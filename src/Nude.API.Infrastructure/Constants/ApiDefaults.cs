@@ -1,6 +1,6 @@
 namespace Nude.API.Infrastructure.Constants;
 
-public class ApiDefaults
+public static class ApiDefaults
 {
-    
+    public const string CurrentVersion = "v2";
 }

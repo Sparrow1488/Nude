@@ -11,12 +11,12 @@ using Nude.API.Services.Images.Models;
 namespace Nude.API.Controllers;
 
 [Route("v2/images")]
-public class ImagesController : ApiController
+public class ImageController : ApiController
 {
     private readonly IMapper _mapper;
     private readonly IImagesService _service;
 
-    public ImagesController(
+    public ImageController(
         IMapper mapper,
         IImagesService service)
     {

@@ -8,6 +8,7 @@ using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Resolvers;
+using Nude.API.Services.Collections;
 using Nude.API.Services.Formatters;
 using Nude.API.Services.Images;
 using Nude.API.Services.Mangas;
@@ -85,6 +86,7 @@ builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IImagesService, ImagesService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
+builder.Services.AddScoped<IImageCollectionsService, ImageCollectionsService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();

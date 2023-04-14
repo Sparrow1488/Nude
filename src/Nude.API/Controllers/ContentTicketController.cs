@@ -2,13 +2,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Models.Tickets;
 using Nude.API.Services.Tickets;
 
 namespace Nude.API.Controllers;
 
-[Route("v2/content-tickets")]
+[Route($"{ApiDefaults.CurrentVersion}/content-tickets")]
 public class ContentTicketController : ApiController
 {
     private readonly IMapper _mapper;
