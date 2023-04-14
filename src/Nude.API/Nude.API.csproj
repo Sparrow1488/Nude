@@ -36,4 +36,10 @@
       <_ContentIncludedByDefault Remove="store\credentials\[NudeMoon]Sparrow1488\file.json" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="key">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

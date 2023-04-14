@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utility.ChromeKiller", "Uti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Models", "Nude.API.Models\Nude.API.Models.csproj", "{313EA46B-C086-4497-A5B6-BC2B12726F02}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.KeysGenerator", "Nude.KeysGenerator\Nude.KeysGenerator.csproj", "{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +68,9 @@ Global
 		{313EA46B-C086-4497-A5B6-BC2B12726F02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{313EA46B-C086-4497-A5B6-BC2B12726F02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{313EA46B-C086-4497-A5B6-BC2B12726F02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,6 +1,9 @@
+using System.Security.Cryptography;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
@@ -9,6 +12,7 @@ using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
+using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Infrastructure.Services.Resolvers;
 using Nude.API.Services.Collections;
 using Nude.API.Services.Formatters;
@@ -58,24 +62,30 @@ builder.Services
 
 #region Authentication & Authorization
 
-builder.Services.AddAuthentication(TelegramDefaults.DefaultScheme)
-    .AddJwtBearer(TelegramDefaults.DefaultScheme, options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
-        var config = builder.Configuration.GetRequiredSection("Authentication:Jwt");
+        var configuration = builder.Configuration.GetRequiredSection("Authentication:Jwt");
         
-        options.RequireHttpsMetadata = false;
+        var rsa = RSA.Create();
+        var key = KeysProvider.GetPrivateKey();
+        rsa.ImportRSAPrivateKey(key, out _);
+
+        options.Configuration = new OpenIdConnectConfiguration
+        {
+            SigningKeys =
+            {
+                new RsaSecurityKey(rsa)
+            }
+        };
+        
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = true,
-            ValidIssuer = config["Issuer"],
-            ValidateAudience = true,
-            ValidAudience = config["Audience"],
-            ValidateLifetime = true,
-            
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["KEY"])),
-            ValidateIssuerSigningKey = true,
-            RequireExpirationTime = false
+            ValidateIssuer = false,
+            ValidateAudience = false
         };
+
+        options.MapInboundClaims = false;
     });
 
 #endregion
@@ -138,11 +148,12 @@ builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(Forma
 
 var app = builder.Build();
 
-app.UseAuthorization();
+app.UseAuthentication();
+// app.UseAuthorization();
 
 app.MapGet("/", async ctx =>
 {
-    await ctx.Response.WriteAsync("Иди нахуй");
+    await ctx.Response.WriteAsync("Иди своей дорогой, сталкер");
 });
 
 app.UseMiddleware<ErrorsMiddleware>();
