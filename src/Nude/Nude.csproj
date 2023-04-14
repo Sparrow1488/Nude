@@ -9,7 +9,7 @@
     <ItemGroup>
       <PackageReference Include="AngleSharp" Version="1.0.1" />
       <PackageReference Include="GroupDocs.Conversion" Version="23.2.0" />
-      <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.2-mauipre.1.22102.15" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
       <PackageReference Include="PuppeteerSharp" Version="9.0.2" />
     </ItemGroup>
 
