@@ -5,7 +5,9 @@ using Newtonsoft.Json;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
+using Nude.API.Contracts.Tokens.Responses;
 using Nude.API.Infrastructure.Configurations.Json;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Formats;
 
 namespace Nude.Bot.Tg.Clients.Nude;
@@ -31,6 +33,17 @@ public class NudeClient : INudeClient
         MangaResponse? result = null;
         await GetAsync<MangaResponse>(
             $"/manga/{id}",
+            (_, res) => result = res,
+            _ => result = null);
+        return result;
+    }
+
+    public async Task<JwtTokenResponse?> AuthorizeAsync(string username)
+    {
+        JwtTokenResponse? result = null;
+        await PostAsync<EmptyRequest, JwtTokenResponse>(
+            $"/auth?username={username}",
+            new EmptyRequest(),
             (_, res) => result = res,
             _ => result = null);
         return result;
@@ -88,7 +101,8 @@ public class NudeClient : INudeClient
         _logger.LogInformation("");
         
         using var client = CreateHttpClient();
-        var response = await client.GetAsync(_baseUrl + path);
+        var uri = _baseUrl + "/" + ApiDefaults.CurrentVersion + path;
+        var response = await client.GetAsync(uri);
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync();
@@ -101,18 +115,24 @@ public class NudeClient : INudeClient
             onError.Invoke(response);
         }
     }
-    
-    private async Task PostAsync<TRec, TRes>(
+
+    private async Task PostAsync<TReq, TRes>(
         string path,
-        TRec request,
+        TReq request,
         Action<HttpResponseMessage, TRes> onSuccess, 
         Action<HttpResponseMessage> onError)
     {
         using var client = CreateHttpClient();
-        var jsonRequest = JsonConvert.SerializeObject(request, _jsonSerializerSettings);
-        var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+        HttpContent? content = null;
+
+        if (request is not EmptyRequest)
+        {
+            var jsonRequest = JsonConvert.SerializeObject(request, _jsonSerializerSettings);
+            content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
+        }
         
-        var response = await client.PostAsync(_baseUrl + path, content);
+        var uri = _baseUrl + "/" + ApiDefaults.CurrentVersion + path;
+        var response = await client.PostAsync(uri, content);
         
         LogRequest("POST", path, response.StatusCode.ToString(), null);
         
@@ -143,5 +163,10 @@ public class NudeClient : INudeClient
             status,
             error ?? "no_error"
         );
+    }
+    
+    private struct EmptyRequest
+    {
+        
     }
 }
