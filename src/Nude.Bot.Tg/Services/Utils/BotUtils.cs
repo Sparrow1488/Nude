@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using Nude.Bot.Tg.Services.KeyBoard;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -10,14 +9,12 @@ public static class BotUtils
 {
     public static Task<Message> MessageAsync(ITelegramBotClient client, long chatId, MessageItem message)
     {
-        if (message.Keyboard == null)
-        {
-            return client.SendTextMessageAsync(chatId, message.Text, message.ParseMode);
-        }
-        else
-        {
-            return client.SendTextMessageAsync(chatId, message.Text, message.ParseMode,replyMarkup:message.Keyboard);
-        }
+        return client.SendTextMessageAsync(
+            chatId, 
+            message.Text, 
+            message.ParseMode, 
+            replyMarkup: message.Keyboard
+        );
     }
     
     public static async Task<Message?> EditMessageAsync(

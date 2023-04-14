@@ -1,4 +1,3 @@
-using AngleSharp.Html.Dom.Events;
 using Microsoft.Extensions.Configuration;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -38,15 +37,17 @@ public class MessageStore : IMessagesStore
     {
         var keyboard = new ReplyKeyboardMarkup(new[]
         {
-            new KeyboardButton[]{"a","b"},
-            new KeyboardButton[]{"c","d"}
+            new KeyboardButton[] {"a", "b"},
+            new KeyboardButton[] {"c", "d"}
         })
-        { ResizeKeyboard = true };
+        {
+            ResizeKeyboard = true
+        };
 
         var startText = _messages["start"];
         var menuMessage = await GetMenuMessageAsync();
         var text = startText + menuMessage.Text;
-        return new MessageItem(text, ParseMode.MarkdownV2,keyboard);
+        return new MessageItem(text, ParseMode.MarkdownV2, keyboard);
     }
 
     public Task<MessageItem> GetCallbackFailedMessageAsync()
