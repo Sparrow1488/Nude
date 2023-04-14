@@ -1,6 +1,6 @@
 namespace Nude.API.Infrastructure.Services.Keys;
 
-public class KeysProvider
+public static class KeysProvider
 {
     public static byte[] GetPrivateKey()
     {

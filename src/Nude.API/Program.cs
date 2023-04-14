@@ -1,5 +1,4 @@
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +21,7 @@ using Nude.API.Services.Notifications;
 using Nude.API.Services.Queues;
 using Nude.API.Services.Stealers;
 using Nude.API.Services.Tickets;
+using Nude.API.Services.Users;
 using Nude.API.Services.WebHooks;
 using Nude.API.Services.Workers;
 using Nude.Authorization.Handlers;
@@ -65,8 +65,6 @@ builder.Services
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
-        var configuration = builder.Configuration.GetRequiredSection("Authentication:Jwt");
-        
         var rsa = RSA.Create();
         var key = KeysProvider.GetPrivateKey();
         rsa.ImportRSAPrivateKey(key, out _);
@@ -104,6 +102,8 @@ builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IImagesService, ImagesService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 builder.Services.AddScoped<IImageCollectionsService, ImageCollectionsService>();
+
+builder.Services.AddScoped<IUsersService, UsersService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
@@ -149,12 +149,7 @@ builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(Forma
 var app = builder.Build();
 
 app.UseAuthentication();
-// app.UseAuthorization();
-
-app.MapGet("/", async ctx =>
-{
-    await ctx.Response.WriteAsync("Иди своей дорогой, сталкер");
-});
+app.UseAuthorization();
 
 app.UseMiddleware<ErrorsMiddleware>();
 
