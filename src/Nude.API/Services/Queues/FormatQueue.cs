@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Collections;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
@@ -67,7 +68,7 @@ public class FormatQueue : IFormatQueue
     private async Task<MangaEntry?> GetMangaAsync()
     {
         var mangaKey = await _context.Mangas
-            .Where(x => !x.Formats.Any(x => x.Type == FormatType.Telegraph))
+            .Where(x => !x.Formats.Any(x => x.Type == FormatType.Telegraph) && x.Images.Count <= ContentLimits.MaxFormatImagesCount)
             .Select(x => x.ContentKey)
             .FirstOrDefaultAsync();
 
@@ -79,7 +80,7 @@ public class FormatQueue : IFormatQueue
     private async Task<ImageCollection?> GetImageCollectionAsync()
     {
         var collectionKey = await _context.ImageCollections
-            .Where(x => !x.Formats.Any(x => x.Type == FormatType.Telegraph))
+            .Where(x => !x.Formats.Any(x => x.Type == FormatType.Telegraph) && x.Images.Count <= ContentLimits.MaxFormatImagesCount)
             .Select(x => x.ContentKey)
             .FirstOrDefaultAsync();
         

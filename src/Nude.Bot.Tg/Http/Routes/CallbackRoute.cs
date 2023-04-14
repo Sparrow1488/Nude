@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
@@ -18,25 +19,16 @@ namespace Nude.Bot.Tg.Http.Routes;
 public class CallbackRoute
 {
     private readonly BotDbContext _context;
-    private readonly IMessagesStore _messagesStore;
-    private readonly ILogger<CallbackRoute> _logger;
     private readonly INudeClient _client;
-    private readonly IConfiguration _configuration;
     private readonly ITelegramBotClient _bot;
 
     public CallbackRoute(
-        IMessagesStore messagesStore,
         INudeClient client,
-        IConfiguration configuration,
         ITelegramBotClient bot,
-        BotDbContext context,
-        ILogger<CallbackRoute> logger)
+        BotDbContext context)
     {
         _context = context;
-        _messagesStore = messagesStore;
         _client = client;
-        _configuration = configuration;
-        _logger = logger;
         _bot = bot;
     }
     
@@ -60,7 +52,16 @@ public class CallbackRoute
                     await EditMessagesAsync(messages, "Пиздим содержимое с сайта");
                     break;
                 case ReceiveStatus.Success:
-                    await EditMessagesAsync(messages, "Все спиздили, ожидайте своей очереди");
+                    var readyManga = await _client.FindMangaByContentKeyAsync(contentKey);
+                    if (readyManga!.Value.Images.Count > ContentLimits.MaxFormatImagesCount)
+                    {
+                        await EditMessagesAsync(messages, "Манга слишком большая! Попробуйте загрузить мангу, в которой меньше 45 изображений", ParseMode.Html);
+                        await DeleteMessagesAsync(messages);
+                    }
+                    else
+                    {
+                        await EditMessagesAsync(messages, "Все спиздили, ожидайте своей очереди");
+                    }
                     break;
                 case ReceiveStatus.Failed:
                     await EditMessagesAsync(messages, "Не удалось получить содержимое по запросу");
