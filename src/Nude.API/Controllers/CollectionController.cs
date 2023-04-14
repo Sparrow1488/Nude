@@ -32,7 +32,7 @@ public class CollectionController : ApiController
     public async Task<IActionResult> Create(ImageCollectionCreateRequest request)
     {
         var images = await _imagesService.FindAsync(request.Images);
-
+        
         if (images.Count != request.Images.Length)
         {
             var foundContentKeys = images.Select(x => x.ContentKey);
@@ -44,17 +44,24 @@ public class CollectionController : ApiController
                 $"Some images not found by ContentKey ({notFoundImages.Count})")
             );
         }
-
+        
         var imagesIdSum = images.Sum(x => x.Id);
         var contentKeyRow = imagesIdSum + "+" + images.Count;
-        var collection = await _service.CreateAsync(
+        var contentKey = ContentKeyGenerator.Generate(nameof(ImageCollection), contentKeyRow);
+
+        var result = await _service.CreateAsync(
             request.Title,
             request.Description,
-            ContentKeyGenerator.Generate(nameof(ImageCollection), contentKeyRow),
+            contentKey,
             images
         );
 
-        return Ok(_mapper.Map<ImageCollectionResponse>(collection));
+        if (result.IsSuccess)
+        {
+            return Ok(_mapper.Map<ImageCollectionResponse>(result.Result));
+        }
+
+        return Exception(result.Exception!);
     }
 
     [HttpGet]
