@@ -9,7 +9,7 @@ using Nude.API.Services.Mangas;
 
 namespace Nude.API.Controllers;
 
-[Route($"{ApiDefaults.CurrentVersion}/manga")]
+[Route("manga")]
 public class MangaController : ApiController
 {
     private readonly IMapper _mapper;

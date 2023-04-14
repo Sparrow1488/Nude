@@ -26,7 +26,8 @@ public abstract class TelegramUpdateEndpoint : TelegramEndpoint
     
     protected Task<Message> MessageAsync(string message, ParseMode parseMode = ParseMode.Html)
     {
-        return BotClient.SendTextMessageAsync(ChatId, message, parseMode);
+        var messageItem = new MessageItem(message, parseMode);
+        return BotUtils.MessageAsync(BotClient, ChatId, messageItem);
     }
     
     protected Task<Message> MessageAsync(MessageItem message)

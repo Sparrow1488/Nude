@@ -11,7 +11,7 @@ using Nude.API.Services.Images;
 
 namespace Nude.API.Controllers;
 
-[Route($"{ApiDefaults.CurrentVersion}/collections")]
+[Route("collections")]
 public class CollectionController : ApiController
 {
     private readonly IMapper _mapper;

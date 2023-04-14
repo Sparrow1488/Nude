@@ -84,7 +84,7 @@ public class CallbackRoute
             }
             else
             {
-                await EditMessagesAsync(messages, $"Начали конвертировать мангу");
+                await EditMessagesAsync(messages, "Начали конвертировать мангу");
             }
         }
     }

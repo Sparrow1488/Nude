@@ -1,9 +1,11 @@
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
@@ -46,7 +48,10 @@ builder.Host.UseSerilog(Log.Logger);
 #region Controllers
 
 builder.Services
-    .AddControllers()
+    .AddControllers(opt =>
+    {
+        opt.Conventions.Add(new RoutePrefixConvention(new RouteAttribute(ApiDefaults.CurrentVersion)));
+    })
     .AddNewtonsoftJson(options => options.BindOptions());
 
 #endregion
@@ -69,6 +74,7 @@ builder.Services.AddAuthentication(TelegramDefaults.DefaultScheme)
             
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(config["KEY"])),
             ValidateIssuerSigningKey = true,
+            RequireExpirationTime = false
         };
     });
 
