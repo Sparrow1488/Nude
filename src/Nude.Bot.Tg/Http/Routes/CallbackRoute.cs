@@ -57,10 +57,10 @@ public class CallbackRoute
             switch (ticketDetails.Status)
             {
                 case ReceiveStatus.Started:
-                    await EditMessagesAsync(messages, $"Пиздим мангу");
+                    await EditMessagesAsync(messages, "Пиздим содержимое с сайта");
                     break;
                 case ReceiveStatus.Success:
-                    await EditMessagesAsync(messages, $"Спиздили мангу");
+                    await EditMessagesAsync(messages, "Все спиздили, ожидайте своей очереди");
                     break;
                 case ReceiveStatus.Failed:
                     await EditMessagesAsync(messages, "Не удалось получить содержимое по запросу");
