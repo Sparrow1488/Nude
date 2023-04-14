@@ -9,6 +9,7 @@ public static class ImageCollectionExtensions
     {
         return dbSet
             .Include(x => x.Formats)
-            .Include(x => x.Images);
+            .Include(x => x.Images)
+            .ThenInclude(x => x.Entry);
     }
 }

@@ -10,6 +10,7 @@ using Nude.API.Services.Formatters;
 using Nude.API.Services.Formatters.Variables;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
+using Nude.API.Services.Queues;
 using Nude.Data.Infrastructure.Contexts;
 
 #region Rider annotations
@@ -27,6 +28,7 @@ public class FormatsWorker : IBackgroundWorker
 
     private readonly AppDbContext _context;
     private readonly IMangaService _mangaService;
+    private readonly IFormatQueue _queue;
     private readonly INotificationService _notificationService;
     private readonly IFormatterService _formatterService;
     private readonly ILogger<FormatsWorker> _logger;
@@ -34,12 +36,14 @@ public class FormatsWorker : IBackgroundWorker
     public FormatsWorker(
         AppDbContext context,
         IMangaService mangaService,
+        IFormatQueue queue,
         INotificationService notificationService,
         IFormatterService formatterService,
         ILogger<FormatsWorker> logger)
     {
         _context = context;
         _mangaService = mangaService;
+        _queue = queue;
         _notificationService = notificationService;
         _formatterService = formatterService;
         _logger = logger;
@@ -50,12 +54,9 @@ public class FormatsWorker : IBackgroundWorker
     {
         try
         {
-            var mangaId = await _context.Mangas
-                .Where(x => !x.Formats.Any(x => x.Type == FormatType.Telegraph))
-                .Select(x => x.Id)
-                .FirstOrDefaultAsync(ctk);
+            var agent = await _queue.DequeueAsync();
             
-            if (mangaId == 0)
+            if (agent == null)
             {
                 _logger.LogDebug("No waiting format content");
                 return;
@@ -63,27 +64,22 @@ public class FormatsWorker : IBackgroundWorker
 
             StartStopwatchDiagnostics();
 
-            var manga = await _mangaService.GetByIdAsync(mangaId);
-            var images = manga!.Images.Select(x => x.Url.Value);
-
-            // images = new List<string>(images.Take(2));
-
-            var contentKey = manga.ContentKey;
             _formatterService.FormatProgressUpdated +=
-                variables => OnFormatProgressUpdatedAsync(contentKey, variables);
+                variables => OnFormatProgressUpdatedAsync(agent.ContentKey, variables);
 
             var format = await _formatterService.FormatAsync(
-                manga.Title,
-                "With Love By Nude",
-                images,
-                FormatType.Telegraph);
+                agent.Title,
+                agent.Description ?? string.Empty,
+                agent.Images,
+                agent.Type
+            );
 
-            await _mangaService.AddFormatAsync(manga, format);
+            await agent.ReleaseAsync(format);
 
             var resultDetails = new FormattingStatusDetails
             {
                 Status = FormattingStatus.Success,
-                ContentKey = contentKey
+                ContentKey = agent.ContentKey
             };
             await NotifySubscribersAsync(resultDetails);
 

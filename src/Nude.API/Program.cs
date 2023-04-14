@@ -13,6 +13,7 @@ using Nude.API.Services.Formatters;
 using Nude.API.Services.Images;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
+using Nude.API.Services.Queues;
 using Nude.API.Services.Stealers;
 using Nude.API.Services.Tickets;
 using Nude.API.Services.WebHooks;
@@ -92,6 +93,8 @@ builder.Services.AddScoped<ITagManager, TagManager>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
 builder.Services.AddScoped<IContentStealerService, ContentStealerService>();
 builder.Services.AddScoped<IFormatterService, FormatterService>();
+
+builder.Services.AddScoped<IFormatQueue, FormatQueue>();
 
 builder.Services.AddScoped<IWebHookService, WebHookService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
