@@ -16,6 +16,8 @@ using Nude.Bot.Tg.Services.Background;
 using Nude.Bot.Tg.Services.Keyboards;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Resolvers;
+using Nude.Bot.Tg.Telegram.Endpoints.Base;
+using Nude.Bot.Tg.Telegram.Endpoints.Update;
 using Nude.Bot.Tg.Telegram.Handlers;
 using Nude.Data.Infrastructure.Contexts;
 using Serilog;
