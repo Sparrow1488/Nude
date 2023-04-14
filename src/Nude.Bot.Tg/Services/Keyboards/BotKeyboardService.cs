@@ -1,13 +1,38 @@
-﻿using Telegram.Bot.Types.ReplyMarkups;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Nude.Bot.Tg.Services.Keyboards;
-
-public class BotKeyboardService
+namespace Nude.Bot.Tg.Services.Keyboards
 {
-    public BotKeyboardService()
+    public static class BotKeyboardService
     {
-        Keyboard = new ReplyKeyboardMarkup(new KeyboardButton("/start"));
+        public static readonly ReplyKeyboardMarkup MainKeyboard = new ReplyKeyboardMarkup(new[]
+        {
+            new KeyboardButton[] { "/pictures", "/manga" },
+        })
+        {
+            ResizeKeyboard = true
+        };
+
+        public static readonly ReplyKeyboardMarkup MangaKeyboard = new ReplyKeyboardMarkup(new[]
+        {
+            new KeyboardButton[] { "/search_by_name", "/search_by_author" },
+            new KeyboardButton[] { "/random" }
+        })
+        {
+            ResizeKeyboard = true
+        };
+
+        public static readonly ReplyKeyboardMarkup PictureKeyboard = new ReplyKeyboardMarkup(new[]
+        {
+            new KeyboardButton[] { "/search_by_author", "/search_by_tags" },
+            new KeyboardButton[] { "/random", "/compilation" }
+        })
+        {
+            ResizeKeyboard = true
+        };
     }
-    
-    public ReplyKeyboardMarkup Keyboard { get; }
 }

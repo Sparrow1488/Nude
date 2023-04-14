@@ -80,7 +80,6 @@ builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
 
 builder.Services.AddScoped<INudeClient, NudeClient>();
 builder.Services.AddSingleton<IMessagesStore, MessageStore>();
-builder.Services.AddSingleton<BotKeyboardService>();
 
 #endregion
 
