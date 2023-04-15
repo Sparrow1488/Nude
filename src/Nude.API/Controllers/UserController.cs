@@ -11,24 +11,24 @@ namespace Nude.API.Controllers;
 public class UserController : ApiController
 {
     private readonly IMapper _mapper;
-    private readonly IUsersService _usersService;
+    private readonly IUserSession _session;
     private readonly IContentTicketService _ticketService;
 
     public UserController(
         IMapper mapper,
-        IUsersService usersService,
+        IUserSession session,
         IContentTicketService ticketService)
     {
         _mapper = mapper;
-        _usersService = usersService;
+        _session = session;
         _ticketService = ticketService;
     }
 
     [HttpGet("me/tickets"), Authorize]
     public async Task<IActionResult> GetUserActiveTickets()
     {
-        var userId = int.Parse(HttpContext.User.FindFirst("sub")!.Value);
-        var tickets = await _ticketService.GetUserTicketsAsync(userId);
+        var user = await _session.GetUserAsync();
+        var tickets = await _ticketService.GetUserTicketsAsync(user.Id);
 
         return Ok(_mapper.Map<ContentTicketResponse[]>(tickets));
     }

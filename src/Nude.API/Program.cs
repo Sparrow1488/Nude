@@ -103,6 +103,8 @@ builder.Services.AddScoped<IImagesService, ImagesService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 builder.Services.AddScoped<IImageCollectionsService, ImageCollectionsService>();
 
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IUserSession, UserSession>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 
 builder.Services.AddScoped<ITagManager, TagManager>();

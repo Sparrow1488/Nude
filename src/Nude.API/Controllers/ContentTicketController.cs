@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Models.Tickets;
 using Nude.API.Services.Tickets;
@@ -15,26 +14,24 @@ namespace Nude.API.Controllers;
 public class ContentTicketController : ApiController
 {
     private readonly IMapper _mapper;
-    private readonly IUsersService _usersService;
+    private readonly IUserSession _session;
     private readonly IContentTicketService _service;
 
     public ContentTicketController(
         IMapper mapper,
-        IUsersService usersService,
+        IUserSession session,
         IContentTicketService service)
     {
         _mapper = mapper;
-        _usersService = usersService;
+        _session = session;
         _service = service;
     }
 
     [HttpPost, Authorize]
     public async Task<IActionResult> Create(ContentTicketRequest request)
     {
-        var userId = int.Parse(HttpContext.User.FindFirst("sub")!.Value);
-        var user = await _usersService.GetByIdAsync(userId);
-        
-        var userTickets = await _service.GetUserTicketsAsync(user!.Id);
+        var user = await _session.GetUserAsync();
+        var userTickets = await _service.GetUserTicketsAsync(user.Id);
 
         if (userTickets.Count >= 3)
         {
