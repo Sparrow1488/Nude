@@ -7,7 +7,7 @@ namespace Nude.API.Infrastructure.Exceptions.Client;
 
 public class NotFoundException : ApiException, IStatusCodeException
 {
-    public NotFoundException(string message, string? entityId, string? entityType) : base(message)
+    public NotFoundException(string message, string? entityId = null, string? entityType = null) : base(message)
     {
         Data.Add("entity_id", entityId ?? "unknown_id");
         Data.Add("entity_type", entityType ?? "unknown_type");

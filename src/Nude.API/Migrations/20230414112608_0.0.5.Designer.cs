@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nude.Data.Infrastructure.Contexts;
@@ -11,9 +12,10 @@ using Nude.Data.Infrastructure.Contexts;
 namespace Nude.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230414112608_0.0.5")]
+    partial class _005
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -136,7 +138,7 @@ namespace Nude.API.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("image_collection_id");
 
-                    b.Property<int?>("MangaEntryId")
+                    b.Property<int>("MangaEntryId")
                         .HasColumnType("integer")
                         .HasColumnName("manga_entry_id");
 
@@ -437,19 +439,17 @@ namespace Nude.API.Migrations
 
             modelBuilder.Entity("Nude.API.Models.Formats.Format", b =>
                 {
-                    b.HasOne("Nude.API.Models.Collections.ImageCollection", "ImageCollection")
+                    b.HasOne("Nude.API.Models.Collections.ImageCollection", null)
                         .WithMany("Formats")
                         .HasForeignKey("ImageCollectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_formats_image_collections_image_collection_id");
 
                     b.HasOne("Nude.API.Models.Mangas.MangaEntry", "MangaEntry")
                         .WithMany("Formats")
                         .HasForeignKey("MangaEntryId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("fk_formats_mangas_manga_entry_id");
-
-                    b.Navigation("ImageCollection");
 
                     b.Navigation("MangaEntry");
                 });

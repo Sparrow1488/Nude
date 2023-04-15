@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nude.Data.Infrastructure.Contexts;
@@ -11,9 +12,10 @@ using Nude.Data.Infrastructure.Contexts;
 namespace Nude.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230412222528_0.0.4")]
+    partial class _004
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,64 +62,6 @@ namespace Nude.API.Migrations
                     b.ToTable("manga_entry_tag", (string)null);
                 });
 
-            modelBuilder.Entity("Nude.API.Models.Collections.CollectionImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CollectionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("collection_id");
-
-                    b.Property<int>("EntryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("entry_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_collection_image");
-
-                    b.HasIndex("CollectionId")
-                        .HasDatabaseName("ix_collection_image_collection_id");
-
-                    b.HasIndex("EntryId")
-                        .HasDatabaseName("ix_collection_image_entry_id");
-
-                    b.ToTable("collection_image", (string)null);
-                });
-
-            modelBuilder.Entity("Nude.API.Models.Collections.ImageCollection", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ContentKey")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content_key");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("title");
-
-                    b.HasKey("Id")
-                        .HasName("pk_image_collections");
-
-                    b.ToTable("image_collections", (string)null);
-                });
-
             modelBuilder.Entity("Nude.API.Models.Formats.Format", b =>
                 {
                     b.Property<int>("Id")
@@ -132,11 +76,7 @@ namespace Nude.API.Migrations
                         .HasColumnType("text")
                         .HasColumnName("discriminator");
 
-                    b.Property<int?>("ImageCollectionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("image_collection_id");
-
-                    b.Property<int?>("MangaEntryId")
+                    b.Property<int>("MangaEntryId")
                         .HasColumnType("integer")
                         .HasColumnName("manga_entry_id");
 
@@ -146,9 +86,6 @@ namespace Nude.API.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_formats");
-
-                    b.HasIndex("ImageCollectionId")
-                        .HasDatabaseName("ix_formats_image_collection_id");
 
                     b.HasIndex("MangaEntryId")
                         .HasDatabaseName("ix_formats_manga_entry_id");
@@ -414,42 +351,14 @@ namespace Nude.API.Migrations
                         .HasConstraintName("fk_manga_entry_tag_tags_tags_id");
                 });
 
-            modelBuilder.Entity("Nude.API.Models.Collections.CollectionImage", b =>
-                {
-                    b.HasOne("Nude.API.Models.Collections.ImageCollection", "Collection")
-                        .WithMany("Images")
-                        .HasForeignKey("CollectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_collection_image_image_collections_collection_id");
-
-                    b.HasOne("Nude.API.Models.Images.ImageEntry", "Entry")
-                        .WithMany()
-                        .HasForeignKey("EntryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_collection_image_images_entry_id");
-
-                    b.Navigation("Collection");
-
-                    b.Navigation("Entry");
-                });
-
             modelBuilder.Entity("Nude.API.Models.Formats.Format", b =>
                 {
-                    b.HasOne("Nude.API.Models.Collections.ImageCollection", "ImageCollection")
-                        .WithMany("Formats")
-                        .HasForeignKey("ImageCollectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("fk_formats_image_collections_image_collection_id");
-
                     b.HasOne("Nude.API.Models.Mangas.MangaEntry", "MangaEntry")
                         .WithMany("Formats")
                         .HasForeignKey("MangaEntryId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
                         .HasConstraintName("fk_formats_mangas_manga_entry_id");
-
-                    b.Navigation("ImageCollection");
 
                     b.Navigation("MangaEntry");
                 });
@@ -493,13 +402,6 @@ namespace Nude.API.Migrations
                     b.Navigation("MangaEntry");
 
                     b.Navigation("Url");
-                });
-
-            modelBuilder.Entity("Nude.API.Models.Collections.ImageCollection", b =>
-                {
-                    b.Navigation("Formats");
-
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Nude.API.Models.Mangas.MangaEntry", b =>

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Models.Collections;
 using Nude.API.Models.Formats;
+using Nude.API.Models.Images;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;
 using Nude.API.Models.Tags;
@@ -12,6 +14,8 @@ public class AppDbContext : DatabaseContext
 {
     public AppDbContext(DbContextOptions options) : base(options) { }
 
+    public DbSet<ImageEntry> Images { get; set; }
+    public DbSet<ImageCollection> ImageCollections { get; set; }
     public DbSet<MangaEntry> Mangas => Set<MangaEntry>();
     public DbSet<ExternalMeta> ExternalMetas => Set<ExternalMeta>();
     
@@ -30,6 +34,12 @@ public class AppDbContext : DatabaseContext
             .HasMany(x => x.Formats)
             .WithOne(x => x.MangaEntry)
             .HasForeignKey(x => x.MangaEntryId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<ImageCollection>()
+            .HasMany(x => x.Formats)
+            .WithOne(x => x.ImageCollection)
+            .HasForeignKey(x => x.ImageCollectionId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -1,6 +1,7 @@
 using AutoMapper;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Manga.Responses;
+using Nude.API.Contracts.Metas.Responses;
 using Nude.API.Contracts.Tags.Responses;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
@@ -18,7 +19,7 @@ public class MangaProfile : Profile
             .ForMember(x => x.Formats, opt => opt.MapFrom(x => x.Formats))
             .ForMember(x => x.Images, opt => opt.MapFrom(x => x.Images.Select(x => x.Url.Value)));
 
-        CreateMap<ExternalMeta, MangaExternalMetaResponse>();
+        CreateMap<ExternalMeta, ExternalMetaResponse>();
         
         CreateMap<Tag, TagResponse>();
         
