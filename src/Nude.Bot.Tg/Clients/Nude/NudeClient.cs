@@ -25,7 +25,7 @@ public class NudeClient : INudeClient
     {
         _configuration = configuration;
         _baseUrl = configuration["Nude.API:BaseUrl"] 
-                   ?? throw new Exception("No Nude.API BaseUrl in config");
+            ?? throw new Exception("No Nude.API BaseUrl in config");
         
         _baseUrl += "/" + ApiDefaults.CurrentVersion;
         _jsonSerializerSettings = JsonSettingsProvider.CreateDefault();
@@ -72,7 +72,7 @@ public class NudeClient : INudeClient
     {
         using var client = CreateHttpClient();
         var content = CreateContent(request);
-            
+        
         var response = await client.PostAsync(_baseUrl + path, content);
         return await CreateResultByMessageAsync<TRes>(response);
     }
@@ -97,7 +97,7 @@ public class NudeClient : INudeClient
             case false: error = Deserialize<ErrorResponse>(json); break;
         }
 
-        return new ApiResult<TRes>(result, error);
+        return new ApiResult<TRes>(result, error, (int) message.StatusCode);
     }
 
     private TObject? Deserialize<TObject>(string json)

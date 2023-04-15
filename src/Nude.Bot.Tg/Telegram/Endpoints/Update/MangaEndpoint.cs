@@ -50,18 +50,26 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         var authorizedClient = _nudeClient.AuthorizeClient(UserSession);
         var request = new ContentTicketRequest { SourceUrl = MessageText };
         var ticketResult = await authorizedClient.CreateContentTicketAsync(request);
-        
-        var botMessage = await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
-        
-        await _context.AddAsync(new UserMessage
+
+        if (ticketResult.IsSuccess)
         {
-            ChatId = ChatId,
-            MessageId = botMessage.MessageId, 
-            TicketId = ticketResult.ResultValue.Id,
-            ContentKey = ticketResult.ResultValue.ContentKey,
-            OwnerId = UserSession.User.Id
-        });
-        await _context.SaveChangesAsync();
+            var botMessage = await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
+        
+            await _context.AddAsync(new UserMessage
+            {
+                ChatId = ChatId,
+                MessageId = botMessage.MessageId, 
+                TicketId = ticketResult.ResultValue.Id,
+                ContentKey = ticketResult.ResultValue.ContentKey,
+                OwnerId = UserSession.User.Id
+            });
+            await _context.SaveChangesAsync();
+        }
+        else
+        {
+            var badMessage = ticketResult.Status + ": " + ticketResult.Message;
+            await MessageAsync(new MessageItem(badMessage, ParseMode.Html));
+        }
     }
 
     public override bool CanHandle() => ContentAware.IsSealingAvailable(Update.Message?.Text ?? "");

@@ -5,12 +5,14 @@ namespace Nude.Bot.Tg.Models.Api;
 public class ApiResult<TResult>
 where TResult : struct
 {
-    public ApiResult(TResult? result, ErrorResponse? error)
+    public ApiResult(TResult? result, ErrorResponse? error, int status)
     {
         Result = result;
         Error = error;
+        Status = status;
     }
-    
+
+    public int Status { get; }
     public TResult? Result { get; }
     public ErrorResponse? Error { get; }
 
