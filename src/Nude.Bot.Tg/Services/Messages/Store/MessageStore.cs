@@ -33,12 +33,10 @@ public class MessageStore : IMessagesStore
         return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 
-    public async Task<MessageItem> GetStartMessageAsync()
+    public Task<MessageItem> GetStartMessageAsync()
     {
         var startText = _messages["start"];
-        var menuMessage = await GetMenuMessageAsync();
-        var text = startText + menuMessage.Text;
-        return new MessageItem(text, ParseMode.MarkdownV2, BotKeyboardService.MainKeyboard);
+        return Task.FromResult(new MessageItem(startText, ParseMode.MarkdownV2, BotKeyboardService.MainKeyboard));
     }
 
     public Task<MessageItem> GetCallbackFailedMessageAsync()
@@ -47,9 +45,9 @@ public class MessageStore : IMessagesStore
         return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 
-    public Task<MessageItem> GetMenuMessageAsync()
+    public Task<MessageItem> GetHelpMessageAsync()
     {
-        var startText = _messages["menu"];
+        var startText = _messages["help"];
         return Task.FromResult(new MessageItem(startText, ParseMode.MarkdownV2));
     }
 

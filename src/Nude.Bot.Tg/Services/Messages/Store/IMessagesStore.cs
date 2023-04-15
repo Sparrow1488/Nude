@@ -6,11 +6,13 @@ public interface IMessagesStore
         string reqStatus,
         string stage,
         string loaded, 
-        string url);
+        string url
+    );
+    
     Task<MessageItem> GetReadMangaMessageAsync(string manga);
     Task<MessageItem> GetStartMessageAsync();
     Task<MessageItem> GetCallbackFailedMessageAsync();
-    Task<MessageItem> GetMenuMessageAsync();
+    Task<MessageItem> GetHelpMessageAsync();
     Task<MessageItem> GetSourcesMessageAsync(List<string> sources);
     Task<MessageItem> GetImagesUploadMessageAsync(int currentImage, int totalImages);
 }

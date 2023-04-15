@@ -44,7 +44,7 @@
       <None Update="Resources\Messages\Start.md">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="Resources\Messages\Menu.md">
+      <None Update="Resources\Messages\Help.md">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
       <None Update="Resources\Messages\CallbackFailed.md">
