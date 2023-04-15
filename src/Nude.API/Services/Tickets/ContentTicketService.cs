@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Tickets;
+using Nude.API.Models.Users;
 using Nude.API.Services.Tickets.Results;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.Data.Infrastructure.Extensions;
@@ -23,7 +24,7 @@ public class ContentTicketService : IContentTicketService
         _context = context;
     }
     
-    public async Task<ContentTicketCreationResult> CreateAsync(string contentUrl)
+    public async Task<ContentTicketCreationResult> CreateAsync(string contentUrl, User owner)
     {
         var entryType = ContentAware.DetectEntryTypeByUrl(contentUrl);
 
@@ -32,7 +33,8 @@ public class ContentTicketService : IContentTicketService
             var request = new ContentTicket
             {
                 ContentKey = ContentKeyGenerator.Generate(entryType, contentUrl),
-                ContentUrl = contentUrl
+                ContentUrl = contentUrl,
+                User = owner
             };
 
             await _context.AddAsync(request);
@@ -49,6 +51,14 @@ public class ContentTicketService : IContentTicketService
         return _context.ContentTickets
             .IncludeDependencies()
             .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<ICollection<ContentTicket>> GetUserTicketsAsync(int userId)
+    {
+        return await _context.ContentTickets
+            .IncludeDependencies()
+            .Where(x => x.User.Id == userId)
+            .ToListAsync();
     }
 
     public async Task<ICollection<ContentTicket>> GetSimilarWaitingAsync()

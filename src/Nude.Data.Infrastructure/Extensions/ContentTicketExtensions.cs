@@ -8,6 +8,7 @@ public static class ContentTicketExtensions
     public static IQueryable<ContentTicket> IncludeDependencies(
         this DbSet<ContentTicket> dbSet)
     {
-        return dbSet;
+        return dbSet
+            .Include(x => x.User);
     }
 }
