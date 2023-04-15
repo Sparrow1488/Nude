@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Nude.API.Contracts.Formats.Responses;
+using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Formats;
@@ -34,7 +35,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
 
         if (mangaResponse is not null)
         {
-            var manga = mangaResponse.Value;
+            var manga = mangaResponse.Result;
             var tghFormat = (TelegraphFormatResponse) manga.Formats.First(x => x is TelegraphFormatResponse);
             await MessageAsync(await _messages.GetReadMangaMessageAsync(tghFormat.Url));
             return;
@@ -53,8 +54,8 @@ public class MangaEndpoint : TelegramUpdateEndpoint
             ChatId = ChatId,
             MessageId = botMessage.MessageId, 
             UserId = Update.Message!.From!.Id,
-            TicketId = response!.Value.Id,
-            ContentKey = response.Value.ContentKey
+            TicketId = response!.Result.Id,
+            ContentKey = response!.Result.ContentKey
         });
         await context.SaveChangesAsync();
     }
