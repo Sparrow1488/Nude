@@ -13,8 +13,11 @@ using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http.Routes;
 using Nude.Bot.Tg.Services.Background;
+using Nude.Bot.Tg.Services.Keyboards;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Resolvers;
+using Nude.Bot.Tg.Telegram.Endpoints.Base;
+using Nude.Bot.Tg.Telegram.Endpoints.Update;
 using Nude.Bot.Tg.Telegram.Handlers;
 using Nude.Data.Infrastructure.Contexts;
 using Serilog;
@@ -78,7 +81,7 @@ builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
 #region Services
 
 builder.Services.AddScoped<INudeClient, NudeClient>();
-builder.Services.AddScoped<IMessagesStore, MessageStore>();
+builder.Services.AddSingleton<IMessagesStore, MessageStore>();
 
 #endregion
 

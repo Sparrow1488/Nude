@@ -1,5 +1,7 @@
 using Microsoft.Extensions.Configuration;
+using Nude.Bot.Tg.Services.Keyboards;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Nude.Bot.Tg.Services.Messages.Store;
 
@@ -37,7 +39,7 @@ public class MessageStore : IMessagesStore
         var startText = _messages["start"];
         var menuMessage = await GetMenuMessageAsync();
         var text = startText + menuMessage.Text;
-        return new MessageItem(text, ParseMode.MarkdownV2);
+        return new MessageItem(text, ParseMode.MarkdownV2, BotKeyboardService.MainKeyboard);
     }
 
     public Task<MessageItem> GetCallbackFailedMessageAsync()

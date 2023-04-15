@@ -9,7 +9,12 @@ public static class BotUtils
 {
     public static Task<Message> MessageAsync(ITelegramBotClient client, long chatId, MessageItem message)
     {
-        return client.SendTextMessageAsync(chatId, message.Text, message.ParseMode);
+        return client.SendTextMessageAsync(
+            chatId, 
+            message.Text, 
+            message.ParseMode, 
+            replyMarkup: message.Keyboard
+        );
     }
     
     public static async Task<Message?> EditMessageAsync(
