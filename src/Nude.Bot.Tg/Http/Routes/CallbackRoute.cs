@@ -75,7 +75,7 @@ public class CallbackRoute
             if (formatDetails.Status == FormattingStatus.Success)
             {
                 var manga = await _client.FindMangaByContentKeyAsync(formatDetails.ContentKey);
-                var tgh = manga!.Value.Formats.First(x => x is TelegraphFormatResponse);
+                var tgh = manga!.Result.Formats.First(x => x is TelegraphFormatResponse);
                 var url = ((TelegraphFormatResponse) tgh).Url;
                 await EditMessagesAsync(messages, url, ParseMode.Html);
 
