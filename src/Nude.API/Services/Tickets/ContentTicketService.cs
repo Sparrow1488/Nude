@@ -4,7 +4,6 @@ using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Tickets;
 using Nude.API.Models.Users;
 using Nude.API.Services.Tickets.Results;
-using Nude.API.Services.Users;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.Data.Infrastructure.Extensions;
 

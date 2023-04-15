@@ -2,7 +2,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Collections.Requests;
 using Nude.API.Contracts.Collections.Responses;
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Collections;

@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Services.Background;
-using Nude.API.Models.Formats;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets.States;

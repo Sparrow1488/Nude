@@ -28,13 +28,13 @@ public class TelegramHandler : ITelegramHandler
     {
         _logger.LogInformation(
             "Get message '{mess}' by user {user}", 
-            update?.Message?.Text ?? "no_message",
-            update?.Message?.Chat.Username);
+            update.Message?.Text ?? "no_message",
+            update.Message?.Chat.Username);
 
         await using var scope = _services.CreateAsyncScope();
         var userManager = scope.ServiceProvider.GetRequiredService<IUserManager>();
         
-        if(update!.Type == UpdateType.Message)
+        if(update.Type == UpdateType.Message)
         {
             try
             {

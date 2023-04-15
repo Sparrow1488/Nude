@@ -79,8 +79,8 @@ builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
 #region Services
 
 builder.Services.AddScoped<INudeClient, NudeClient>();
-builder.Services.AddScoped<IMessagesStore, MessageStore>();
 builder.Services.AddScoped<IUserManager, UserManager>();
+builder.Services.AddSingleton<IMessagesStore, MessageStore>();
 
 #endregion
 

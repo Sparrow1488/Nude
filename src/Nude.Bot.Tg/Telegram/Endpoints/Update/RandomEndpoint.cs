@@ -16,11 +16,12 @@ public class RandomEndpoint : TelegramUpdateCommandEndpoint
     
     public override async Task HandleAsync()
     {
-        var manga = await _client.GetRandomMangaAsync(FormatType.Telegraph);
-        if (manga != null)
+        var mangaResult = await _client.GetRandomMangaAsync(FormatType.Telegraph);
+        if (mangaResult.IsSuccess)
         {
-            var telegraph = (TelegraphFormatResponse) manga.Value.Formats.First(
-                x => x is TelegraphFormatResponse);
+            var telegraph = (TelegraphFormatResponse) mangaResult.ResultValue.Formats.First(
+                x => x is TelegraphFormatResponse
+            );
             
             await MessageAsync(await MessagesStore.GetReadMangaMessageAsync(telegraph.Url));
             return;

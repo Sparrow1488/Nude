@@ -1,4 +1,3 @@
-using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Models.Images;

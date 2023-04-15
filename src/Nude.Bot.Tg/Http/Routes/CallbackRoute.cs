@@ -1,6 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Messages;
@@ -52,8 +50,8 @@ public class CallbackRoute
                     await EditMessagesAsync(messages, "Пиздим содержимое с сайта");
                     break;
                 case ReceiveStatus.Success:
-                    var readyManga = await _client.FindMangaByContentKeyAsync(contentKey);
-                    if (readyManga!.Value.Images.Count > ContentLimits.MaxFormatImagesCount)
+                    var readyMangaResult = await _client.FindMangaByContentKeyAsync(contentKey);
+                    if (readyMangaResult.ResultValue.Images.Count > ContentLimits.MaxFormatImagesCount)
                     {
                         await EditMessagesAsync(messages, "Манга слишком большая! Попробуйте загрузить мангу, в которой меньше 45 изображений", ParseMode.Html);
                         await DeleteMessagesAsync(messages);
@@ -76,7 +74,7 @@ public class CallbackRoute
             if (formatDetails.Status == FormattingStatus.Success)
             {
                 var manga = await _client.FindMangaByContentKeyAsync(formatDetails.ContentKey);
-                var tgh = manga!.Value.Formats.First(x => x is TelegraphFormatResponse);
+                var tgh = manga.ResultValue.Formats.First(x => x is TelegraphFormatResponse);
                 var url = ((TelegraphFormatResponse) tgh).Url;
                 await EditMessagesAsync(messages, url, ParseMode.Html);
 

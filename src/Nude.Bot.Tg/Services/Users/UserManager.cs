@@ -25,10 +25,8 @@ public class UserManager : IUserManager
         var user = await FindByUserIdAsync(userId);
         if (user == null)
         {
-            var tokenResponse = await _nudeClient.AuthorizeAsync(username);
-            var token = tokenResponse!.Value;
-            var result = await CreateAsync(userId, username, token.Token);
-
+            var tokenResult = await _nudeClient.AuthorizeAsync(username);
+            var result = await CreateAsync(userId, username, tokenResult.ResultValue.Token);
             user = result.Result!;
         }
 
