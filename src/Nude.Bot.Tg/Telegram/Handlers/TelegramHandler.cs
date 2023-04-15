@@ -42,6 +42,20 @@ public class TelegramHandler : ITelegramHandler
                     cancellationToken: ctk);
             }
         }
+        
+        if(update.Type == UpdateType.CallbackQuery)
+        {
+            await CallbackQueryHandler(update.CallbackQuery);
+        }
+    }
+
+    private async Task CallbackQueryHandler(CallbackQuery callbackQuery)
+    {
+        var data = callbackQuery.Data;
+        if (data == "/load_pic_by_tag")
+        {
+
+        }
     }
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ctk)
