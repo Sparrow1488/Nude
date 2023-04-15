@@ -6,6 +6,7 @@ using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets.States;
 using Nude.Bot.Tg.Clients.Nude;
+using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Utils;
 using Nude.Data.Infrastructure.Contexts;

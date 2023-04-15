@@ -9,22 +9,31 @@ using Nude.API.Contracts.Tokens.Responses;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Formats;
+using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Models.Api;
+using Nude.Bot.Tg.Services.Users;
 
 namespace Nude.Bot.Tg.Clients.Nude;
 
 public class NudeClient : INudeClient
 {
+    private readonly IConfiguration _configuration;
     private readonly string _baseUrl;
     private readonly JsonSerializerSettings _jsonSerializerSettings;
     
     public NudeClient(IConfiguration configuration)
     {
+        _configuration = configuration;
         _baseUrl = configuration["Nude.API:BaseUrl"] 
-            ?? throw new Exception("No Nude.API BaseUrl in config");
+                   ?? throw new Exception("No Nude.API BaseUrl in config");
         
         _baseUrl += "/" + ApiDefaults.CurrentVersion;
         _jsonSerializerSettings = JsonSettingsProvider.CreateDefault();
+    }
+
+    public virtual IAuthorizedNudeClient AuthorizeClient(UserSession session)
+    {
+        return new AuthorizedNudeClient(session, _configuration);
     }
 
     public Task<ApiResult<JwtTokenResponse>> AuthorizeAsync(
@@ -49,11 +58,7 @@ public class NudeClient : INudeClient
         FormatType? format = null
     ) => GetAsync<MangaResponse>($"/manga/random?format={format}");
 
-    public Task<ApiResult<ContentTicketResponse>> CreateContentTicket(
-        ContentTicketRequest request
-    ) => PostAsync<ContentTicketRequest, ContentTicketResponse>("/content-tickets", request);
-
-    private async Task<ApiResult<TRes>> GetAsync<TRes>(string path)
+    protected async Task<ApiResult<TRes>> GetAsync<TRes>(string path)
         where TRes : struct
     {
         using var client = CreateHttpClient();
@@ -62,7 +67,7 @@ public class NudeClient : INudeClient
         return await CreateResultByMessageAsync<TRes>(response);
     }
 
-    private async Task<ApiResult<TRes>> PostAsync<TReq, TRes>(string path, TReq request)
+    protected async Task<ApiResult<TRes>> PostAsync<TReq, TRes>(string path, TReq request)
         where TRes : struct
     {
         using var client = CreateHttpClient();
@@ -102,7 +107,7 @@ public class NudeClient : INudeClient
             : default;
     }
     
-    private static HttpClient CreateHttpClient()
+    protected virtual HttpClient CreateHttpClient()
     {
         return new HttpClient();
     }

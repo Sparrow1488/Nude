@@ -10,6 +10,7 @@ using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
+using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http.Routes;
 using Nude.Bot.Tg.Services.Background;

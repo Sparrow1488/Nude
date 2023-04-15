@@ -5,6 +5,7 @@ using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Messages;
 using Nude.Bot.Tg.Clients.Nude;
+using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
@@ -14,15 +15,18 @@ namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
 
 public class MangaEndpoint : TelegramUpdateEndpoint
 {
+    private readonly BotDbContext _context;
     private readonly INudeClient _nudeClient;
     private readonly IMessagesStore _messages;
     private readonly IServiceProvider _services;
 
     public MangaEndpoint(
+        BotDbContext context,
         INudeClient nudeClient,
         IMessagesStore messages,
         IServiceProvider services)
     {
+        _context = context;
         _nudeClient = nudeClient;
         _messages = messages;
         _services = services;
@@ -43,23 +47,21 @@ public class MangaEndpoint : TelegramUpdateEndpoint
             return;
         }
 
+        var authorizedClient = _nudeClient.AuthorizeClient(UserSession);
         var request = new ContentTicketRequest { SourceUrl = MessageText };
-        var ticketResult = await _nudeClient.CreateContentTicket(request);
+        var ticketResult = await authorizedClient.CreateContentTicketAsync(request);
         
         var botMessage = await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
         
-        using var scope = _services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<BotDbContext>();
-
-        await context.AddAsync(new UserMessage
+        await _context.AddAsync(new UserMessage
         {
             ChatId = ChatId,
             MessageId = botMessage.MessageId, 
             TicketId = ticketResult.ResultValue.Id,
             ContentKey = ticketResult.ResultValue.ContentKey,
-            Owner = UserSession.User
+            OwnerId = UserSession.User.Id
         });
-        await context.SaveChangesAsync();
+        await _context.SaveChangesAsync();
     }
 
     public override bool CanHandle() => ContentAware.IsSealingAvailable(Update.Message?.Text ?? "");

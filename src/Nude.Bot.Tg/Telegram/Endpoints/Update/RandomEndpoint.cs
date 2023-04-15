@@ -1,6 +1,7 @@
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Models.Formats;
 using Nude.Bot.Tg.Clients.Nude;
+using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update;

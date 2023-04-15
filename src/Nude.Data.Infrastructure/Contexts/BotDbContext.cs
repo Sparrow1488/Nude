@@ -10,4 +10,15 @@ public class BotDbContext : DatabaseContext
 
     public DbSet<TelegramUser> Users => Set<TelegramUser>();
     public DbSet<UserMessage> Messages => Set<UserMessage>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<TelegramUser>()
+            .HasMany(x => x.Messages)
+            .WithOne(x => x.Owner)
+            .HasForeignKey(x => x.OwnerId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        base.OnModelCreating(modelBuilder);
+    }
 }
