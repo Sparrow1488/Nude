@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Nude.API.Contracts.Errors.Responses;
+using Nude.API.Contracts.Images.Responses;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
@@ -26,6 +27,25 @@ public class NudeClient : INudeClient
         _baseUrl = configuration["Nude.API:BaseUrl"] ?? throw new Exception("No Nude.API BaseUrl in config");
 
         _jsonSerializerSettings = JsonSettingsProvider.CreateDefault();
+    }
+
+    public async Task<ApiResult<List<ImageResponse>>?> GetRandomPicturesByTagsAsync(List<string> tags)
+    {
+        var result = new ApiResult<List<ImageResponse>>();
+        string requestTags = string.Empty;
+
+        foreach(string tag in tags)
+        {
+            requestTags = $"{requestTags}{tag} ";
+        }
+
+        List<ImageResponse>? response = null;
+        await GetAsync<List<ImageResponse>>(
+            $"/v2/images/booru?tags={requestTags}",
+            (_, res) => response = res,
+            _ => response = null);
+        result.Result = response;
+        return result;
     }
 
     public async Task<ApiResult<MangaResponse>?> GetMangaByIdAsync(int id)

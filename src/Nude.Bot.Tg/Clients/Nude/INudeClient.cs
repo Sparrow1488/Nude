@@ -1,3 +1,4 @@
+using Nude.API.Contracts.Images.Responses;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
@@ -8,8 +9,10 @@ namespace Nude.Bot.Tg.Clients.Nude;
 
 public interface INudeClient
 {
+    Task<ApiResult<List<ImageResponse>>?> GetRandomPicturesByTagsAsync(List<string> tags); 
     Task<ApiResult<MangaResponse>?> FindMangaByUrlAsync(string sourceUrl, FormatType? format = null);
     Task<ApiResult<MangaResponse>?> FindMangaByContentKeyAsync(string contentKey, FormatType? format = null);
     Task<ApiResult<MangaResponse>?> GetRandomMangaAsync(FormatType? format = null);
     Task<ApiResult<ContentTicketResponse>?> CreateContentTicket(ContentTicketRequest request);
+
 }
