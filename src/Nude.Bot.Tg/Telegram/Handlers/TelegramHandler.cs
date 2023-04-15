@@ -38,10 +38,8 @@ public class TelegramHandler : ITelegramHandler
         {
             try
             {
-                var a=await userManager.CreateAsync(1488, "fsf", "fsd");
-                
                 var user = update.Message!.From!;
-                var result = await userManager.GetUserSessionAsync(user.Id, user.Username);
+                var result = await userManager.GetUserSessionAsync(user.Id, user.Username!);
 
                 if (result.IsSuccess)
                 {
