@@ -19,7 +19,7 @@ namespace Nude.Bot.Tg.Services.Keyboards
 
         public static readonly ReplyKeyboardMarkup MangaKeyboard = new ReplyKeyboardMarkup(new[]
         {
-            new KeyboardButton[] {"/search_by_author", "/random" },
+            new KeyboardButton[] {"/search_by_author", "/randomManga" },
             new KeyboardButton[] { "/back" }
         })
         {
@@ -28,7 +28,7 @@ namespace Nude.Bot.Tg.Services.Keyboards
 
         public static readonly ReplyKeyboardMarkup PictureKeyboard = new ReplyKeyboardMarkup(new[]
         {
-            new KeyboardButton[] { "/search_by_tags", "/random" },
+            new KeyboardButton[] { "/search_by_tags", "/randomPic" },
             new KeyboardButton[] { "/back" }
         })
         {
