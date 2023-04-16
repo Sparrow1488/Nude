@@ -9,25 +9,6 @@ namespace Nude.Bot.Tg.Services.Keyboards
 {
     public static class BotKeyboardService
     {
-        public static readonly InlineKeyboardMarkup TagsKeyboard = new InlineKeyboardMarkup(new[]
-        {
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("sex","sex"),
-                InlineKeyboardButton.WithCallbackData("yuri","yuri"),
-                InlineKeyboardButton.WithCallbackData("bdsm","bdsm"),
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("nude","nude"),
-                InlineKeyboardButton.WithCallbackData("pussy","pussy"),
-                InlineKeyboardButton.WithCallbackData("anal","anal"),
-            },
-            new[]
-            {
-                InlineKeyboardButton.WithCallbackData("✅Загрузить картинки✅","/load_pic_by_tag"),
-            },
-        });
         public static readonly ReplyKeyboardMarkup MainKeyboard = new ReplyKeyboardMarkup(new[]
         {
             new KeyboardButton[] { "/pictures", "/manga" },

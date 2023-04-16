@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Nude.Bot.Tg.Services.Keyboards;
+using System.Text;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
@@ -85,8 +86,7 @@ public class MessageStore : IMessagesStore
             
             var key = fileName.Replace(".md","");
             var message = GetFileText(path);
-            
-            _messages.Add(key.ToLower(),message);
+            _messages.Add(key.ToLower(), message);
         }
     }
     
@@ -96,5 +96,11 @@ public class MessageStore : IMessagesStore
             throw new FileNotFoundException($"Not found message file on path '{path}'");
         
         return File.ReadAllText(path);
+    }
+
+    public MessageItem GetPicturesByTagsMessage()
+    {
+        var message = _messages["picbytaginfo"];
+        return new MessageItem(message, ParseMode.Markdown);
     }
 }

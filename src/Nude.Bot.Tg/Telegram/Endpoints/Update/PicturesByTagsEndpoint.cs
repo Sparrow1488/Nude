@@ -18,8 +18,7 @@ namespace Nude.Bot.Tg.Telegram.Endpoints.Update
         }
         public override async Task HandleAsync()
         {
-            MessageItem messageItem = new MessageItem("Введите теги", ParseMode.MarkdownV2, BotKeyboardService.TagsKeyboard);
-            await MessageAsync(messageItem);
+            await MessageAsync(MessagesStore.GetPicturesByTagsMessage());
         }
     }
 }

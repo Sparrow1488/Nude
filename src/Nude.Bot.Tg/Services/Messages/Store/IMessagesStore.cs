@@ -11,6 +11,7 @@ public interface IMessagesStore
     Task<MessageItem> GetStartMessageAsync();
     Task<MessageItem> GetCallbackFailedMessageAsync();
     Task<MessageItem> GetMenuMessageAsync();
+    MessageItem GetPicturesByTagsMessage();
     Task<MessageItem> GetSourcesMessageAsync(List<string> sources);
     Task<MessageItem> GetImagesUploadMessageAsync(int currentImage, int totalImages);
 }
