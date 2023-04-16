@@ -21,7 +21,7 @@ namespace Nude.Bot.Tg.Telegram.Endpoints.Update
         public override async Task HandleAsync(Message message)
         {
             List<string> tags;
-            if (!string.IsNullOrWhiteSpace(message.Text))
+            if (message.Text!.Trim() != "/pictag")
             {
                 tags = message.Text.Split(" ").ToList();
                 tags.RemoveAt(0);
