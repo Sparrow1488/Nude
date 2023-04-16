@@ -2,6 +2,7 @@ using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Models.Formats;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
+using Telegram.Bot.Types;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
 
@@ -14,7 +15,7 @@ public class RandomEndpoint : TelegramUpdateCommandEndpoint
         _client = client;
     }
     
-    public override async Task HandleAsync()
+    public override async Task HandleAsync(Message message)
     {
         var manga = await _client.GetRandomMangaAsync(FormatType.Telegraph);
         if (manga != null)

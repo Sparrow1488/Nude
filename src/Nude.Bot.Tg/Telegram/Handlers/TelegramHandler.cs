@@ -31,7 +31,7 @@ public class TelegramHandler : ITelegramHandler
             try
             {
                 var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient);
-                await endpoint.HandleAsync();
+                await endpoint.HandleAsync(update.Message!);
             }
             catch(Exception ex)
             {

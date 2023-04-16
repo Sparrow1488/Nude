@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update
@@ -16,7 +17,7 @@ namespace Nude.Bot.Tg.Telegram.Endpoints.Update
         {
             
         }
-        public override async Task HandleAsync()
+        public override async Task HandleAsync(Message message)
         {
             MessageItem messageItem = new MessageItem("Вы перешли в раздел картинок", ParseMode.MarkdownV2, BotKeyboardService.PictureKeyboard);
             await MessageAsync(messageItem);

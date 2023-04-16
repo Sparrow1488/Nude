@@ -1,3 +1,6 @@
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
+
 namespace Nude.Bot.Tg.Telegram.Endpoints.Base;
 
 public abstract class TelegramUpdateCommandEndpoint : TelegramUpdateEndpoint

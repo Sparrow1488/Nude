@@ -1,5 +1,4 @@
-﻿using Nude.Bot.Tg.Services.Keyboards;
-using Nude.Bot.Tg.Services.Messages.Store;
+﻿using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using System;
 using System.Collections.Generic;
@@ -11,15 +10,16 @@ using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update
 {
-    public class PicturesByTagsEndpoint : TelegramUpdateCommandEndpoint
+    public class PicTagEndpoint : TelegramUpdateCommandEndpoint
     {
-        public PicturesByTagsEndpoint():base("/search_by_tags")
+        public PicTagEndpoint():base("/pictag")
         {
             
         }
         public override async Task HandleAsync(Message message)
         {
-            await MessageAsync(MessagesStore.GetPicturesByTagsMessage());
+            MessageItem messageItem = new MessageItem(message.Text, ParseMode.Markdown);
+            await MessageAsync(messageItem);
         }
     }
 }
