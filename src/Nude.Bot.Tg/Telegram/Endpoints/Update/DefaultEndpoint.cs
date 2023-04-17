@@ -3,7 +3,7 @@ using Telegram.Bot;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
 
-public class DefaultTgUpdateEndpoint : TelegramUpdateEndpoint
+public class DefaultEndpoint : TelegramUpdateEndpoint
 {
     // TODO: рандомайзер прикольных слов
     public override async Task HandleAsync() =>

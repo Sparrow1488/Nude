@@ -1,14 +1,13 @@
-﻿using System.Globalization;
-using Nude.Bot.Tg.Clients.Nude.Abstractions;
+﻿using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 
-namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
+namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Pictures;
 
-public class PicTagEndpoint : TelegramUpdateCommandEndpoint
+public class PictagEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _nudeClient;
     
-    public PicTagEndpoint(INudeClient nudeClient) :base("/pictag")
+    public PictagEndpoint(INudeClient nudeClient) : base("/pictag")
     {
         _nudeClient = nudeClient;
     }

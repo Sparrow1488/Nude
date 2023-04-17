@@ -34,6 +34,6 @@ public class EndpointsResolver
         if (handler != null)
             return handler;
         
-        return ActivatorUtilities.CreateInstance<DefaultTgUpdateEndpoint>(_services);
+        return ActivatorUtilities.CreateInstance<DefaultEndpoint>(_services);
     }
 }

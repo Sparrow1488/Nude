@@ -1,6 +1,6 @@
 ﻿using Nude.Bot.Tg.Telegram.Endpoints.Base;
 
-namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
+namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Pictures;
 
 public class PicturesByTagsEndpoint : TelegramUpdateCommandEndpoint
 {

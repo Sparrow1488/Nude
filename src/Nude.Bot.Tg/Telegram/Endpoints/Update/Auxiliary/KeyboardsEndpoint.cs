@@ -4,7 +4,7 @@ using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
+namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Auxiliary;
 
 public class KeyboardsEndpoint : TelegramUpdateEndpoint
 {

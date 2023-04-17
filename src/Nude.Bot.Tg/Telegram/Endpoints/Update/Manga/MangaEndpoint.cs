@@ -9,7 +9,7 @@ using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot.Types.Enums;
 
-namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
+namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Manga;
 
 public class MangaEndpoint : TelegramUpdateEndpoint
 {
