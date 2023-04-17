@@ -8,11 +8,9 @@ public static class EndpointExtensions
 {
     public static IServiceCollection AddTelegramEndpoints(this IServiceCollection services)
     {
+        services.AddScoped<TelegramUpdateEndpoint, KeyboardsEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, PicTagEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, PicturesByTagsEndpoint>();
-        services.AddScoped<TelegramUpdateEndpoint, PictureKeyboardEndpoint>();
-        services.AddScoped<TelegramUpdateEndpoint, BackKeyboardEndpoint>();
-        services.AddScoped<TelegramUpdateEndpoint, MangaKeyboardEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, StartEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, HelpEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, MangaEndpoint>();
