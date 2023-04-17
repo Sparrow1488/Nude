@@ -16,18 +16,15 @@ public class MangaEndpoint : TelegramUpdateEndpoint
     private readonly BotDbContext _context;
     private readonly INudeClient _nudeClient;
     private readonly IMessagesStore _messages;
-    private readonly IServiceProvider _services;
 
     public MangaEndpoint(
         BotDbContext context,
         INudeClient nudeClient,
-        IMessagesStore messages,
-        IServiceProvider services)
+        IMessagesStore messages)
     {
         _context = context;
         _nudeClient = nudeClient;
         _messages = messages;
-        _services = services;
     }
     
     public override async Task HandleAsync()
@@ -70,7 +67,7 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         }
     }
 
-    public override bool CanHandle() => ContentAware.IsSealingAvailable(Update.Message?.Text ?? "");
+    public override bool CanHandle() => ContentAware.IsSealingAvailable(MessageText);
 }
 
 

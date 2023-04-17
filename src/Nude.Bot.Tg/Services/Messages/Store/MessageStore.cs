@@ -36,7 +36,7 @@ public class MessageStore : IMessagesStore
     public Task<MessageItem> GetStartMessageAsync()
     {
         var startText = _messages["start"];
-        return Task.FromResult(new MessageItem(startText, ParseMode.MarkdownV2, BotKeyboardService.MainKeyboard));
+        return Task.FromResult(new MessageItem(startText, ParseMode.MarkdownV2, KeyboardsStore.MainKeyboard));
     }
 
     public Task<MessageItem> GetCallbackFailedMessageAsync()

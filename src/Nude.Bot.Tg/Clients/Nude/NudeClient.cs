@@ -39,7 +39,7 @@ public class NudeClient : INudeClient
         string username
     ) => PostAsync<EmptyRequest, JwtTokenResponse>($"/auth?username={username}", new EmptyRequest());
 
-    public Task<ApiResult<ImageResponse[]>> GetRandomPicturesByTagsAsync(
+    public Task<ApiResult<ImageResponse[]>> FindImagesByTagsAsync(
         IEnumerable<string> tags
     ) => GetAsync<ImageResponse[]>("/images/booru?tags=" + string.Join(" ", tags));
 

@@ -16,9 +16,9 @@ public class KeyboardsEndpoint : TelegramUpdateEndpoint
     {
         var message = MessageText switch
         {
-            "/back" => GetMessage("Вы перешли в главное меню", BotKeyboardService.MainKeyboard),
-            "/manga" => GetMessage("Вы перешли в раздел с мангой", BotKeyboardService.MangaKeyboard),
-            "/pictures" => GetMessage("Вы перешли в раздел с картинками", BotKeyboardService.PictureKeyboard),
+            "/back" => GetMessage("Вы перешли в главное меню", KeyboardsStore.MainKeyboard),
+            "/manga" => GetMessage("Вы перешли в раздел с мангой", KeyboardsStore.MangaKeyboard),
+            "/pictures" => GetMessage("Вы перешли в раздел с картинками", KeyboardsStore.PictureKeyboard),
             _ => throw new ArgumentOutOfRangeException()
         };
 

@@ -39,7 +39,8 @@ public class TelegramHandler : ITelegramHandler
             try
             {
                 var user = update.Message!.From!;
-                var result = await userManager.GetUserSessionAsync(user.Id, user.Username!);
+                var anonUsername = "User-" + user.Id;
+                var result = await userManager.GetUserSessionAsync(user.Id, user?.Username ?? anonUsername);
 
                 if (result.IsSuccess)
                 {

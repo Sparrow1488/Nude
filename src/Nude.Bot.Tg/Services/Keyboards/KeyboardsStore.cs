@@ -2,7 +2,7 @@
 
 namespace Nude.Bot.Tg.Services.Keyboards;
 
-public static class BotKeyboardService
+public static class KeyboardsStore
 {
     public static readonly IReplyMarkup MainKeyboard = new ReplyKeyboardMarkup(new[]
     {
@@ -14,7 +14,7 @@ public static class BotKeyboardService
 
     public static readonly IReplyMarkup MangaKeyboard = new ReplyKeyboardMarkup(new[]
     {
-        new KeyboardButton[] {"/search_by_author", "/randomManga" },
+        new KeyboardButton[] { "/manga-random" },
         new KeyboardButton[] { "/back" }
     })
     {
@@ -23,7 +23,7 @@ public static class BotKeyboardService
 
     public static readonly IReplyMarkup PictureKeyboard = new ReplyKeyboardMarkup(new[]
     {
-        new KeyboardButton[] { "/search_by_tags", "/randomPic" },
+        new KeyboardButton[] { "/pictag" },
         new KeyboardButton[] { "/back" }
     })
     {
