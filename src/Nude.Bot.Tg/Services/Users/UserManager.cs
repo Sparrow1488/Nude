@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Models.Users;
-using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Users.Results;
 using Nude.Data.Infrastructure.Contexts;

@@ -2,9 +2,8 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Nude.API.Contracts.Errors.Responses;
+using Nude.API.Contracts.Images.Responses;
 using Nude.API.Contracts.Manga.Responses;
-using Nude.API.Contracts.Tickets.Requests;
-using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Contracts.Tokens.Responses;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Constants;
@@ -40,6 +39,10 @@ public class NudeClient : INudeClient
         string username
     ) => PostAsync<EmptyRequest, JwtTokenResponse>($"/auth?username={username}", new EmptyRequest());
 
+    public Task<ApiResult<ImageResponse[]>> GetRandomPicturesByTagsAsync(
+        IEnumerable<string> tags
+    ) => GetAsync<ImageResponse[]>("/images/booru?tags=" + string.Join(" ", tags));
+
     public Task<ApiResult<MangaResponse>> GetMangaByIdAsync(
         int id
     ) => GetAsync<MangaResponse>($"/manga/{id}");
@@ -59,7 +62,6 @@ public class NudeClient : INudeClient
     ) => GetAsync<MangaResponse>($"/manga/random?format={format}");
 
     protected async Task<ApiResult<TRes>> GetAsync<TRes>(string path)
-        where TRes : struct
     {
         using var client = CreateHttpClient();
         
@@ -84,7 +86,6 @@ public class NudeClient : INudeClient
     }
 
     private async Task<ApiResult<TRes>> CreateResultByMessageAsync<TRes>(HttpResponseMessage message)
-        where TRes : struct
     {
         TRes? result = default;
         ErrorResponse? error = default;

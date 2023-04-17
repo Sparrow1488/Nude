@@ -7,13 +7,11 @@ namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
 
 public class BackKeyboardEndpoint : TelegramUpdateCommandEndpoint
 {
-    public BackKeyboardEndpoint():base("/back")
-    {
-            
-    }
+    public BackKeyboardEndpoint() : base("/back") { }
+    
     public override async Task HandleAsync()
     {
-        MessageItem messageItem = new MessageItem("Вы перешли в главное меню", ParseMode.MarkdownV2, BotKeyboardService.MainKeyboard);
+        var messageItem = new MessageItem("Вы перешли в главное меню", ParseMode.MarkdownV2, BotKeyboardService.MainKeyboard);
         await MessageAsync(messageItem);
     }
 }

@@ -41,6 +41,9 @@
       <None Update="appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="Resources\Messages\PicByTagInfo.md">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="Resources\Messages\Start.md">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

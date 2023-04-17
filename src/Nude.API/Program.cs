@@ -8,7 +8,6 @@ using Nude.API.Infrastructure.Clients.Telegraph;
 using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Conventions;
-using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;

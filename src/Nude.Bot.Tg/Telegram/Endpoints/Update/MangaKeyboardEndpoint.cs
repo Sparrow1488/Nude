@@ -11,9 +11,10 @@ public class MangaKeyboardEndpoint : TelegramUpdateCommandEndpoint
     {
             
     }
+    
     public override async Task HandleAsync()
     {
-        MessageItem messageItem = new MessageItem("Вы перешли в раздел манги",ParseMode.MarkdownV2,BotKeyboardService.MangaKeyboard);
+        var messageItem = new MessageItem("Вы перешли в раздел манги", ParseMode.MarkdownV2, BotKeyboardService.MangaKeyboard);
         await MessageAsync(messageItem);
     }
 }

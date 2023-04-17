@@ -12,6 +12,7 @@ public interface IMessagesStore
     Task<MessageItem> GetReadMangaMessageAsync(string manga);
     Task<MessageItem> GetStartMessageAsync();
     Task<MessageItem> GetCallbackFailedMessageAsync();
+    MessageItem GetPicturesByTagsMessage();
     Task<MessageItem> GetHelpMessageAsync();
     Task<MessageItem> GetSourcesMessageAsync(List<string> sources);
     Task<MessageItem> GetImagesUploadMessageAsync(int currentImage, int totalImages);

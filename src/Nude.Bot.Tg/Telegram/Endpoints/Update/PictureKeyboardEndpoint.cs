@@ -9,11 +9,12 @@ public class PictureKeyboardEndpoint : TelegramUpdateCommandEndpoint
 {
     public PictureKeyboardEndpoint() : base("/pictures")
     {
-            
+        
     }
+    
     public override async Task HandleAsync()
     {
-        MessageItem messageItem = new MessageItem("Вы перешли в раздел картинок", ParseMode.MarkdownV2, BotKeyboardService.PictureKeyboard);
+        var messageItem = new MessageItem("Вы перешли в раздел картинок", ParseMode.MarkdownV2, BotKeyboardService.PictureKeyboard);
         await MessageAsync(messageItem);
     }
 }
