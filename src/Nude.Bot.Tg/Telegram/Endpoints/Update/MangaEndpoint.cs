@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using Nude.API.Contracts.Formats.Responses;
-using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Formats;

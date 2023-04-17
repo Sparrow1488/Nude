@@ -1,8 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Nude.Bot.Tg.Services.Keyboards;
-using System.Text;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Nude.Bot.Tg.Services.Messages.Store;
 

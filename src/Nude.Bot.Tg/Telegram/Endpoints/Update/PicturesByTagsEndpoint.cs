@@ -1,25 +1,17 @@
-﻿using Nude.Bot.Tg.Services.Keyboards;
-using Nude.Bot.Tg.Services.Messages.Store;
-using Nude.Bot.Tg.Telegram.Endpoints.Base;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
 
-namespace Nude.Bot.Tg.Telegram.Endpoints.Update
+namespace Nude.Bot.Tg.Telegram.Endpoints.Update;
+
+public class PicturesByTagsEndpoint : TelegramUpdateCommandEndpoint
 {
-    public class PicturesByTagsEndpoint : TelegramUpdateCommandEndpoint
+    public PicturesByTagsEndpoint():base("/search_by_tags")
     {
-        public PicturesByTagsEndpoint():base("/search_by_tags")
-        {
             
-        }
-        public override async Task HandleAsync(Message message)
-        {
-            await MessageAsync(MessagesStore.GetPicturesByTagsMessage());
-        }
+    }
+    
+    public override async Task HandleAsync(Message message)
+    {
+        await MessageAsync(MessagesStore.GetPicturesByTagsMessage());
     }
 }
