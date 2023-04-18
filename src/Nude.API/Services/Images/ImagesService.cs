@@ -111,6 +111,21 @@ public class ImagesService : IImagesService
             .FirstOrDefaultAsync(x => x.ContentKey == contentKey);
     }
 
+    public async Task<ICollection<ImageEntry>> GetRandomAsync(int count = 1)
+    {
+        var ids = await _context.Images
+            .Where(x => x.Owner != null)
+            .Select(x => x.Id)
+            .ToListAsync();
+
+        var randomIds = ids.OrderBy(_ => Random.Shared.Next()).Take(count).ToList();
+
+        return await _context.Images
+            .IncludeDependencies()
+            .Where(x => randomIds.Contains(x.Id))
+            .ToListAsync();
+    }
+
     public async Task<ICollection<ImageEntry>> FindAsync(IEnumerable<string> contentKeys)
     {
         var keysArray = contentKeys.ToArray();

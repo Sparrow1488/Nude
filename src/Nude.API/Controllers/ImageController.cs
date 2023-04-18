@@ -84,6 +84,19 @@ public class ImageController : ApiController
         return Exception(result.Exception!);
     }
 
+    [HttpGet("random")]
+    public async Task<IActionResult> GetRandom(int count = 1)
+    {
+        if (count > 20)
+        {
+            var limitException = new BadRequestException("Too many selection count");
+            return Exception(limitException);
+        }
+        
+        var random = await _service.GetRandomAsync(count);
+        return Ok(_mapper.Map<ImageResponse[]>(random));
+    }
+
     [HttpGet("booru")]
     public async Task<IActionResult> FindBooruByTags(string tags)
     {
