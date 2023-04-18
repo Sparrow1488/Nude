@@ -8,28 +8,46 @@
 git clone https://github.com/Sparrow1488/Nude.git
 ```
 
-3. Сконфигурировать `dotnet user-secrets`
+3. Добавить секреты в проекты
 
 ```powershell
 dotnet user-secrets init --porject {project-name}
 ```
 
-4. Добавить секреты в проекты.
-   
-   **Секреты для Nude.Bot.Tg:**
-   
-   * "*Credentials:Telegram*" "*{token}*"
-   
-   **Секреты для Nude.API:**
-   
-   Сейчас в проекте есть 2 ресурса, для которых нужно добавить авторизационные данные, это **NudeMoon** и **HentaiChan**:
-   
-   * "*Credentials:{resource}:Login*" "*{login}*"
-   
-   * "*Credentials:{resource}:Password*" "*{password}*"
-   
-   Секреты устанавливаются следующим образом:
+**Nude.API**
+
+```json
+{
+    "Credentials": {
+        "NudeMoon": {
+            "Login": "{login}",
+            "Password": "{password}"
+        },
+        "HentaiChan": {
+            "Login": "{login}",
+            "Password": "{password}"
+        }
+    }
+}
+```
+
+**Nude.Bot.Tg**
+
+ ```json
+ {
+     "Credentials": {
+         "Telegram": "{token}"
+     }
+ }
+ ```
 
 ```powershell
-dotnet user-secrets set "Credentials:Telegram" "{token}"
+dotnet user-secrets set "{path}" "{value}"
 ```
+
+4. Запустить БД PostgreSQL
+
+```powershell
+docker run --name Nude.DB -p 5432:5432 -e POSTGRES_PASSWORD=secret -d postgres
+```
+
