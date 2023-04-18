@@ -1,5 +1,8 @@
+using System.Globalization;
 using System.Net.Http.Headers;
+using System.Net.Mime;
 using Microsoft.Extensions.Configuration;
+using Nude.API.Contracts.Images.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
@@ -23,6 +26,17 @@ public class AuthorizedNudeClient : NudeClient, IAuthorizedNudeClient
     public Task<ApiResult<ContentTicketResponse>> CreateContentTicketAsync(
         ContentTicketRequest request
     ) => PostAsync<ContentTicketRequest, ContentTicketResponse>("/content-tickets", request);
+
+    public Task<ApiResult<ImageResponse>> CreateImageAsync(byte[] data, string filePath)
+    {
+        var content = new MultipartFormDataContent("Upload----" + DateTime.Now.ToString(CultureInfo.InvariantCulture));
+        
+        var image = new ByteArrayContent(data);
+        image.Headers.ContentType = MediaTypeHeaderValue.Parse(MediaTypeNames.Image.Jpeg);
+        content.Add(image, "file", filePath);
+
+        return PostAsync<ImageResponse>("/images/new", content);
+    }
 
     protected override HttpClient CreateHttpClient()
     {

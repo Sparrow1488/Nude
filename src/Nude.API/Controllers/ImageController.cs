@@ -54,11 +54,14 @@ public class ImageController : ApiController
     public async Task<IActionResult> Create(IFormFile file)
     {
         if (!file.ContentType.Contains("image"))
-            return Exception(new BadRequestException(
-                $"Current file type ({file.ContentType}) not supported")
+        {
+            var exception = new BadRequestException(
+                $"Current file type ({file.ContentType}) not supported"
             );
+            return Exception(exception);
+        }
 
-        var fileStream = file.OpenReadStream();
+        await using var fileStream = file.OpenReadStream();
         fileStream.Seek(0, SeekOrigin.Begin);
         
         using var memory = new MemoryStream();

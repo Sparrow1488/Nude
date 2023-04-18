@@ -61,6 +61,10 @@ public class NudeClient : INudeClient
         FormatType? format = null
     ) => GetAsync<MangaResponse>($"/manga/random?format={format}");
 
+    public Task<ApiResult<ImageResponse[]>> GetRandomImagesAsync(
+        int count = 5
+    ) => GetAsync<ImageResponse[]>("/images/random?count=" + count);
+
     protected async Task<ApiResult<TRes>> GetAsync<TRes>(string path)
     {
         using var client = CreateHttpClient();
@@ -76,6 +80,15 @@ public class NudeClient : INudeClient
         var content = CreateContent(request);
         
         var response = await client.PostAsync(_baseUrl + path, content);
+        return await CreateResultByMessageAsync<TRes>(response);
+    }
+    
+    protected async Task<ApiResult<TRes>> PostAsync<TRes>(string path, HttpContent content)
+        where TRes : struct
+    {
+        using var client = CreateHttpClient();
+        
+        using var response = await client.PostAsync(_baseUrl + path, content);
         return await CreateResultByMessageAsync<TRes>(response);
     }
 

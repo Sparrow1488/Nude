@@ -13,4 +13,5 @@ public interface INudeClient : IAuthorizedClientCreator
     Task<ApiResult<MangaResponse>> FindMangaByUrlAsync(string sourceUrl, FormatType? format = null);
     Task<ApiResult<MangaResponse>> FindMangaByContentKeyAsync(string contentKey, FormatType? format = null);
     Task<ApiResult<MangaResponse>> GetRandomMangaAsync(FormatType? format = null);
+    Task<ApiResult<ImageResponse[]>> GetRandomImagesAsync(int count = 5);
 }

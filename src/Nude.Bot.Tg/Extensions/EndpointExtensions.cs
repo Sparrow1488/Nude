@@ -11,14 +11,18 @@ public static class EndpointExtensions
 {
     public static IServiceCollection AddTelegramEndpoints(this IServiceCollection services)
     {
-        services.AddScoped<TelegramUpdateEndpoint, KeyboardsEndpoint>();
+        services.AddScoped<TelegramUpdateEndpoint, PictureUploadEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, PictagEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, PicturesByTagsEndpoint>();
-        services.AddScoped<TelegramUpdateEndpoint, StartEndpoint>();
-        services.AddScoped<TelegramUpdateEndpoint, HelpEndpoint>();
+        
         services.AddScoped<TelegramUpdateEndpoint, MangaEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, RandomMangaEndpoint>();
+        
+        services.AddScoped<TelegramUpdateEndpoint, KeyboardsEndpoint>();
+        services.AddScoped<TelegramUpdateEndpoint, StartEndpoint>();
+        services.AddScoped<TelegramUpdateEndpoint, HelpEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, SourcesEndpoint>();
+        
         services.AddScoped<TelegramUpdateEndpoint, DefaultEndpoint>();
 
         return services;
