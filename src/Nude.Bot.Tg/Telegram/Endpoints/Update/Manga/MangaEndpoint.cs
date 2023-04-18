@@ -3,6 +3,7 @@ using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Messages;
+using Nude.API.Models.Messages.Details;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
@@ -54,8 +55,11 @@ public class MangaEndpoint : TelegramUpdateEndpoint
             {
                 ChatId = ChatId,
                 MessageId = botMessage.MessageId, 
-                TicketId = ticketResult.ResultValue.Id,
-                ContentKey = ticketResult.ResultValue.ContentKey,
+                Details = new ContentTicketDetails
+                {
+                    TicketId = ticketResult.ResultValue.Id,
+                    ContentKey = ticketResult.ResultValue.ContentKey
+                },
                 OwnerId = UserSession.User.Id
             });
             await _context.SaveChangesAsync();

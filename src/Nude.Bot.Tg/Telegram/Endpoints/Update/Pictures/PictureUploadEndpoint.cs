@@ -1,23 +1,45 @@
+using Microsoft.EntityFrameworkCore;
+using Nude.API.Models.Messages;
+using Nude.API.Models.Messages.Details;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
+using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Users;
+using Nude.Bot.Tg.Services.Utils;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
+using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Pictures;
 
 public class PictureUploadEndpoint : TelegramUpdateEndpoint
 {
     private readonly INudeClient _client;
+    private readonly BotDbContext _context;
 
-    public PictureUploadEndpoint(INudeClient client)
+    public PictureUploadEndpoint(
+        INudeClient client,
+        BotDbContext context)
     {
         _client = client;
+        _context = context;
     }
+    
+    public override bool CanHandle() => Update.Message?.Photo != null;
     
     public override async Task HandleAsync()
     {
         var sizes = Update.Message!.Photo!;
         var uploadSize = sizes.Last();
+        
+        var startMessage = await MessageAsync("Загрузка пошла");
+        var userMessage = await CreateOrUpdateMessageAsync(
+            startMessage.MessageId, 
+            Update.Message.MediaGroupId!, 
+            1, 
+            -1
+        );
         
         await using var memory = new MemoryStream();
         var file = await BotClient.GetFileAsync(uploadSize.FileId);
@@ -39,6 +61,13 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
 
         if (result.IsSuccess)
         {
+            var currentMedia = (userMessage.Details as MediaGroupDetails)!.CurrentMedia;
+            await BotUtils.EditMessageAsync(
+                BotClient,
+                ChatId,
+                (int) userMessage.MessageId,
+                new MessageItem("#" + currentMedia + " успешно загружено", ParseMode.Html)
+            );
             await MessageAsync("Успешно загружено: " + result.ResultValue.Url);
         }
         else
@@ -47,5 +76,50 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         }
     }
 
-    public override bool CanHandle() => Update.Message?.Photo != null;
+    private async Task<UserMessage> CreateOrUpdateMessageAsync(
+        int messageId,
+        string mediaGroupId, 
+        int current, 
+        int total)
+    {
+        var exists = await _context.Messages
+            .Include(x => x.Details)
+            .Where(x => x.ChatId == ChatId && x.Details is MediaGroupDetails)
+            .ToListAsync();
+
+        var currentMessage = exists.FirstOrDefault(
+            x => x.Details is MediaGroupDetails det && det.MediaGroupId == mediaGroupId
+        );
+
+        if (currentMessage == null)
+        {
+            var message = new UserMessage
+            {
+                ChatId = ChatId,
+                MessageId = messageId,
+                Details = new MediaGroupDetails
+                {
+                    MediaGroupId = mediaGroupId,
+                    TotalMedia = total,
+                    CurrentMedia = current
+                },
+                Owner = UserSession.User
+            };
+
+            await _context.AddAsync(message);
+            await _context.SaveChangesAsync();
+
+            return message;
+        }
+        else
+        {
+            var details = currentMessage.Details as MediaGroupDetails;
+            details!.CurrentMedia++;
+            details.TotalMedia = total;
+
+            await _context.SaveChangesAsync();
+
+            return currentMessage;
+        }
+    }
 }

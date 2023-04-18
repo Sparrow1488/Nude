@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Messages;
+using Nude.API.Models.Messages.Details;
 using Nude.API.Models.Notifications;
 using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets.States;
@@ -90,7 +91,9 @@ public class CallbackRoute
     private Task<List<UserMessage>> GetUserMessagesAsync(string contentKey)
     {
         return _context.Messages
-            .Where(x => x.ContentKey == contentKey)
+            .Where(x => 
+                x.Details is ContentTicketDetails && 
+                ((ContentTicketDetails)x.Details).ContentKey == contentKey)
             .ToListAsync();
     }
 
