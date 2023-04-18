@@ -3,13 +3,15 @@ using Nude.API.Infrastructure.Services.Storages.Results;
 
 namespace Nude.API.Infrastructure.Services.Storages;
 
-public class FileStorage : IFileStorage
+public class FileLocalStorage : IFileStorage
 {
     private readonly string _basePath;
+    private readonly string _baseUrl;
 
-    public FileStorage(IConfiguration configuration)
+    public FileLocalStorage(IConfiguration configuration)
     {
         _basePath = configuration["Storage:BasePath"];
+        _baseUrl = configuration["Storage:BaseUrlPath"];
         Directory.CreateDirectory(_basePath);
     }
     
@@ -18,20 +20,18 @@ public class FileStorage : IFileStorage
         var fileName = GenerateFileName(mimeType);
         var savePath = GetSavePath(fileName);
         
-        await using var fileStream = File.Create(savePath);
         await File.WriteAllBytesAsync(savePath, data);
 
         return new FileSavingResult
         {
             IsSuccess = true,
-            Url = "http://127.0.0.1:3001/" + fileName
+            Url = GetFileUrl(fileName)
         };
     }
 
-    private string GetSavePath(string fileName)
-    {
-        return _basePath + "/" + fileName;
-    }
+    private string GetSavePath(string fileName) => _basePath + "/" + fileName;
+    
+    private string GetFileUrl(string fileName) => "http://127.0.0.1:3001" + _baseUrl + "/" + fileName;
 
     private static string GenerateFileName(string mimeType)
     {
@@ -43,7 +43,7 @@ public class FileStorage : IFileStorage
             var extension = mimeType.Split("/").Last();
             extension = extension == imageType
                 ? ".png"
-                : extension;
+                : "." + extension;
 
             return name + extension;
         }

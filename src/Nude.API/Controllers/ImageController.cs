@@ -3,6 +3,7 @@ using BooruSharp.Booru;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Images.Responses;
 using Nude.API.Infrastructure.Exceptions.Client;
+using Nude.API.Infrastructure.Services.Storages;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Images;
 using Nude.API.Services.Images;
@@ -14,13 +15,16 @@ namespace Nude.API.Controllers;
 public class ImageController : ApiController
 {
     private readonly IMapper _mapper;
+    private readonly IFileStorage _storage;
     private readonly IImagesService _service;
 
     public ImageController(
         IMapper mapper,
+        IFileStorage storage,
         IImagesService service)
     {
         _mapper = mapper;
+        _storage = storage;
         _service = service;
     }
 
@@ -39,6 +43,39 @@ public class ImageController : ApiController
             id.ToString(),
             nameof(ImageEntry))
         );
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Upload(IFormFile file)
+    {
+        if (!file.ContentType.Contains("image"))
+            return Exception(new BadRequestException(
+                $"Current file type ({file.ContentType}) not supported")
+            );
+
+        var fileStream = file.OpenReadStream();
+        fileStream.Seek(0, SeekOrigin.Begin);
+        
+        using var memory = new MemoryStream();
+        await fileStream.CopyToAsync(memory);
+
+        var result = await _storage.SaveAsync(memory.ToArray(), file.ContentType);
+        if (result.IsSuccess)
+        {
+            var creationResult = await _service.CreateAsync(new ImageCreationModel
+            {
+                Url = result.Url!,
+                ContentKey = ContentKeyGenerator.Generate(nameof(ImageEntry), result.Url!)
+            });
+            
+            if (!creationResult.IsSuccess)
+                return Exception(creationResult.Exception!);
+
+            var image = _mapper.Map<ImageResponse>(creationResult.Result);
+            return Ok(image);
+        }
+        
+        return Exception(result.Exception!);
     }
 
     [HttpGet("booru")]

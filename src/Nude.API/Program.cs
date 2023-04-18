@@ -13,6 +13,7 @@ using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Infrastructure.Services.Resolvers;
+using Nude.API.Infrastructure.Services.Storages;
 using Nude.API.Services.Collections;
 using Nude.API.Services.Formatters;
 using Nude.API.Services.Images;
@@ -108,6 +109,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, UserSession>();
 builder.Services.AddScoped<IUsersService, UsersService>();
 
+builder.Services.AddScoped<IFileStorage, FileLocalStorage>();
+
 builder.Services.AddScoped<ITagManager, TagManager>();
 builder.Services.AddScoped<IMangaParserResolver, MangaParserResolver>();
 builder.Services.AddScoped<IContentStealerService, ContentStealerService>();
@@ -150,6 +153,8 @@ builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(Forma
 #endregion
 
 var app = builder.Build();
+
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
