@@ -10,6 +10,7 @@ public class UserMessage : IEntity
     public long ChatId { get; set; }
     public long MessageId { get; set; }
     public MessageDetails Details { get; set; } = null!;
+    public int DetailsId { get; set; }
     
     public TelegramUser Owner { get; set; } = null!;
     public int OwnerId { get; set; }

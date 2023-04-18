@@ -36,7 +36,7 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         var startMessage = await MessageAsync("Загрузка пошла");
         var userMessage = await CreateOrUpdateMessageAsync(
             startMessage.MessageId, 
-            Update.Message.MediaGroupId!, 
+            Update.Message.MediaGroupId, 
             1, 
             -1
         );
@@ -78,7 +78,7 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
 
     private async Task<UserMessage> CreateOrUpdateMessageAsync(
         int messageId,
-        string mediaGroupId, 
+        string? mediaGroupId, 
         int current, 
         int total)
     {
@@ -99,11 +99,11 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
                 MessageId = messageId,
                 Details = new MediaGroupDetails
                 {
-                    MediaGroupId = mediaGroupId,
+                    MediaGroupId = mediaGroupId ?? "",
                     TotalMedia = total,
                     CurrentMedia = current
                 },
-                Owner = UserSession.User
+                OwnerId = UserSession.User.Id
             };
 
             await _context.AddAsync(message);
