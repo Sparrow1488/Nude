@@ -45,13 +45,18 @@ public class ImagesService : IImagesService
             {
                 Url = model.Url,
                 ContentKey = model.ContentKey,
-                ExternalMeta = new ExternalMeta
+                Tags = await CombineTagsAsync(model.Author, model.Tags),
+                Owner = model.Owner
+            };
+
+            if (!string.IsNullOrWhiteSpace(model.ExternalSourceUrl))
+            {
+                image.ExternalMeta = new ExternalMeta
                 {
                     SourceId = model.ExternalSourceId,
                     SourceUrl = model.ExternalSourceUrl
-                },
-                Tags = await CombineTagsAsync(model.Author, model.Tags)
-            };
+                };
+            }
 
             images.Add(image);
         }

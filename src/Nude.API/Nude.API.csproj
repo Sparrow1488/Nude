@@ -40,9 +40,6 @@
       <None Update="key">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Include="wwwroot\data\files\06a63dab4c2c488099f32f43be194e7e.jpeg" />
-      <None Include="wwwroot\data\files\e079e17a12734b1da997774ed2cf99fc.jpeg" />
-      <None Include="wwwroot\data\files\e8f3796d946942fab40d3a6c77efeafe.jpeg" />
     </ItemGroup>
 
     <ItemGroup>

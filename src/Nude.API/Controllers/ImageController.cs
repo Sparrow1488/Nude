@@ -1,5 +1,6 @@
 using AutoMapper;
 using BooruSharp.Booru;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Images.Responses;
 using Nude.API.Infrastructure.Exceptions.Client;
@@ -8,6 +9,7 @@ using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Images;
 using Nude.API.Services.Images;
 using Nude.API.Services.Images.Models;
+using Nude.API.Services.Users;
 
 namespace Nude.API.Controllers;
 
@@ -15,15 +17,18 @@ namespace Nude.API.Controllers;
 public class ImageController : ApiController
 {
     private readonly IMapper _mapper;
+    private readonly IUserSession _session;
     private readonly IFileStorage _storage;
     private readonly IImagesService _service;
 
     public ImageController(
         IMapper mapper,
+        IUserSession session,
         IFileStorage storage,
         IImagesService service)
     {
         _mapper = mapper;
+        _session = session;
         _storage = storage;
         _service = service;
     }
@@ -45,8 +50,8 @@ public class ImageController : ApiController
         );
     }
 
-    [HttpPost]
-    public async Task<IActionResult> Upload(IFormFile file)
+    [HttpPost("new"), Authorize]
+    public async Task<IActionResult> Create(IFormFile file)
     {
         if (!file.ContentType.Contains("image"))
             return Exception(new BadRequestException(
@@ -65,7 +70,8 @@ public class ImageController : ApiController
             var creationResult = await _service.CreateAsync(new ImageCreationModel
             {
                 Url = result.Url!,
-                ContentKey = ContentKeyGenerator.Generate(nameof(ImageEntry), result.Url!)
+                ContentKey = ContentKeyGenerator.Generate(nameof(ImageEntry), result.Url!),
+                Owner = await _session.GetUserAsync()
             });
             
             if (!creationResult.IsSuccess)

@@ -47,5 +47,10 @@ public class AppDbContext : DatabaseContext
             .WithOne(x => x.ImageCollection)
             .HasForeignKey(x => x.ImageCollectionId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<ImageEntry>()
+            .HasOne(x => x.Owner)
+            .WithMany(x => x.Images)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
