@@ -14,6 +14,7 @@ using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Extensions;
 using Nude.Bot.Tg.Http.Routes;
 using Nude.Bot.Tg.Services.Background;
+using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Resolvers;
 using Nude.Bot.Tg.Services.Users;
@@ -81,6 +82,7 @@ builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);
 
 builder.Services.AddScoped<INudeClient, NudeClient>();
 builder.Services.AddScoped<IUserManager, UserManager>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddSingleton<IMessagesStore, MessageStore>();
 
 #endregion

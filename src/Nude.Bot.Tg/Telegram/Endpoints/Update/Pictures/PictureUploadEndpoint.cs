@@ -2,13 +2,12 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Messages.Details;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
+using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
-using Nude.Bot.Tg.Services.Users;
 using Nude.Bot.Tg.Services.Utils;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot;
-using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Pictures;
@@ -17,24 +16,29 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
 {
     private readonly INudeClient _client;
     private readonly BotDbContext _context;
+    private readonly IMessageService _service;
 
     public PictureUploadEndpoint(
         INudeClient client,
-        BotDbContext context)
+        BotDbContext context,
+        IMessageService service)
     {
         _client = client;
         _context = context;
+        _service = service;
     }
     
     public override bool CanHandle() => Update.Message?.Photo != null;
     
     public override async Task HandleAsync()
     {
-        var sizes = Update.Message!.Photo!;
-        var uploadSize = sizes.Last();
-
         var messageId = 0;
-        var previous = await FindMessageAsync(Update.Message.MediaGroupId!);
+        var previous = await _service.FindAsync(
+            ChatId, 
+            UserSession.User, 
+            Update.Message!.MediaGroupId
+        );
+        
         if (previous == null)
         {
             var startMessage = await MessageAsync("Загрузка пошла");
@@ -47,6 +51,8 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
             1, 
             -1
         );
+        
+        var uploadSize = Update.Message!.Photo!.Last();
         
         await using var memory = new MemoryStream();
         var file = await BotClient.GetFileAsync(uploadSize.FileId);
@@ -74,7 +80,7 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
             await BotUtils.EditMessageAsync(
                 BotClient,
                 ChatId,
-                (int) userMessage.MessageId,
+                userMessage.MessageId,
                 new MessageItem(message, ParseMode.Html)
             );
         }
@@ -84,61 +90,33 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         }
     }
 
-    private async Task<UserMessage?> FindMessageAsync(string mediaGroupId)
-    {
-        var chatMessages = await _context.Messages
-            .Where(x => x.Details is MediaGroupDetails && x.ChatId == ChatId)
-            .ToListAsync();
-        return chatMessages.FirstOrDefault(
-            x => x.Details is MediaGroupDetails details
-                 && details.MediaGroupId == mediaGroupId
-        );
-    }
-
     private async Task<UserMessage> CreateOrUpdateMessageAsync(
         int messageId,
         string? mediaGroupId, 
         int current, 
         int total)
     {
-        var exists = await _context.Messages
-            .Include(x => x.Details)
-            .Where(x => x.ChatId == ChatId && x.Details is MediaGroupDetails)
-            .ToListAsync();
+        var message = await _service.FindAsync(ChatId, UserSession.User, mediaGroupId);
 
-        var currentMessage = exists.FirstOrDefault(
-            x => x.Details is MediaGroupDetails det && det.MediaGroupId == mediaGroupId
-        );
-
-        if (currentMessage == null)
+        if (message == null)
         {
-            var message = new UserMessage
+            var mediaDetails = new MediaGroupDetails
             {
-                ChatId = ChatId,
-                MessageId = messageId,
-                Details = new MediaGroupDetails
-                {
-                    MediaGroupId = mediaGroupId ?? "",
-                    TotalMedia = total,
-                    CurrentMedia = current
-                },
-                OwnerId = UserSession.User.Id
+                MediaGroupId = mediaGroupId,
+                CurrentMedia = current,
+                TotalMedia = total
             };
-
-            await _context.AddAsync(message);
-            await _context.SaveChangesAsync();
-
-            return message;
+            message = await _service.CreateAsync(ChatId, messageId, mediaDetails, UserSession.User);
         }
         else
         {
-            var details = currentMessage.Details as MediaGroupDetails;
-            details!.CurrentMedia++;
-            details.TotalMedia = total;
+            var mediaDetails = message.Details as MediaGroupDetails;
+            mediaDetails!.CurrentMedia += 1;
+            mediaDetails.TotalMedia = total;
 
-            await _context.SaveChangesAsync();
-
-            return currentMessage;
+            message = await _service.UpdateAsync(message.Id, mediaDetails);
         }
+
+        return message;
     }
 }

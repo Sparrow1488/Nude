@@ -8,7 +8,7 @@ public class UserMessage : IEntity
 {
     public int Id { get; set; }
     public long ChatId { get; set; }
-    public long MessageId { get; set; }
+    public int MessageId { get; set; }
     public MessageDetails Details { get; set; } = null!;
     public int DetailsId { get; set; }
     
