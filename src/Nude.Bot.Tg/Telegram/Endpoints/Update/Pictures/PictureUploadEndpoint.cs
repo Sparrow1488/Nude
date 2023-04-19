@@ -62,12 +62,12 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         
         if (result.IsSuccess)
         {
-            var messageText = $"#{currentPhotoProcessing} успешно загружено";
+            var messageText = $"Содержимое `#{currentPhotoProcessing}` успешно загружено";
             await BotUtils.EditMessageAsync(
                 BotClient,
                 ChatId,
                 editMessageId,
-                new MessageItem(messageText, ParseMode.Html)
+                new MessageItem(messageText, ParseMode.MarkdownV2)
             );
         }
         else

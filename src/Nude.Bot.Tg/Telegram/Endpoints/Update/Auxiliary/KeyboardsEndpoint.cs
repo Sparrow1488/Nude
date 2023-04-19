@@ -1,3 +1,4 @@
+using Nude.Bot.Tg.Constants;
 using Nude.Bot.Tg.Services.Keyboards;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
@@ -8,17 +9,26 @@ namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Auxiliary;
 
 public class KeyboardsEndpoint : TelegramUpdateEndpoint
 {
-    private static readonly string[] Keyboards = { "/back", "/manga", "/pictures" };
+    private static readonly string[] Keyboards =
+    {
+        NavigationDefaults.HomeChapter, 
+        NavigationDefaults.MangaChapter,
+        NavigationDefaults.PicturesChapter
+    };
     
     public override bool CanHandle() => Keyboards.Contains(MessageText);
     
     public override async Task HandleAsync()
     {
+        const string manga = NavigationDefaults.MangaChapter;
+        const string pictures = NavigationDefaults.PicturesChapter;
+        const string home = NavigationDefaults.HomeChapter;
+        
         var message = MessageText switch
         {
-            "/back" => GetMessage("Вы перешли в главное меню", KeyboardsStore.MainKeyboard),
-            "/manga" => GetMessage("Вы перешли в раздел с мангой", KeyboardsStore.MangaKeyboard),
-            "/pictures" => GetMessage("Вы перешли в раздел с картинками", KeyboardsStore.PictureKeyboard),
+            home => GetMessage("Вы перешли в главное меню", KeyboardsStore.MainKeyboard),
+            manga => GetMessage("Вы перешли в раздел с мангой", KeyboardsStore.MangaKeyboard),
+            pictures => GetMessage("Вы перешли в раздел с картинками", KeyboardsStore.PictureKeyboard),
             _ => throw new ArgumentOutOfRangeException()
         };
 

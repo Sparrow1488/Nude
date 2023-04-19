@@ -1,6 +1,7 @@
 using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Models.Formats;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
+using Nude.Bot.Tg.Constants;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Manga;
@@ -9,7 +10,7 @@ public class RandomMangaEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _client;
 
-    public RandomMangaEndpoint(INudeClient client) : base("/manga-random")
+    public RandomMangaEndpoint(INudeClient client) : base(NavigationDefaults.RandomManga)
     {
         _client = client;
     }

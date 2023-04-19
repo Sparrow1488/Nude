@@ -13,7 +13,7 @@ public static class EndpointExtensions
     {
         services.AddScoped<TelegramUpdateEndpoint, PictureUploadEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, PictagEndpoint>();
-        services.AddScoped<TelegramUpdateEndpoint, PicturesByTagsEndpoint>();
+        services.AddScoped<TelegramUpdateEndpoint, PicturesRandomEndpoint>();
         
         services.AddScoped<TelegramUpdateEndpoint, MangaEndpoint>();
         services.AddScoped<TelegramUpdateEndpoint, RandomMangaEndpoint>();
