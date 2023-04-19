@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Models.Media;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Messages.Details;
 using Nude.API.Models.Users;
@@ -10,6 +11,7 @@ public class BotDbContext : DatabaseContext
     public BotDbContext(DbContextOptions<BotDbContext> options) : base(options) { }
 
     public DbSet<TelegramUser> Users => Set<TelegramUser>();
+    public DbSet<TelegramMedia> Medias => Set<TelegramMedia>();
     public DbSet<UserMessage> Messages => Set<UserMessage>();
     public DbSet<MessageDetails> MessageDetails => Set<MessageDetails>();
     public DbSet<MediaGroupDetails> MediaGroupDetails => Set<MediaGroupDetails>();
