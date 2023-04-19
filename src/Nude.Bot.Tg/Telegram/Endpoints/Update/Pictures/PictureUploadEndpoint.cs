@@ -32,10 +32,17 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
     {
         var sizes = Update.Message!.Photo!;
         var uploadSize = sizes.Last();
+
+        var messageId = 0;
+        var previous = await FindMessageAsync(Update.Message.MediaGroupId!);
+        if (previous == null)
+        {
+            var startMessage = await MessageAsync("Загрузка пошла");
+            messageId = startMessage.MessageId;
+        }
         
-        var startMessage = await MessageAsync("Загрузка пошла");
         var userMessage = await CreateOrUpdateMessageAsync(
-            startMessage.MessageId, 
+            messageId, 
             Update.Message.MediaGroupId, 
             1, 
             -1
@@ -62,18 +69,30 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         if (result.IsSuccess)
         {
             var currentMedia = (userMessage.Details as MediaGroupDetails)!.CurrentMedia;
+
+            var message = $"#{currentMedia} успешно загружено";
             await BotUtils.EditMessageAsync(
                 BotClient,
                 ChatId,
                 (int) userMessage.MessageId,
-                new MessageItem("#" + currentMedia + " успешно загружено", ParseMode.Html)
+                new MessageItem(message, ParseMode.Html)
             );
-            await MessageAsync("Успешно загружено: " + result.ResultValue.Url);
         }
         else
         {
             await MessageAsync(result.Status + ": " + result.Message);
         }
+    }
+
+    private async Task<UserMessage?> FindMessageAsync(string mediaGroupId)
+    {
+        var chatMessages = await _context.Messages
+            .Where(x => x.Details is MediaGroupDetails && x.ChatId == ChatId)
+            .ToListAsync();
+        return chatMessages.FirstOrDefault(
+            x => x.Details is MediaGroupDetails details
+                 && details.MediaGroupId == mediaGroupId
+        );
     }
 
     private async Task<UserMessage> CreateOrUpdateMessageAsync(
