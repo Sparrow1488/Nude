@@ -15,5 +15,7 @@ public interface IMessageService
 
     Task<UserMessage> UpdateAsync(int id, MessageDetails details);
     Task<UserMessage?> FindAsync(long chatId, int messageId);
-    Task<UserMessage?> FindAsync(long chatId, TelegramUser owner, string? mediaGroupId);
+    Task<UserMessage[]> FindByContentKeyAsync(string contentKey);
+    Task<UserMessage?> FindByMediaGroupIdAsync(string mediaGroupId);
+    Task RemoveRangeAsync(IEnumerable<UserMessage> messages);
 }

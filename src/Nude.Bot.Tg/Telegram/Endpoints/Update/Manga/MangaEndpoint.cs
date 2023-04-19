@@ -2,31 +2,32 @@ using Nude.API.Contracts.Formats.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Formats;
-using Nude.API.Models.Messages;
 using Nude.API.Models.Messages.Details;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
+using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
-using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Manga;
 
 public class MangaEndpoint : TelegramUpdateEndpoint
 {
-    private readonly BotDbContext _context;
     private readonly INudeClient _nudeClient;
     private readonly IMessagesStore _messages;
+    private readonly IMessageService _messageService;
 
     public MangaEndpoint(
-        BotDbContext context,
         INudeClient nudeClient,
-        IMessagesStore messages)
+        IMessagesStore messages,
+        IMessageService messageService)
     {
-        _context = context;
         _nudeClient = nudeClient;
         _messages = messages;
+        _messageService = messageService;
     }
+    
+    public override bool CanHandle() => ContentAware.IsSealingAvailable(MessageText);
     
     public override async Task HandleAsync()
     {
@@ -51,18 +52,17 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         {
             var botMessage = await MessageAsync(new MessageItem("Нужно немного подождать", ParseMode.MarkdownV2));
         
-            await _context.AddAsync(new UserMessage
+            var details = new ContentTicketDetails
             {
-                ChatId = ChatId,
-                MessageId = botMessage.MessageId, 
-                Details = new ContentTicketDetails
-                {
-                    TicketId = ticketResult.ResultValue.Id,
-                    ContentKey = ticketResult.ResultValue.ContentKey
-                },
-                OwnerId = UserSession.User.Id
-            });
-            await _context.SaveChangesAsync();
+                TicketId = ticketResult.ResultValue.Id,
+                ContentKey = ticketResult.ResultValue.ContentKey
+            };
+            await _messageService.CreateAsync(
+                ChatId, 
+                botMessage.MessageId, 
+                details, 
+                UserSession.User
+            );
         }
         else
         {
@@ -70,8 +70,6 @@ public class MangaEndpoint : TelegramUpdateEndpoint
             await MessageAsync(new MessageItem(badMessage, ParseMode.Html));
         }
     }
-
-    public override bool CanHandle() => ContentAware.IsSealingAvailable(MessageText);
 }
 
 
