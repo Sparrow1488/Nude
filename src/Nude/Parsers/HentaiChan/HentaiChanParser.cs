@@ -1,10 +1,12 @@
 using AngleSharp.Dom;
 using Newtonsoft.Json.Linq;
+using Nude.Authorization;
 using Nude.Exceptions.Parsing;
+using Nude.Extensions;
 using Nude.Helpers;
 using Nude.Models;
 using Nude.Navigation.Abstractions;
-using Nude.Parsers.Abstractions;
+using Nude.Navigation.Http;
 
 namespace Nude.Parsers.HentaiChan;
 
@@ -13,13 +15,13 @@ public sealed class HentaiChanParser : IHentaiChanParser
     private readonly IWebNavigator _navigator;
     private readonly HentaiChanHelper _helper;
 
-    internal HentaiChanParser(IWebNavigator navigator)
+    public HentaiChanParser(UserCredentials credentials, IWebNavigator? navigator = null)
     {
-        _navigator = navigator;
+        _navigator = navigator ?? new HttpClientNavigator();
+        _navigator.AddCookies(credentials.ToCookies());
+        
         _helper = new HentaiChanHelper();
     }
-
-    MangaHelper IMangaParser.Helper => _helper;
 
     public Task<List<Manga>> GetAsync(int offset, int take)
     {

@@ -11,6 +11,7 @@ using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
+using Nude.API.Infrastructure.Services.Creators;
 using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Infrastructure.Services.Resolvers;
@@ -30,8 +31,6 @@ using Nude.Authorization.Handlers;
 using Nude.Authorization.Stores;
 using Nude.Mapping.Profiles;
 using Nude.Mapping.Utils;
-using Nude.Parsers.Abstractions;
-using Nude.Parsers.Factories;
 using Nude.Parsers.HentaiChan;
 using Nude.Parsers.NudeMoon;
 using Serilog;
@@ -93,11 +92,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 #region Services
 
-builder.Services.AddScoped<IAuthorisedMangaParserFactory<INudeParser>, NudeMoonParserFactory>();
-builder.Services.AddScoped<IAuthorisedMangaParserFactory<IHentaiChanParser>, HentaiChanParserFactory>();
+builder.Services.AddScoped<ParserCreator>();
 
-builder.Services.AddScoped<IAuthorizationHandler<INudeParser>, NudeMoonAuthorizationHandler>();
-builder.Services.AddScoped<IAuthorizationHandler<IHentaiChanParser>, HentaiChanAuthorizationHandler>();
+builder.Services.AddScoped<IAuthHandler<INudeParser>, NudeMoonAuthHandler>();
+builder.Services.AddScoped<IAuthHandler<IHentaiChanParser>, HentaiChanAuthHandler>();
 
 builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 

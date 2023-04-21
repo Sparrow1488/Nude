@@ -1,9 +1,10 @@
 using AngleSharp.Dom;
+using Nude.Authorization;
 using Nude.Exceptions.Parsing;
+using Nude.Extensions;
 using Nude.Helpers;
 using Nude.Models;
 using Nude.Navigation.Browser;
-using Nude.Parsers.Abstractions;
 
 namespace Nude.Parsers.NudeMoon;
 
@@ -18,21 +19,16 @@ public class NudeParser : INudeParser
     private const string MangaCardsSelector = "table.news_pic2 tbody td.bg_style1 a";
     private const string ReadButtonSelector = "td span.button a";
 
-    internal NudeParser(IBrowserWrapper browser)
+    public NudeParser(UserCredentials credentials, IBrowserWrapper browser)
     {
         _browser = browser;
+        _browser.AddCookies(credentials.ToCookies());
+        
         _helper = new NudeHelper();
         Info = new NudeInfo();
     }
     
     public NudeInfo Info { get; }
-    MangaHelper IMangaParser.Helper => _helper;
-
-    private static async Task<NudeParser> CreateAsync(BrowserOptions options)
-    {
-        var wrapper = await BrowserWrapper.CreateAsync(options);
-        return new NudeParser(wrapper);
-    }
 
     public async Task<List<Manga>> GetAsync(int offset, int take)
     {

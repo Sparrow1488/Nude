@@ -1,9 +1,4 @@
-﻿using System.Net.Sockets;
-using Microsoft.EntityFrameworkCore;
-using Nude.API.Contracts.Images.Responses;
-using Nude.API.Models.Enums;
-using Nude.API.Models.Media;
-using Nude.Bot.Tg.Clients.Nude.Abstractions;
+﻿using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Constants;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;

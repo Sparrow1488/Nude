@@ -2,27 +2,22 @@ using Microsoft.Extensions.Configuration;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Utility;
 using Nude.Constants;
-using Nude.Parsers.Abstractions;
-using Nude.Parsers.HentaiChan;
-using Nude.Parsers.NudeMoon;
+using Nude.Parsers;
+using ParserCreator = Nude.API.Infrastructure.Services.Creators.ParserCreator;
 
 namespace Nude.API.Infrastructure.Services.Resolvers;
 
 public class MangaParserResolver : IMangaParserResolver
 {
     private readonly IConfiguration _configuration;
-    private readonly IAuthorisedMangaParserFactory<IHentaiChanParser> _hentaiChanFactory;
-    private readonly IAuthorisedMangaParserFactory<INudeParser> _nudeMoonFactory;
+    private readonly ParserCreator _creator;
 
     public MangaParserResolver(
         IConfiguration configuration,
-        IAuthorisedMangaParserFactory<IHentaiChanParser> hentaiChanFactory,
-        IAuthorisedMangaParserFactory<INudeParser> nudeMoonFactory
-    )
+        ParserCreator creator)
     {
         _configuration = configuration;
-        _hentaiChanFactory = hentaiChanFactory;
-        _nudeMoonFactory = nudeMoonFactory;
+        _creator = creator;
     }
 
     public bool CanBeResolved(string mangaUrl)
@@ -35,12 +30,12 @@ public class MangaParserResolver : IMangaParserResolver
         if (mangaUrl.Contains("nude-moon.org"))
         {
             return await ResolveParserAsync(NudeMoonDefaults.Name, async (login, password) =>
-                await _nudeMoonFactory.CreateAuthorizedAsync(login, password));
+                await _creator.CreateNudeMoonAsync(login, password));
         }
         if (mangaUrl.Contains(".hentaichan."))
         {
             return await ResolveParserAsync(HentaiChanDefaults.Name, async (login, password) =>
-                await _hentaiChanFactory.CreateAuthorizedAsync(login, password));
+                await _creator.CreateHentaiChanAsync(login, password));
         }
 
         throw new BadRequestException("Request manga source not supported (parser not resolved)");

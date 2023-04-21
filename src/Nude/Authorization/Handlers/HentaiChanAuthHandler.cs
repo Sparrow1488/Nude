@@ -1,13 +1,12 @@
 using System.Net;
-using System.Text;
 using Nude.Constants;
 using Nude.Exceptions;
 using Nude.Extensions;
-using Nude.Parsers.NudeMoon;
+using Nude.Parsers.HentaiChan;
 
 namespace Nude.Authorization.Handlers;
 
-public class NudeMoonAuthorizationHandler : IAuthorizationHandler<INudeParser>
+public class HentaiChanAuthHandler : IAuthHandler<IHentaiChanParser>
 {
     public async Task<UserCredentials> AuthorizeAsync(string login, string password)
     {
@@ -16,21 +15,22 @@ public class NudeMoonAuthorizationHandler : IAuthorizationHandler<INudeParser>
         using var request = CreateAuthorizationRequest(login, password);
 
         using var response = await client.SendAsync(request);
-        var bytes = await response.Content.ReadAsByteArrayAsync();
-        
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-        var encoding = Encoding.GetEncoding("windows-1251");
-        var text = encoding.GetString(bytes, 0, bytes.Length);
-        
-        if (response.IsSuccessStatusCode && !text.Contains("Неправильное имя или пароль"))
+
+        if (response.IsSuccessStatusCode)
         {
             var claims = cookies.GetAllCookies().ToClaims();
+
+            if (claims.Count < 3)
+            {
+                throw new AuthorizationException("Invalid user credentials");
+            }
+        
             return new UserCredentials(claims, Schema.Cookies);
         }
 
-        throw new AuthorizationException("Invalid user credentials");
+        throw new InvalidServerResponseException("Invalid user credentials");
     }
-    
+
     private static HttpClient CreateHttpClient(CookieContainer cookies)
     {
         return new HttpClient(new HttpClientHandler
@@ -43,14 +43,14 @@ public class NudeMoonAuthorizationHandler : IAuthorizationHandler<INudeParser>
     {
         var values = new List<KeyValuePair<string, string>>
         {
-            new("user_name", login),
-            new("user_pass", password),
-            new("remember_me", "y"),
-            new("login", ""),
+            new("login", "submit"),
+            new("login_name", login),
+            new("login_password", password),
+            new("image", "Вход"),
         };
         var data = new FormUrlEncodedContent(values);
 
-        var authUrl = NudeMoonDefaults.BaseUrl + "/setuser.php";
+        var authUrl = HentaiChanDefaults.BaseUrl;
         var message = new HttpRequestMessage(HttpMethod.Post, authUrl);
         message.Content = data;
         

@@ -1,4 +1,4 @@
-using Nude.Parsers.Abstractions;
+using Nude.Parsers;
 
 namespace Nude.API.Infrastructure.Services.Resolvers;
 

@@ -1,13 +1,10 @@
 ﻿using System.Reflection;
-using BooruSharp.Booru;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.Authorization.Handlers;
-using Nude.Authorization.Stores;
 using Nude.Models;
-using Nude.Parsers.Abstractions;
-using Nude.Parsers.Factories;
+using Nude.Navigation.Browser;
+using Nude.Parsers;
 using Nude.Parsers.HentaiChan;
 using Nude.Parsers.NudeMoon;
 using Serilog;
@@ -27,26 +24,6 @@ var configuration = new ConfigurationBuilder()
 Log.Information("NudeApp started!");
 
 #endregion
-
-var list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-var randomizer = new CryptoRandomizer();
-randomizer.Shuffle(list);
-
-
-
-
-var booru = new Lolibooru();
-var images = await booru.GetRandomPostsAsync(100, "anal");
-
-var urls = images.Select(x => x.FileUrl);
-Console.WriteLine(string.Join("\n", urls));
-
-
-
-
-
-
-return;
 
 using IMangaParser parser = await CreateHentaiChanParser();
 
@@ -88,11 +65,10 @@ async Task<INudeParser> CreateNudeParser()
     var login = configuration.GetValue<string>($"{section}:Login")!;
     var password = configuration.GetValue<string>($"{section}:Password")!;
     
-    var secureStore = new CredentialsSecureStore();
-    var authHandler = new NudeMoonAuthorizationHandler();
-    var factory = new NudeMoonParserFactory(secureStore, authHandler);
-    
-    return await factory.CreateAuthorizedAsync(login, password);
+    var authHandler = new NudeMoonAuthHandler();
+    var credentials = await authHandler.AuthorizeAsync(login, password);
+    var browser = await BrowserWrapper.CreateAsync(BrowserOptions.Default);
+    return new NudeParser(credentials, browser);
 }
 
 async Task<IHentaiChanParser> CreateHentaiChanParser()
@@ -101,11 +77,9 @@ async Task<IHentaiChanParser> CreateHentaiChanParser()
     var login = configuration.GetValue<string>($"{section}:Login")!;
     var password = configuration.GetValue<string>($"{section}:Password")!;
 
-    var secureStore = new CredentialsSecureStore();
-    var authHandler = new HentaiChanAuthorizationHandler();
-    var factory = new HentaiChanParserFactory(secureStore, authHandler);
-    
-    return await factory.CreateAuthorizedAsync(login, password);
+    var authHandler = new HentaiChanAuthHandler();
+    var credentials = await authHandler.AuthorizeAsync(login, password);
+    return new HentaiChanParser(credentials);
 }
 
 #endregion

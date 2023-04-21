@@ -1,5 +1,6 @@
 using Nude.API.Models.Enums;
 using Nude.API.Models.Mangas;
+using Nude.Constants;
 
 namespace Nude.API.Infrastructure.Utility;
 
@@ -15,12 +16,12 @@ public static class ContentAware
             new()
             {
                 SourceType = SourceType.NudeMoon,
-                AssociationDomains = new List<string> { "nude-moon.org" }
+                AssociationDomains = new List<string> { NudeMoonDefaults.Domain }
             },
             new()
             {
                 SourceType = SourceType.HentaiChan,
-                AssociationDomains = new List<string> { "y.hentaichan.live", "xxxxx.hentaichan.live" }
+                AssociationDomains = new List<string>(HentaiChanDefaults.Domains)
             },
         };
 
