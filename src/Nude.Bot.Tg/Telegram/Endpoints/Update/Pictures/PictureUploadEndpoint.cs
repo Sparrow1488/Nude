@@ -7,7 +7,6 @@ using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Utils;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
-using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -62,7 +61,7 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         
         if (result.IsSuccess)
         {
-            var messageText = $"Содержимое `#{currentPhotoProcessing}` успешно загружено";
+            var messageText = $"💎Содержимое `#{currentPhotoProcessing}` успешно загружено";
             await BotUtils.EditMessageAsync(
                 BotClient,
                 ChatId,
@@ -78,7 +77,7 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
 
     private Task<Message> SendStartMessageAsync()
     {
-        return MessageAsync("Загрузка пошла");
+        return MessageAsync("🚀Загрузка пошла");
     }
 
     private async Task<ApiResult<ImageResponse>> UploadPhotoAsync()

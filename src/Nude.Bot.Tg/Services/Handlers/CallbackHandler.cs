@@ -11,15 +11,15 @@ using Nude.Bot.Tg.Services.Utils;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 
-namespace Nude.Bot.Tg.Http.Routes;
+namespace Nude.Bot.Tg.Services.Handlers;
 
-public class CallbackRoute
+public class CallbackHandler
 {
     private readonly INudeClient _client;
     private readonly ITelegramBotClient _bot;
     private readonly IMessageService _messageService;
 
-    public CallbackRoute(
+    public CallbackHandler(
         INudeClient client,
         ITelegramBotClient bot,
         IMessageService messageService)

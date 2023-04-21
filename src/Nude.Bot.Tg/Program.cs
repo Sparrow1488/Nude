@@ -11,9 +11,8 @@ using Nude.API.Infrastructure.Constants;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
-using Nude.Bot.Tg.Extensions;
-using Nude.Bot.Tg.Http.Routes;
 using Nude.Bot.Tg.Services.Background;
+using Nude.Bot.Tg.Services.Handlers;
 using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Resolvers;
@@ -59,8 +58,7 @@ builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 #region Endpoints & Routes
 
 builder.Services.AddSingleton<EndpointsResolver>();
-builder.Services.AddTelegramEndpoints();
-builder.Services.AddScoped<CallbackRoute>();
+builder.Services.AddScoped<CallbackHandler>();
 
 #endregion
 
@@ -105,7 +103,7 @@ app.MapPost("/callback", async ctx =>
         JsonSettingsProvider.CreateDefault()
     );
 
-    var callbackRoute = app.Services.GetRequiredService<CallbackRoute>();
+    var callbackRoute = app.Services.GetRequiredService<CallbackHandler>();
     await callbackRoute.OnCallbackAsync(subject!);
     
     ctx.Response.StatusCode = StatusCodes.Status200OK;
