@@ -26,6 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Nude.API.Infrastructure\Nude.API.Infrastructure.csproj" />
       <ProjectReference Include="..\Nude\Nude.csproj" />
     </ItemGroup>
 

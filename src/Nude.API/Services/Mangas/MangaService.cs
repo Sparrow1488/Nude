@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
+using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;
@@ -23,13 +24,16 @@ namespace Nude.API.Services.Mangas;
 public class MangaService : IMangaService
 {
     private readonly AppDbContext _context;
+    private readonly IRandomizer _randomizer;
     private readonly ITagManager _tagManager;
 
     public MangaService(
         AppDbContext context,
+        IRandomizer randomizer,
         ITagManager tagManager)
     {
         _context = context;
+        _randomizer = randomizer;
         _tagManager = tagManager;
     }
 
@@ -123,9 +127,9 @@ public class MangaService : IMangaService
         }
 
         var ids = await queryable.Select(x => x.Id).ToListAsync();
-        var mangaId = ids[Random.Shared.Next(0, ids.Count - 1)];
+        _randomizer.Shuffle(ids);
         
-        return await GetByIdAsync(mangaId);
+        return await GetByIdAsync(ids.First());
     }
 
     public Task<MangaEntry?> FindBySourceIdAsync(string id)

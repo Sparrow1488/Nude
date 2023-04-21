@@ -2,6 +2,7 @@
 using BooruSharp.Booru;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.Authorization.Handlers;
 using Nude.Authorization.Stores;
 using Nude.Models;
@@ -26,6 +27,13 @@ var configuration = new ConfigurationBuilder()
 Log.Information("NudeApp started!");
 
 #endregion
+
+var list = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+var randomizer = new CryptoRandomizer();
+randomizer.Shuffle(list);
+
+
+
 
 var booru = new Lolibooru();
 var images = await booru.GetRandomPostsAsync(100, "anal");

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Managers;
+using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Models.Images;
 using Nude.API.Models.Mangas.Meta;
 using Nude.API.Models.Tags;
@@ -15,13 +16,16 @@ namespace Nude.API.Services.Images;
 public class ImagesService : IImagesService
 {
     private readonly AppDbContext _context;
+    private readonly IRandomizer _randomizer;
     private readonly ITagManager _tagManager;
 
     public ImagesService(
         AppDbContext context,
+        IRandomizer randomizer,
         ITagManager tagManager)
     {
         _context = context;
+        _randomizer = randomizer;
         _tagManager = tagManager;
     }
     
@@ -118,7 +122,8 @@ public class ImagesService : IImagesService
             .Select(x => x.Id)
             .ToListAsync();
 
-        var randomIds = ids.OrderBy(_ => Random.Shared.Next()).Take(count).ToList();
+        _randomizer.Shuffle(ids);
+        var randomIds = ids.Take(count);
 
         return await _context.Images
             .IncludeDependencies()

@@ -12,6 +12,7 @@ using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Keys;
+using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Infrastructure.Services.Resolvers;
 using Nude.API.Infrastructure.Services.Storages;
 using Nude.API.Services.Collections;
@@ -122,6 +123,8 @@ builder.Services.AddScoped<IWebHookService, WebHookService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddScoped<ITelegraphClient, DefaultTelegraphClient>();
+
+builder.Services.AddScoped<IRandomizer, CryptoRandomizer>();
 
 #endregion
 
