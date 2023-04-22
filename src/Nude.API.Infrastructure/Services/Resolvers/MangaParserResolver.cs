@@ -30,12 +30,12 @@ public class MangaParserResolver : IMangaParserResolver
         if (mangaUrl.Contains("nude-moon.org"))
         {
             return await ResolveParserAsync(NudeMoonDefaults.Name, async (login, password) =>
-                await _creator.CreateNudeMoonAsync(login, password));
+                await _creator.CreateNudeMoonAsync(login, password, true));
         }
         if (mangaUrl.Contains(".hentaichan."))
         {
             return await ResolveParserAsync(HentaiChanDefaults.Name, async (login, password) =>
-                await _creator.CreateHentaiChanAsync(login, password));
+                await _creator.CreateHentaiChanAsync(login, password, true));
         }
 
         throw new BadRequestException("Request manga source not supported (parser not resolved)");
