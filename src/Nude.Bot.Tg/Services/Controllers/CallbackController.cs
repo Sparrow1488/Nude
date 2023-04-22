@@ -29,9 +29,6 @@ namespace Nude.Bot.Tg.Services.Controllers
             var obj = await GetDeserializedObject();
             var callbackRoute = _provider.GetRequiredService<ICallbackHandler>();
             await callbackRoute.OnCallbackAsync(obj);
-
-            _httpContext.Response.StatusCode = StatusCodes.Status200OK;
-            await _httpContext.Response.WriteAsync("ok");
         }
 
         private async Task<Notification> GetDeserializedObject()

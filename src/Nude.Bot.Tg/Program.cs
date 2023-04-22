@@ -1,6 +1,8 @@
-﻿using System.Reflection;
+﻿using System.Net.Http;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -95,10 +97,13 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
-app.MapPost("/callback", async() =>
+
+app.MapPost("/callback", async (context) =>
 {
-    var callbackController = app.Services.GetRequiredService<CallbackController>();
-    await callbackController.ProcessCallback();
+    var controller = app.Services.GetRequiredService<CallbackController>();
+    await controller.ProcessCallback();
+    context.Response.StatusCode = StatusCodes.Status200OK;
+    await context.Response.WriteAsync("ok");
 });
 
 await app.RunAsync(cancellationSource.Token);
