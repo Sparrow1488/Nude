@@ -1,5 +1,6 @@
 ﻿using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Constants;
+using Nude.Bot.Tg.Models.Api;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot;
@@ -21,28 +22,71 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         _context = context;
     }
 
+    // кэшируем пикчу
+    private async Task<TelegramMedia> AddMediaToDb(ImageResponse image)
+    {
+        var mediaEntity = new TelegramMedia
+        {
+            FileId = image.Url,
+            ContentKey = image.ContentKey,
+            MediaType = TelegramMediaType.Photo
+        };
+        await _context.Medias.AddAsync(mediaEntity);
+        await _context.SaveChangesAsync();
+        return mediaEntity;
+    }
+
+    // чекаем че есть в кэшэ
+    private async Task<List<TelegramMedia>> GetMediaFromDb(ApiResult<ImageResponse[]> result)
+    {
+        var media = new List<TelegramMedia>();
+        TelegramMedia mediaEntity;
+        foreach (var image in result.Result!)
+        {
+            var dbImage = await _context.Medias.FirstOrDefaultAsync(x => x.ContentKey == image.ContentKey);
+            if (dbImage != null) 
+            {
+                mediaEntity = dbImage;
+            }
+            else
+            {
+                mediaEntity = await AddMediaToDb(image);
+            }
+            media.Add(mediaEntity);
+        }
+        return media;
+    }
+
+    // дропаем фотки пользователю
+    private async Task SendMedia(List<Stream> fileStreamsList)
+    {
+        var mediaList = fileStreamsList.Select(
+            x => new InputMediaPhoto(new InputMedia(x, x.GetHashCode() + "-nude-bot-image.png")
+        ));
+
+        await BotClient.SendMediaGroupAsync(
+            ChatId,
+            media: mediaList
+        );
+
+        fileStreamsList.ForEach(x => x.Close());
+    }
+
     public override async Task HandleAsync()
     {
         var result = await _client.GetRandomImagesAsync();
         if (result.IsSuccess)
         {
+            var media = await GetMediaFromDb(result);
             using var client = new HttpClient();
             var fileStreamsList = new List<Stream>();
-            foreach (var image in result.ResultValue)
+            foreach (var image in media)
             {
-                var stream = await client.GetStreamAsync(image.Url);
+                var stream = await client.GetStreamAsync(image.FileId);
                 fileStreamsList.Add(stream);
             }
 
-            var mediaList = fileStreamsList.Select(
-                x => new InputMediaPhoto(new InputMedia(x, x.GetHashCode() + "-nude-bot-image.png")
-            ));
-            await BotClient.SendMediaGroupAsync(
-                ChatId,
-                media: mediaList
-            );
-
-            fileStreamsList.ForEach(x => x.Close());
+            await SendMedia(fileStreamsList);
 
             // await CreateMediaAsync(result.ResultValue, messages);
         }
