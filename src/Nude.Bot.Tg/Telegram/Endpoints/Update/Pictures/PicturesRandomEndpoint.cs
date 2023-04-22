@@ -16,10 +16,11 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _client;
     private readonly BotDbContext _context;
+    private List<ImageResponse> _notCachedPhotos = new List<ImageResponse>();
 
     public PicturesRandomEndpoint(
         INudeClient client,
-        BotDbContext context) 
+        BotDbContext context)
     : base(NavigationDefaults.RandomPicture)
     {
         _client = client;
@@ -28,21 +29,32 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
 
     public override async Task HandleAsync()
     {
+
         var result = await _client.GetRandomImagesAsync();
         if (result.IsSuccess)
         {
-            var mediaList = await GetCachedMediaAsync(result);
-            
+            var cachedMedia = await GetCachedMediaAsync(result);
+            var inputMedia = new List<InputMedia>();
+
+            cachedMedia.ForEach(x => {
+                var media = new InputMedia(x.FileId);
+                inputMedia.Add(media);
+            });
+
             using var client = new HttpClient();
             var fileStreamsList = new List<Stream>();
             
-            foreach (var image in mediaList)
+            foreach (var image in _notCachedPhotos)
             {
-                var stream = await client.GetStreamAsync(image.FileId);
+                var stream = await client.GetStreamAsync(image.Url);
                 fileStreamsList.Add(stream);
+                inputMedia.Add(
+                    new InputMedia(stream, image.GetHashCode() + "-nude-bot-image.png")        
+                );
             }
-
-            await SendMedia(fileStreamsList);
+            
+            await SendMediaAsync(inputMedia);
+            fileStreamsList.ForEach(x => x.Close());
         }
         else
         {
@@ -69,29 +81,32 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
     {
         var media = new List<TelegramMedia>();
         
-        foreach (var image in result.Result!)
+        foreach (var image in result.ResultValue)
         {
             var dbImage = await _context.Medias
                 .FirstOrDefaultAsync(x => x.ContentKey == image.ContentKey);
 
-            var mediaEntity = dbImage ?? await CacheMediaAsync(image);
-            media.Add(mediaEntity);
+            if (dbImage != null)
+            {
+                media.Add(dbImage);
+            }
+            else
+            {
+                _notCachedPhotos.Add(image);
+            }
         }
         
         return media;
     }
 
-    private async Task SendMedia(List<Stream> fileStreamsList)
+    private async Task SendMediaAsync(List<InputMedia> media)
     {
-        var mediaList = fileStreamsList.Select(
-            x => new InputMediaPhoto(new InputMedia(x, x.GetHashCode() + "-nude-bot-image.png")
-        ));
-
+        var mediaList = media.Select(
+            x => new InputMediaPhoto(x)
+        );
         var messages = await BotClient.SendMediaGroupAsync(
             ChatId,
             media: mediaList
         );
-
-        fileStreamsList.ForEach(x => x.Close());
     }
 }
