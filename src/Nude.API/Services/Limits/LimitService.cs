@@ -1,5 +1,4 @@
 using Nude.API.Infrastructure.Exceptions.Client;
-using Nude.API.Models.Users;
 using Nude.API.Services.Limits.Handlers;
 using Nude.API.Services.Limits.Results;
 
@@ -19,22 +18,23 @@ public class LimitService : ILimitService
         return _limits.Where(x => x.Target == limitTarget);
     }
 
-    public async Task<LimitResult> IsLimitedAsync(LimitTarget limitTarget)
+    public async Task<LimitRestrictionsCheckingResult> IsLimitedAsync(LimitTarget limitTarget)
     {
         foreach (var limit in GetLimits(limitTarget))
         {
-            var withinLimit = await limit.WithinLimitAsync();
+            var withinLimitResult = await limit.WithinLimitAsync();
             
-            if (withinLimit) continue;
+            if (withinLimitResult.Ok) continue;
             
             var limitException = new LimitExceededException(
                 limit.GetType().Name,
                 limit.Target.ToString(),
+                withinLimitResult.Description,
                 "Limit exceeded. Check Data body to get more details"
             );
-            return new LimitResult { Exception = limitException };
+            return new LimitRestrictionsCheckingResult { Exception = limitException };
         }
 
-        return new LimitResult();
+        return new LimitRestrictionsCheckingResult();
     }
 }
