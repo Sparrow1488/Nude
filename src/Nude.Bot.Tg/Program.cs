@@ -12,6 +12,7 @@ using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Background;
+using Nude.Bot.Tg.Services.Controllers;
 using Nude.Bot.Tg.Services.Handlers;
 using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
@@ -58,7 +59,8 @@ builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 #region Endpoints & Routes
 
 builder.Services.AddSingleton<EndpointsResolver>();
-builder.Services.AddScoped<CallbackHandler>();
+builder.Services.AddScoped<ICallbackHandler,CallbackHandler>();
+builder.Services.AddScoped<CallbackController>();
 
 #endregion
 
@@ -93,21 +95,10 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
-app.MapPost("/callback", async ctx =>
+app.MapPost("/callback", async() =>
 {
-    using var content = new StreamContent(ctx.Request.Body);
-    var subjectJson = await content.ReadAsStringAsync();
-
-    var subject = JsonConvert.DeserializeObject<Notification>(
-        subjectJson, 
-        JsonSettingsProvider.CreateDefault()
-    );
-
-    var callbackRoute = app.Services.GetRequiredService<CallbackHandler>();
-    await callbackRoute.OnCallbackAsync(subject!);
-    
-    ctx.Response.StatusCode = StatusCodes.Status200OK;
-    await ctx.Response.WriteAsync("ok");
+    var callbackController = app.Services.GetRequiredService<CallbackController>();
+    await callbackController.ProcessCallback();
 });
 
 await app.RunAsync(cancellationSource.Token);

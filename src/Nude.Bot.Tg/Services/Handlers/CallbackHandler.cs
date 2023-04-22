@@ -13,7 +13,7 @@ using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Services.Handlers;
 
-public class CallbackHandler
+public class CallbackHandler:ICallbackHandler
 {
     private readonly INudeClient _client;
     private readonly ITelegramBotClient _bot;
