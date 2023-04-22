@@ -3,6 +3,7 @@ using BooruSharp.Booru;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Images.Responses;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Services.Storages;
 using Nude.API.Infrastructure.Utility;
@@ -50,7 +51,7 @@ public class ImageController : ApiController
         );
     }
 
-    [HttpPost("new"), Authorize]
+    [HttpPost("new"), Authorize(Policies.Admin)]
     public async Task<IActionResult> Create(IFormFile file)
     {
         if (!file.ContentType.Contains("image"))
@@ -100,7 +101,7 @@ public class ImageController : ApiController
         return Ok(_mapper.Map<ImageResponse[]>(random));
     }
 
-    [HttpGet("booru")]
+    [HttpGet("booru"), Authorize(Policies.Admin)]
     public async Task<IActionResult> FindBooruByTags(string tags)
     {
         var parser = new Gelbooru();

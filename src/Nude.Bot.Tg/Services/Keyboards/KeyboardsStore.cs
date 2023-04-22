@@ -25,7 +25,7 @@ public static class KeyboardsStore
     public static readonly IReplyMarkup PictureKeyboard = new ReplyKeyboardMarkup(new[]
     {
         new KeyboardButton[] { NavigationDefaults.RandomPicture },
-        new KeyboardButton[] { "/pictag" },
+        // new KeyboardButton[] { "/pictag" },
         new KeyboardButton[] { NavigationDefaults.HomeChapter }
     })
     {

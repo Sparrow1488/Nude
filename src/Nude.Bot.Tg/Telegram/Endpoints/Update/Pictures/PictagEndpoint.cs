@@ -1,4 +1,5 @@
 ﻿using Nude.API.Contracts.Images.Responses;
+using Nude.Bot.Tg.Attributes;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Telegram.Bot;
@@ -6,6 +7,7 @@ using Telegram.Bot.Types;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Pictures;
 
+[IgnoreEndpoint]
 public class PictagEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _nudeClient;
