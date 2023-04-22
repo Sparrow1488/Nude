@@ -6,7 +6,6 @@ using Nude.API.Contracts.Images.Responses;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tokens.Responses;
 using Nude.API.Infrastructure.Configurations.Json;
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Constants.Defaults;
 using Nude.API.Models.Formats;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;

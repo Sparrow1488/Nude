@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Nude.API.Infrastructure.Clients.Telegraph;
-using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
+using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants.Defaults;
 using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
@@ -88,6 +88,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         options.MapInboundClaims = false;
     });
+
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy(Policies.Admin, configure =>
+    {
+        configure.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        configure.RequireClaim(NudeClaimTypes.Role, NudeClaims.Roles.Administrator);
+    });
+});
 
 #endregion
 

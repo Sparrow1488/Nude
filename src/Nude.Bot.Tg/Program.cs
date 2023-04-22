@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Nude.API.Infrastructure.Configurations.Json;
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Constants.Defaults;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
