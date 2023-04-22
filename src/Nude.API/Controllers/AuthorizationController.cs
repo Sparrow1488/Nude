@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Nude.API.Contracts.Tokens.Responses;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Models.Users.Accounts;
 using Nude.API.Services.Users;
@@ -15,10 +16,14 @@ namespace Nude.API.Controllers;
 public class AuthorizationController : ApiController
 {
     private readonly IUsersService _usersService;
+    private readonly IUserSession _userSession;
 
-    public AuthorizationController(IUsersService usersService)
+    public AuthorizationController(
+        IUsersService usersService,
+        IUserSession userSession)
     {
         _usersService = usersService;
+        _userSession = userSession;
     }
     
     [HttpPost]
@@ -28,7 +33,7 @@ public class AuthorizationController : ApiController
 
         var existsUser = await _usersService.FindByTelegramAsync(username);
 
-        if (existsUser == null)
+        if (existsUser is null)
         {
             var account = new TelegramAccount { Username = username };
             var result = await _usersService.CreateAsync(account);
@@ -39,6 +44,13 @@ public class AuthorizationController : ApiController
             }
             
             existsUser = result.Result!;
+
+            await _usersService.SetClaimAsync(
+                existsUser, 
+                NudeClaimTypes.Role,
+                "User",
+                issuer: null
+            );
         }
 
         var credentials = new SigningCredentials(CreateSecurityKey(), SecurityAlgorithms.RsaSha256);
@@ -56,6 +68,22 @@ public class AuthorizationController : ApiController
 
         var response = new JwtTokenResponse { Token = token };
         return Ok(response);
+    }
+
+
+    [HttpGet("claims")]
+    public async Task<IActionResult> TestClaims()
+    {
+        var user = await _userSession.GetUserAsync();
+        
+        await _usersService.SetClaimAsync(
+            user,
+            NudeClaimTypes.Role,
+            "User-" + Random.Shared.Next(),
+            issuer: null
+        );
+
+        return Ok();
     }
 
     private static SecurityKey CreateSecurityKey()

@@ -7,6 +7,8 @@ public static class UserExtensions
 {
     public static IQueryable<User> IncludeDependencies(this DbSet<User> dbSet)
     {
-        return dbSet.Include(x => x.Accounts);
+        return dbSet
+            .Include(x => x.Accounts)
+            .Include(x => x.Claims);
     }
 }

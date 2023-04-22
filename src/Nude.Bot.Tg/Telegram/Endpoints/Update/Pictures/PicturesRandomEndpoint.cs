@@ -69,7 +69,7 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
     {
         var media = new List<TelegramMedia>();
         
-        foreach (var image in result.Result!)
+        foreach (var image in result.ResultValue)
         {
             var dbImage = await _context.Medias
                 .FirstOrDefaultAsync(x => x.ContentKey == image.ContentKey);

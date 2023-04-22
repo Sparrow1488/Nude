@@ -33,9 +33,9 @@ public class ContentTicketController : ApiController
         var user = await _session.GetUserAsync();
         var userTickets = await _service.GetUserTicketsAsync(user.Id);
 
-        if (userTickets.Count >= 3)
+        if (userTickets.Count >= 2)
         {
-            var exception = new TicketLimitExceededException("You have more than 3 tickets");
+            var exception = new TicketLimitExceededException("You have more than 2 tickets");
             return Exception(exception);
         }
         
