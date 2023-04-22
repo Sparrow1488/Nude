@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using AngleSharp.Browser;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,6 @@ using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
-using Nude.API.Infrastructure.Services.Creators;
 using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Infrastructure.Services.Resolvers;
@@ -29,6 +29,7 @@ using Nude.API.Services.WebHooks;
 using Nude.API.Services.Workers;
 using Nude.Authorization.Handlers;
 using Nude.Authorization.Stores;
+using Nude.Creators;
 using Nude.Mapping.Profiles;
 using Nude.Mapping.Utils;
 using Nude.Parsers.HentaiChan;
@@ -92,7 +93,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 #region Services
 
-builder.Services.AddScoped<ParserCreator>();
+builder.Services.AddScoped<IParserCreator, ParserCreator>();
 
 builder.Services.AddScoped<IAuthHandler<INudeParser>, NudeMoonAuthHandler>();
 builder.Services.AddScoped<IAuthHandler<IHentaiChanParser>, HentaiChanAuthHandler>();

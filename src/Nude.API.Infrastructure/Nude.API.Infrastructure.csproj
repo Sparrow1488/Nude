@@ -24,4 +24,8 @@
       <PackageReference Include="RandN" Version="0.4.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Services\Creators" />
+    </ItemGroup>
+
 </Project>

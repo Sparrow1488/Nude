@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Nude.Authorization.Handlers;
+using Nude.Constants;
+using Nude.Creators;
 using Nude.Models;
 using Nude.Navigation.Browser;
 using Nude.Parsers;
@@ -25,14 +27,18 @@ Log.Information("NudeApp started!");
 
 #endregion
 
-using IMangaParser parser = await CreateHentaiChanParser();
+var (login, password) = GetCredentials(HentaiChanDefaults.Name);
+
+var creator = new ParserCreator();
+using IMangaParser parser = await creator.CreateHentaiChanAsync(login, password);
 
 var mangaUrls = new List<string>
 {
-    // "https://nude-moon.org/20932-online--gingko-chibi-succu-shiko-life-nioi-de-ecchi-na-kibun-ni-sase.html?row",
+    // "https://nude-moon.org/20932-online--gingko-chibi-suc.html",
+    // "https://nude-moon.org/21446--pigmanboy-rika-no-oshiri-challenge--ispetanie-dla-riki.html",
     "https://y.hentaichan.live/online/45195-zimnie-kanikuly.html?cacheId=1679404899",
-    // "https://y.hentaichan.live/manga/45195-zimnie-kanikuly.html",
-    // "https://y.hentaichan.live/manga/45217-mikasa.html",
+    "https://y.hentaichan.live/manga/45195-zimnie-kanikuly.html",
+    "https://y.hentaichan.live/manga/45217-mikasa.html",
     // "https://y.hentaichan.live/manga/45190-kniga-.html"
 };
 
@@ -59,27 +65,13 @@ Console.WriteLine(jsonResult);
 
 #region Parsers
 
-async Task<INudeParser> CreateNudeParser()
+(string login, string password) GetCredentials(string siteName)
 {
-    const string section = "Credentials:NudeMoon";
+    var section = $"Credentials:{siteName}";
     var login = configuration.GetValue<string>($"{section}:Login")!;
     var password = configuration.GetValue<string>($"{section}:Password")!;
     
-    var authHandler = new NudeMoonAuthHandler();
-    var credentials = await authHandler.AuthorizeAsync(login, password);
-    var browser = await BrowserWrapper.CreateAsync(BrowserOptions.Default);
-    return new NudeParser(credentials, browser);
-}
-
-async Task<IHentaiChanParser> CreateHentaiChanParser()
-{
-    const string section = "Credentials:HentaiChan";
-    var login = configuration.GetValue<string>($"{section}:Login")!;
-    var password = configuration.GetValue<string>($"{section}:Password")!;
-
-    var authHandler = new HentaiChanAuthHandler();
-    var credentials = await authHandler.AuthorizeAsync(login, password);
-    return new HentaiChanParser(credentials);
+    return (login, password);
 }
 
 #endregion

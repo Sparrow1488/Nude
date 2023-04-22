@@ -2,19 +2,19 @@ using Microsoft.Extensions.Configuration;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Utility;
 using Nude.Constants;
+using Nude.Creators;
 using Nude.Parsers;
-using ParserCreator = Nude.API.Infrastructure.Services.Creators.ParserCreator;
 
 namespace Nude.API.Infrastructure.Services.Resolvers;
 
 public class MangaParserResolver : IMangaParserResolver
 {
     private readonly IConfiguration _configuration;
-    private readonly ParserCreator _creator;
+    private readonly IParserCreator _creator;
 
     public MangaParserResolver(
         IConfiguration configuration,
-        ParserCreator creator)
+        IParserCreator creator)
     {
         _configuration = configuration;
         _creator = creator;
