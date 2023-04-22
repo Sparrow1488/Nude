@@ -1,13 +1,15 @@
 using Newtonsoft.Json;
 using Nude.Authorization.Stores.Models;
 using Nude.Extensions;
+using Nude.Helpers;
 
 namespace Nude.Authorization.Stores;
 
 public class CredentialsSecureStore : ICredentialsSecureStore
 {
-    private const string CredentialsStorePath = "/store/credentials";
     private const string CredentialsEntryFileName = "file.json";
+    
+    private readonly string _credentialsStorePath = NudeEnvironment.GetNudeStoreCredentialsPath();
 
     public async Task SaveAsync(string key, UserCredentials credentials)
     {
@@ -39,10 +41,10 @@ public class CredentialsSecureStore : ICredentialsSecureStore
         return null;
     }
 
-    private static void ConfigureStore() =>
-        Directory.CreateDirectory("." + CredentialsStorePath);
+    private void ConfigureStore() =>
+        Directory.CreateDirectory(_credentialsStorePath);
     
-    private static Task<bool> ExistsAsync(string key)
+    private Task<bool> ExistsAsync(string key)
     {
         ArgumentNullException.ThrowIfNull(key);
         
@@ -50,7 +52,7 @@ public class CredentialsSecureStore : ICredentialsSecureStore
         return Task.FromResult(Directory.Exists(storeEntry));
     }
 
-    private static StreamWriter CreateEntryStore(string key)
+    private StreamWriter CreateEntryStore(string key)
     {
         var storePath = GetStoreEntryPath(key);
         Directory.CreateDirectory(storePath);
@@ -58,14 +60,14 @@ public class CredentialsSecureStore : ICredentialsSecureStore
         return File.CreateText(storePath + CredentialsEntryFileName);
     }
     
-    private static async Task<string> GetStoreEntryValue(string key)
+    private async Task<string> GetStoreEntryValue(string key)
     {
         return await File.ReadAllTextAsync(GetStoreEntryPath(key) + CredentialsEntryFileName);
     }
 
-    private static string GetStoreEntryPath(string key)
+    private string GetStoreEntryPath(string key)
     {
-        return "." + CredentialsStorePath + "/" + key + "/";
+        return _credentialsStorePath + "/" + key + "/";
     }
     
     private static StoreUserCredentials CreateStoreCredentials(UserCredentials credentials)
