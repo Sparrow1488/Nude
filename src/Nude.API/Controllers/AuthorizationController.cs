@@ -7,8 +7,10 @@ using Microsoft.IdentityModel.Tokens;
 using Nude.API.Contracts.Tokens.Responses;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Keys;
+using Nude.API.Models.Users;
 using Nude.API.Models.Users.Accounts;
 using Nude.API.Services.Users;
+using Nude.Data.Infrastructure.Extensions;
 
 namespace Nude.API.Controllers;
 
@@ -16,15 +18,9 @@ namespace Nude.API.Controllers;
 public class AuthorizationController : ApiController
 {
     private readonly IUsersService _usersService;
-    private readonly IUserSession _userSession;
 
-    public AuthorizationController(
-        IUsersService usersService,
-        IUserSession userSession)
-    {
+    public AuthorizationController(IUsersService usersService) =>
         _usersService = usersService;
-        _userSession = userSession;
-    }
     
     [HttpPost]
     public async Task<IActionResult> SignInTelegram(string username)
@@ -48,42 +44,34 @@ public class AuthorizationController : ApiController
             await _usersService.SetClaimAsync(
                 existsUser, 
                 NudeClaimTypes.Role,
-                "User",
+                NudeClaims.Roles.User,
                 issuer: null
             );
         }
-
+        
         var credentials = new SigningCredentials(CreateSecurityKey(), SecurityAlgorithms.RsaSha256);
         var telegramAccount = (TelegramAccount) existsUser.Accounts.First(x => x is TelegramAccount);
         var token = handler.CreateToken(new SecurityTokenDescriptor
         {
             Issuer = "http://127.0.0.1:3001",
             SigningCredentials = credentials,
-            Subject = new ClaimsIdentity(new []
-            {
-                new Claim("sub", existsUser.Id.ToString()),
-                new Claim("name", telegramAccount.Username),
-            })
+            Subject = new ClaimsIdentity(GetClaims(existsUser, telegramAccount))
         });
 
         var response = new JwtTokenResponse { Token = token };
         return Ok(response);
     }
 
-
-    [HttpGet("claims")]
-    public async Task<IActionResult> TestClaims()
+    private static ICollection<Claim> GetClaims(User user, TelegramAccount telegramAccount)
     {
-        var user = await _userSession.GetUserAsync();
-        
-        await _usersService.SetClaimAsync(
-            user,
-            NudeClaimTypes.Role,
-            "User-" + Random.Shared.Next(),
-            issuer: null
-        );
+        var claims = new List<Claim>
+        {
+            new("sub", user.Id.ToString()),
+            new("name", telegramAccount.Username)
+        };
+        claims.AddRange(user.Claims.ToClaims());
 
-        return Ok();
+        return claims;
     }
 
     private static SecurityKey CreateSecurityKey()
