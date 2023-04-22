@@ -87,7 +87,7 @@ public class NudeParser : INudeParser
     private static void RequireDomain(string input)
     {
         if (!Uri.TryCreate(input, UriKind.Absolute, out var uri))
-            throw new InvalidMangaUrlException($"Input cannot convert to Uri");
+            throw new InvalidMangaUrlException("Input cannot convert to Uri");
         if (uri.Host != Domain)
             throw new InvalidMangaUrlException($"Not required domain {Domain}");
     }
