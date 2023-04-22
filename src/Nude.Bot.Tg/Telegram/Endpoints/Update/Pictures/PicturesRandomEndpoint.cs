@@ -5,6 +5,7 @@ using Nude.API.Models.Enums;
 using Nude.API.Models.Media;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Constants;
+using Nude.Bot.Tg.Models.Api;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot;
@@ -25,12 +26,33 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         _client = client;
         _context = context;
     }
-
+    private async Task<List<TelegramMedia>> GetMediaFromDb(ApiResult<ImageResponse[]> result)
+    {
+        var media = new List<TelegramMedia>();
+        foreach (var image in result.Result!)
+        {
+            var dbImage = await _context.Medias.FirstOrDefaultAsync(x => x.ContentKey == image.ContentKey);
+            if (dbImage != null) 
+            {
+                media.Add(dbImage);
+            }
+            else
+            {
+                var mediEntity = new TelegramMedia
+                {
+                    ContentKey = image.ContentKey,
+                    MediaType = TelegramMediaType.Photo,
+                };
+            }
+        }
+        return media;
+    }
     public override async Task HandleAsync()
     {
         var result = await _client.GetRandomImagesAsync();
         if (result.IsSuccess)
         {
+            var media = await GetMediaFromDb(result);
             using var client = new HttpClient();
             var fileStreamsList = new List<Stream>();
             foreach (var image in result.ResultValue)
