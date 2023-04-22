@@ -27,6 +27,7 @@ public class DefaultTelegraphClient : ITelegraphClient
     private void InitTelegraph()
     {
         var accessToken = _configuration[BotDefaults.TelegraphAccessTokenSection];
+        accessToken = "d5194625abfca0facf0c3cf9be6107212bcf98b41d9f2de520fb15e483d1";
         if (string.IsNullOrWhiteSpace(accessToken))
         {
             throw new Exception("Telegraph AccessToken not set or invalid!");
