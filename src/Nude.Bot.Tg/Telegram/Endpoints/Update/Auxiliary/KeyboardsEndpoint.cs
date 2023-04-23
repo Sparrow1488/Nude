@@ -9,6 +9,8 @@ namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Auxiliary;
 
 public class KeyboardsEndpoint : TelegramUpdateEndpoint
 {
+    private readonly IMessagesStore _messagesStore;
+
     private static readonly string[] Keyboards =
     {
         NavigationCommands.HomeChapter, 
@@ -16,6 +18,11 @@ public class KeyboardsEndpoint : TelegramUpdateEndpoint
         NavigationCommands.PicturesChapter,
         NavigationCommands.ProfileChapter
     };
+
+    public KeyboardsEndpoint(IMessagesStore messagesStore)
+    {
+        _messagesStore = messagesStore;
+    }
     
     public override bool CanHandle() => Keyboards.Contains(MessageText);
     
@@ -31,7 +38,7 @@ public class KeyboardsEndpoint : TelegramUpdateEndpoint
             home => GetMessage("Вы перешли в главное меню", KeyboardsStore.MainKeyboard),
             manga => GetMessage("Вы перешли в раздел с мангой", KeyboardsStore.MangaKeyboard),
             pictures => GetMessage("Вы перешли в раздел с картинками", KeyboardsStore.PictureKeyboard),
-            profile => GetMessage("Вы перешли в раздел профиля", KeyboardsStore.ProfileKeyboard),
+            profile => await _messagesStore.GetProfileChapterMessageAsync(UserSession.User, Identity),
             _ => throw new ArgumentOutOfRangeException()
         };
 

@@ -1,6 +1,10 @@
+using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Nude.API.Contracts.Errors.Responses;
+using Nude.API.Infrastructure.Extensions;
+using Nude.API.Models.Users;
 using Nude.Bot.Tg.Services.Keyboards;
+using Nude.Bot.Tg.Services.Utils;
 using Telegram.Bot.Types.Enums;
 
 namespace Nude.Bot.Tg.Services.Messages.Store;
@@ -78,6 +82,20 @@ public class MessageStore : IMessagesStore
         return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 
+    public Task<MessageItem> GetProfileChapterMessageAsync(TelegramUser user, ClaimsIdentity identity)
+    {
+        var text = string.Format(
+            _messages["profile"],
+            user.Username,
+            RoleUtils.GoodPrintRoleName(identity.GetRoleRequired()),
+            "2", // TODO: Get from limits
+            "нет", // no access to upload images
+            "немало", // uploaded manga
+            "немало" // uploaded photos
+        );
+        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2, KeyboardsStore.ProfileKeyboard));
+    }
+    
     public Task<MessageItem> GetImagesUploadMessageAsync(int currentImage, int totalImages)
     {
         return Task.FromResult(new MessageItem(

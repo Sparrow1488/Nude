@@ -10,7 +10,7 @@ namespace Nude.Bot.Tg.Services.Background;
 
 public class BotBgService : BackgroundService
 {
-    private IServiceProvider _services;
+    private readonly IServiceProvider _services;
 
     public BotBgService(IServiceProvider services)
     {

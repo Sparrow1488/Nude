@@ -1,4 +1,6 @@
+using System.Security.Claims;
 using Nude.API.Contracts.Errors.Responses;
+using Nude.API.Models.Users;
 
 namespace Nude.Bot.Tg.Services.Messages.Store;
 
@@ -18,5 +20,6 @@ public interface IMessagesStore
     Task<MessageItem> GetHelpMessageAsync();
     Task<MessageItem> GetErrorResponseMessageAsync(ErrorResponse errorResponse);
     Task<MessageItem> GetSourcesMessageAsync(List<string> sources);
+    Task<MessageItem> GetProfileChapterMessageAsync(TelegramUser user, ClaimsIdentity identity);
     Task<MessageItem> GetImagesUploadMessageAsync(int currentImage, int totalImages);
 }
