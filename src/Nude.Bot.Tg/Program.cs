@@ -1,16 +1,11 @@
 ﻿using System.Reflection;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
-using Nude.API.Infrastructure.Configurations.Json;
-using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Constants.Defaults;
 using Nude.API.Infrastructure.Extensions;
-using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Background;
