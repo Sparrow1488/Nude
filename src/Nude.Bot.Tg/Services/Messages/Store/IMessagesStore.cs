@@ -1,3 +1,5 @@
+using Nude.API.Contracts.Errors.Responses;
+
 namespace Nude.Bot.Tg.Services.Messages.Store;
 
 public interface IMessagesStore
@@ -13,8 +15,8 @@ public interface IMessagesStore
     Task<MessageItem> GetReadMangaMessageAsync(string manga);
     Task<MessageItem> GetStartMessageAsync();
     Task<MessageItem> GetCallbackFailedMessageAsync();
-    MessageItem GetPicturesByTagsMessage();
     Task<MessageItem> GetHelpMessageAsync();
+    Task<MessageItem> GetErrorResponseMessageAsync(ErrorResponse errorResponse);
     Task<MessageItem> GetSourcesMessageAsync(List<string> sources);
     Task<MessageItem> GetImagesUploadMessageAsync(int currentImage, int totalImages);
 }

@@ -39,8 +39,10 @@ public class TelegramHandler : ITelegramHandler
             try
             {
                 var user = update.Message!.From!;
-                var anonUsername = "User-" + user.Id;
-                var result = await userManager.GetUserSessionAsync(user.Id, user?.Username ?? anonUsername);
+                var result = await userManager.GetUserSessionAsync(
+                    user.Id, 
+                    user.Username ?? AnonUsername(user)
+                );
 
                 if (result.IsSuccess)
                 {
@@ -64,6 +66,8 @@ public class TelegramHandler : ITelegramHandler
             }
         }
     }
+
+    private static string AnonUsername(User user) => "User-" + user.Id;
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ctk)
     {

@@ -17,13 +17,16 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
 {
     private readonly INudeClient _client;
     private readonly IMessageService _service;
+    private readonly IMessagesStore _messagesStore;
 
     public PictureUploadEndpoint(
         INudeClient client,
-        IMessageService service)
+        IMessageService service,
+        IMessagesStore messagesStore)
     {
         _client = client;
         _service = service;
+        _messagesStore = messagesStore;
     }
     
     public override bool CanHandle() => Update.Message?.Photo != null;
@@ -71,7 +74,8 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         }
         else
         {
-            await MessageAsync(result.Status + ": " + result.Message);
+            var badMessage = await _messagesStore.GetErrorResponseMessageAsync(result.ErrorValue);
+            await MessageAsync(badMessage);
         }
     }
 

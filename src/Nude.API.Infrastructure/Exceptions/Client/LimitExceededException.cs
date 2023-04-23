@@ -7,10 +7,9 @@ public sealed class LimitExceededException : BadRequestException
         string limitTarget, 
         string? description, 
         string? message) 
-    : base(message)
+    : base(description, message)
     {
         Data.Add("limit", limit);
         Data.Add("limit_target", limitTarget);
-        Data.Add("limit_description", description ?? "unknown_description");
     }
 }

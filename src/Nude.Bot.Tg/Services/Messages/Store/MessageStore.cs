@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Configuration;
+using Nude.API.Contracts.Errors.Responses;
 using Nude.Bot.Tg.Services.Keyboards;
 using Telegram.Bot.Types.Enums;
 
@@ -49,6 +50,21 @@ public class MessageStore : IMessagesStore
     {
         var startText = _messages["help"];
         return Task.FromResult(new MessageItem(startText, ParseMode.MarkdownV2));
+    }
+
+    public Task<MessageItem> GetErrorResponseMessageAsync(ErrorResponse errorResponse)
+    {
+        const string description = "description";
+        if (errorResponse.Data?.Contains(description) ?? false)
+        {
+            var text = errorResponse.Data[description]!.ToString()!;
+            return Task.FromResult(new MessageItem(text, ParseMode.Html));
+        }
+
+        return Task.FromResult(new MessageItem(
+            errorResponse.Status + ": " + errorResponse.Message,
+            ParseMode.Html
+        ));
     }
 
     public Task<MessageItem> GetSourcesMessageAsync(List<string> sources)
