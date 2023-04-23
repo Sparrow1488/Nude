@@ -22,7 +22,7 @@
 Чтобы авторизоваться с помощью Telegram, нужно отправить запрос:
 
 ```http
-POST <BASE_URL>/auth?username=<USERNAME> HTTP/1.1
+POST /auth?username=<USERNAME> HTTP/1.1
 ```
 
 В случае, если пользователь с таким именем еще не добавлен в БД, он будет автоматически создан, а также к нему будет привязан `TelegramAccount` с указанным <USERNAME>.
@@ -34,7 +34,7 @@ HTTP/1.1 200 OK
 Content-Type: application/json
 
 {
-	"token": "<ACCESS_TOKEN>"
+   "token": "<ACCESS_TOKEN>"
 }
 ```
 
