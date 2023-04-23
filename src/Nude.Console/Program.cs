@@ -32,6 +32,7 @@ var mangaUrls = new List<string>
 {
     // "https://nude-moon.org/20932-online--gingko-chibi-suc.html",
     // "https://nude-moon.org/21446--pigmanboy-rika-no-oshiri-challenge--ispetanie-dla-riki.html",
+    "https://xxxxx.hentaichan.live/manga/45442-msultimate.html",
     "https://y.hentaichan.live/online/45195-zimnie-kanikuly.html?cacheId=1679404899",
     "https://xxxxx.hentaichan.live/manga/45420-vlyubitsya-v-mori-summer.html",
     // "https://y.hentaichan.live/manga/45195-zimnie-kanikuly.html",
