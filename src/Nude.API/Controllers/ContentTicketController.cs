@@ -5,6 +5,8 @@ using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Models.Tickets;
+using Nude.API.Services.Limits;
+using Nude.API.Services.Limits.Handlers;
 using Nude.API.Services.Tickets;
 using Nude.API.Services.Users;
 
@@ -15,15 +17,18 @@ public class ContentTicketController : ApiController
 {
     private readonly IMapper _mapper;
     private readonly IUserSession _session;
+    private readonly ILimitService _limitService;
     private readonly IContentTicketService _service;
 
     public ContentTicketController(
         IMapper mapper,
         IUserSession session,
+        ILimitService limitService,
         IContentTicketService service)
     {
         _mapper = mapper;
         _session = session;
+        _limitService = limitService;
         _service = service;
     }
 
@@ -31,13 +36,10 @@ public class ContentTicketController : ApiController
     public async Task<IActionResult> Create(ContentTicketRequest request)
     {
         var user = await _session.GetUserAsync();
-        var userTickets = await _service.GetUserTicketsAsync(user.Id);
 
-        if (userTickets.Count >= 3)
-        {
-            var exception = new TicketLimitExceededException("You have more than 3 tickets");
-            return Exception(exception);
-        }
+        var limitResult = await _limitService.IsLimitedAsync(LimitTarget.ContentTicketCreation);
+        if (!limitResult.IsSuccess)
+            return Exception(limitResult.Exception!);
         
         var result = await _service.CreateAsync(request.SourceUrl, user);
 

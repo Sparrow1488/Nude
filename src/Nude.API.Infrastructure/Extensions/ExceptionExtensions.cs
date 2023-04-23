@@ -10,8 +10,9 @@ public static class ExceptionExtensions
     {
         var response = new ErrorResponse
         {
-            Message = exception.Message,
             Data = exception.Data,
+            Message = exception.Message,
+            Exception = exception.GetType().Name,
             Status = StatusCodes.Status500InternalServerError
         };
 

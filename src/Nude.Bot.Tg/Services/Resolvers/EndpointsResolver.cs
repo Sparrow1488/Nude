@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Nude.Bot.Tg.Attributes;
 using Nude.Bot.Tg.Services.Users;
@@ -23,7 +24,8 @@ public class EndpointsResolver
     public TelegramUpdateEndpoint GetUpdateHandler(
         Update update, 
         ITelegramBotClient botClient,
-        UserSession session)
+        UserSession session,
+        ClaimsIdentity identity)
     {
         var endpoints = GetEndpoints();
         var implEndpoints = endpoints.Select(CreateEndpoint).ToList();
@@ -35,6 +37,7 @@ public class EndpointsResolver
             x.BotClient = botClient;
             x.ServiceProvider = _services;
             x.UserSession = session;
+            x.Identity = identity;
         });
         
         var handler = implEndpoints.FirstOrDefault(x => x.CanHandle());

@@ -60,6 +60,42 @@ namespace Nude.API.Migrations
                     b.ToTable("manga_entry_tag", (string)null);
                 });
 
+            modelBuilder.Entity("Nude.API.Models.Claims.ClaimEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Issuer")
+                        .HasColumnType("text")
+                        .HasColumnName("issuer");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_claims");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_claims_user_id");
+
+                    b.ToTable("claims", (string)null);
+                });
+
             modelBuilder.Entity("Nude.API.Models.Collections.CollectionImage", b =>
                 {
                     b.Property<int>("Id")
@@ -484,6 +520,18 @@ namespace Nude.API.Migrations
                         .HasConstraintName("fk_manga_entry_tag_tags_tags_id");
                 });
 
+            modelBuilder.Entity("Nude.API.Models.Claims.ClaimEntry", b =>
+                {
+                    b.HasOne("Nude.API.Models.Users.User", "User")
+                        .WithMany("Claims")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_claims_users_user_id");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Nude.API.Models.Collections.CollectionImage", b =>
                 {
                     b.HasOne("Nude.API.Models.Collections.ImageCollection", "Collection")
@@ -614,6 +662,8 @@ namespace Nude.API.Migrations
             modelBuilder.Entity("Nude.API.Models.Users.User", b =>
                 {
                     b.Navigation("Accounts");
+
+                    b.Navigation("Claims");
 
                     b.Navigation("ContentTickets");
 

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Models.Claims;
 using Nude.API.Models.Collections;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Images;
@@ -32,6 +33,7 @@ public class AppDbContext : DatabaseContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<ClaimEntry> Claims => Set<ClaimEntry>();
     public DbSet<TelegramAccount> TelegramAccounts => Set<TelegramAccount>();
     
     protected override void OnModelCreating(ModelBuilder builder)

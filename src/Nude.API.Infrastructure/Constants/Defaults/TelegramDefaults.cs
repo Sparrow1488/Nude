@@ -1,4 +1,4 @@
-namespace Nude.API.Infrastructure.Constants;
+namespace Nude.API.Infrastructure.Constants.Defaults;
 
 public static class TelegramDefaults
 {

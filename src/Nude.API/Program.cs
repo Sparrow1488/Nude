@@ -1,13 +1,13 @@
 using System.Security.Cryptography;
-using AngleSharp.Browser;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using Nude.API.Infrastructure.Clients.Telegraph;
-using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants;
+using Nude.Data.Infrastructure.Contexts;
+using Nude.API.Infrastructure.Constants.Defaults;
 using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
@@ -19,6 +19,8 @@ using Nude.API.Infrastructure.Services.Storages;
 using Nude.API.Services.Collections;
 using Nude.API.Services.Formatters;
 using Nude.API.Services.Images;
+using Nude.API.Services.Limits;
+using Nude.API.Services.Limits.Handlers;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
 using Nude.API.Services.Queues;
@@ -89,6 +91,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.MapInboundClaims = false;
     });
 
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy(Policies.Admin, configure =>
+    {
+        configure.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
+        configure.RequireClaim(NudeClaimTypes.Role, NudeClaims.Roles.Administrator);
+    });
+});
+
 #endregion
 
 #region Services
@@ -124,6 +135,9 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITelegraphClient, DefaultTelegraphClient>();
 
 builder.Services.AddScoped<IRandomizer, CryptoRandomizer>();
+
+builder.Services.AddScoped<ILimitService, LimitService>();
+builder.Services.AddScoped<LimitHandler, ContentTicketCreationLimitHandler>();
 
 #endregion
 

@@ -1,18 +1,26 @@
 ﻿using Nude.API.Contracts.Images.Responses;
+using Nude.Bot.Tg.Attributes;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
+using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
 namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Pictures;
 
+[IgnoreEndpoint]
 public class PictagEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _nudeClient;
-    
-    public PictagEndpoint(INudeClient nudeClient) : base("/pictag")
+    private readonly IMessagesStore _messages;
+
+    public PictagEndpoint(
+        INudeClient nudeClient,
+        IMessagesStore messages) 
+    : base("/pictag")
     {
         _nudeClient = nudeClient;
+        _messages = messages;
     }
     
     public override async Task HandleAsync()
@@ -42,7 +50,8 @@ public class PictagEndpoint : TelegramUpdateCommandEndpoint
         }
         else
         {
-            await MessageAsync(result.Status + ": " + result.Message);
+            var badMessage = await _messages.GetErrorResponseMessageAsync(result.ErrorValue);
+            await MessageAsync(badMessage);
         }
     }
 

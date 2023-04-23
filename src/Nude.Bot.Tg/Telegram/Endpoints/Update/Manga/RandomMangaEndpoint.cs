@@ -10,7 +10,7 @@ public class RandomMangaEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _client;
 
-    public RandomMangaEndpoint(INudeClient client) : base(NavigationDefaults.RandomManga)
+    public RandomMangaEndpoint(INudeClient client) : base(NavigationCommands.RandomManga)
     {
         _client = client;
     }

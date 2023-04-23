@@ -10,7 +10,7 @@ namespace Nude.Bot.Tg.Services.Background;
 
 public class BotBgService : BackgroundService
 {
-    private IServiceProvider _services;
+    private readonly IServiceProvider _services;
 
     public BotBgService(IServiceProvider services)
     {
@@ -22,7 +22,7 @@ public class BotBgService : BackgroundService
         var bot = _services.GetRequiredService<ITelegramBotClient>();
         var botInfo = await bot.GetMeAsync(ctk);
 
-        var logger = _services.GetRequiredService<ILogger<BotInitializer>>();
+        var logger = _services.GetRequiredService<ILogger<BotBgService>>();
         logger.LogInformation(botInfo.FirstName + " started");
 
         var handler = _services.GetRequiredService<ITelegramHandler>();

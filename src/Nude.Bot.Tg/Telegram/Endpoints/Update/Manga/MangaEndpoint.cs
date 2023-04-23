@@ -66,8 +66,8 @@ public class MangaEndpoint : TelegramUpdateEndpoint
         }
         else
         {
-            var badMessage = ticketResult.Status + ": " + ticketResult.Message;
-            await MessageAsync(new MessageItem(badMessage, ParseMode.Html));
+            var badMessage = await _messages.GetErrorResponseMessageAsync(ticketResult.ErrorValue);
+            await MessageAsync(badMessage);
         }
     }
 }

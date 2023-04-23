@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nude.Bot.Tg.Services.Resolvers;
@@ -11,17 +13,16 @@ namespace Nude.Bot.Tg.Telegram.Handlers;
 public class TelegramHandler : ITelegramHandler
 {
     private readonly IServiceProvider _services;
-    private readonly EndpointsResolver _endpointsResolver;
     private readonly ILogger<TelegramHandler> _logger;
+    private readonly JwtSecurityTokenHandler _jwtHandler;
 
     public TelegramHandler(
         IServiceProvider services,
-        EndpointsResolver endpointsResolver,
         ILogger<TelegramHandler> logger)
     {
         _services = services;
-        _endpointsResolver = endpointsResolver;
         _logger = logger;
+        _jwtHandler = new JwtSecurityTokenHandler();
     }
     
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken ctk)
@@ -32,6 +33,7 @@ public class TelegramHandler : ITelegramHandler
             update.Message?.Chat.Username);
 
         await using var scope = _services.CreateAsyncScope();
+        var endpointsResolver = scope.ServiceProvider.GetRequiredService<EndpointsResolver>();
         var userManager = scope.ServiceProvider.GetRequiredService<IUserManager>();
         
         if(update.Type == UpdateType.Message)
@@ -39,14 +41,20 @@ public class TelegramHandler : ITelegramHandler
             try
             {
                 var user = update.Message!.From!;
-                var anonUsername = "User-" + user.Id;
-                var result = await userManager.GetUserSessionAsync(user.Id, user?.Username ?? anonUsername);
+                var result = await userManager.GetUserSessionAsync(
+                    user.Id, 
+                    user.Username ?? AnonUsername(user)
+                );
 
                 if (result.IsSuccess)
                 {
                     var session = result.Result!;
                     
-                    var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient, session);
+                    var token = _jwtHandler.ReadJwtToken(session.User.AccessToken);
+                    var identity = new ClaimsIdentity(token.Claims);
+                    
+                    // TODO: endpoint requirements (check identity.role)
+                    var endpoint = endpointsResolver.GetUpdateHandler(update, botClient, session, identity);
                     await endpoint.HandleAsync();
                 }
                 else
@@ -64,6 +72,8 @@ public class TelegramHandler : ITelegramHandler
             }
         }
     }
+
+    private static string AnonUsername(User user) => "User-" + user.Id;
 
     public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken ctk)
     {

@@ -4,7 +4,7 @@ using Kvyk.Telegraph.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Constants.Defaults;
 using Polly;
 
 namespace Nude.API.Infrastructure.Clients.Telegraph;

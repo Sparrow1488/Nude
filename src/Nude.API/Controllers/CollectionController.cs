@@ -1,7 +1,9 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nude.API.Contracts.Collections.Requests;
 using Nude.API.Contracts.Collections.Responses;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Infrastructure.Utility;
 using Nude.API.Models.Collections;
@@ -27,7 +29,7 @@ public class CollectionController : ApiController
         _service = service;
     }
 
-    [HttpPost]
+    [HttpPost, Authorize(Policies.Admin)]
     public async Task<IActionResult> Create(ImageCollectionCreateRequest request)
     {
         var images = await _imagesService.FindAsync(request.Images);

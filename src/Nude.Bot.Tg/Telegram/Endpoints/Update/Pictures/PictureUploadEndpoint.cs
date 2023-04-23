@@ -1,4 +1,6 @@
 using Nude.API.Contracts.Images.Responses;
+using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Extensions;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Messages.Details;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
@@ -17,16 +19,21 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
 {
     private readonly INudeClient _client;
     private readonly IMessageService _service;
+    private readonly IMessagesStore _messagesStore;
 
     public PictureUploadEndpoint(
         INudeClient client,
-        IMessageService service)
+        IMessageService service,
+        IMessagesStore messagesStore)
     {
         _client = client;
         _service = service;
+        _messagesStore = messagesStore;
     }
     
-    public override bool CanHandle() => Update.Message?.Photo != null;
+    public override bool CanHandle() => 
+        Update.Message?.Photo != null &&
+        Identity.GetRoleRequired() == NudeClaims.Roles.Administrator;
     
     public override async Task HandleAsync()
     {
@@ -71,7 +78,8 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         }
         else
         {
-            await MessageAsync(result.Status + ": " + result.Message);
+            var badMessage = await _messagesStore.GetErrorResponseMessageAsync(result.ErrorValue);
+            await MessageAsync(badMessage);
         }
     }
 

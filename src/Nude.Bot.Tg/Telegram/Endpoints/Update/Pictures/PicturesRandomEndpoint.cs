@@ -5,6 +5,7 @@ using Nude.API.Models.Media;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Constants;
 using Nude.Bot.Tg.Models.Api;
+using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot;
@@ -16,14 +17,17 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _client;
     private readonly BotDbContext _context;
+    private readonly IMessagesStore _messages;
 
     public PicturesRandomEndpoint(
         INudeClient client,
-        BotDbContext context) 
-    : base(NavigationDefaults.RandomPicture)
+        BotDbContext context,
+        IMessagesStore messages) 
+    : base(NavigationCommands.RandomPicture)
     {
         _client = client;
         _context = context;
+        _messages = messages;
     }
 
     public override async Task HandleAsync()
@@ -46,7 +50,8 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         }
         else
         {
-            await MessageAsync(result.Status + ": " + result.Message);
+            var badMessage = await _messages.GetErrorResponseMessageAsync(result.ErrorValue);
+            await MessageAsync(badMessage);
         }
     }
     
@@ -69,7 +74,7 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
     {
         var media = new List<TelegramMedia>();
         
-        foreach (var image in result.Result!)
+        foreach (var image in result.ResultValue)
         {
             var dbImage = await _context.Medias
                 .FirstOrDefaultAsync(x => x.ContentKey == image.ContentKey);

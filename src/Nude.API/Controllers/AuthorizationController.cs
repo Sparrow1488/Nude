@@ -5,9 +5,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using Nude.API.Contracts.Tokens.Responses;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Keys;
+using Nude.API.Models.Users;
 using Nude.API.Models.Users.Accounts;
 using Nude.API.Services.Users;
+using Nude.Data.Infrastructure.Extensions;
 
 namespace Nude.API.Controllers;
 
@@ -16,10 +19,8 @@ public class AuthorizationController : ApiController
 {
     private readonly IUsersService _usersService;
 
-    public AuthorizationController(IUsersService usersService)
-    {
+    public AuthorizationController(IUsersService usersService) =>
         _usersService = usersService;
-    }
     
     [HttpPost]
     public async Task<IActionResult> SignInTelegram(string username)
@@ -28,7 +29,7 @@ public class AuthorizationController : ApiController
 
         var existsUser = await _usersService.FindByTelegramAsync(username);
 
-        if (existsUser == null)
+        if (existsUser is null)
         {
             var account = new TelegramAccount { Username = username };
             var result = await _usersService.CreateAsync(account);
@@ -39,23 +40,38 @@ public class AuthorizationController : ApiController
             }
             
             existsUser = result.Result!;
-        }
 
+            await _usersService.SetClaimAsync(
+                existsUser, 
+                NudeClaimTypes.Role,
+                NudeClaims.Roles.User,
+                issuer: null
+            );
+        }
+        
         var credentials = new SigningCredentials(CreateSecurityKey(), SecurityAlgorithms.RsaSha256);
         var telegramAccount = (TelegramAccount) existsUser.Accounts.First(x => x is TelegramAccount);
         var token = handler.CreateToken(new SecurityTokenDescriptor
         {
             Issuer = "http://127.0.0.1:3001",
             SigningCredentials = credentials,
-            Subject = new ClaimsIdentity(new []
-            {
-                new Claim("sub", existsUser.Id.ToString()),
-                new Claim("name", telegramAccount.Username),
-            })
+            Subject = new ClaimsIdentity(GetClaims(existsUser, telegramAccount))
         });
 
         var response = new JwtTokenResponse { Token = token };
         return Ok(response);
+    }
+
+    private static ICollection<Claim> GetClaims(User user, TelegramAccount telegramAccount)
+    {
+        var claims = new List<Claim>
+        {
+            new("sub", user.Id.ToString()),
+            new("name", telegramAccount.Username)
+        };
+        claims.AddRange(user.Claims.ToClaims());
+
+        return claims;
     }
 
     private static SecurityKey CreateSecurityKey()
