@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Nude.API.Infrastructure.Configurations.Json;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace Nude.Bot.Tg.Services.Controllers
 {
+    [Route("/callback")]
     public class CallbackController
     {
         private readonly IServiceProvider _provider;
@@ -24,7 +26,7 @@ namespace Nude.Bot.Tg.Services.Controllers
             _httpContext = httpContext;
         }
 
-        public async Task ProcessCallback()
+        public async Task ProcessCallbackAsync()
         {
             var obj = await GetDeserializedObject();
             var callbackRoute = _provider.GetRequiredService<ICallbackHandler>();

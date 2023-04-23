@@ -10,6 +10,8 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Conventions;
+using Nude.API.Infrastructure.Extensions;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
@@ -61,7 +63,13 @@ builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 #region Endpoints & Routes
 
 builder.Services.AddSingleton<EndpointsResolver>();
-builder.Services.AddScoped<ICallbackHandler,CallbackHandler>();
+builder.Services.AddScoped<ICallbackHandler, CallbackHandler>();
+builder.Services
+    .AddControllers(opt =>
+    {
+        opt.Conventions.Add(new RoutePrefixConvention(new RouteAttribute("/callback")));
+    })
+    .AddNewtonsoftJson(options => options.BindOptions());
 
 #endregion
 
@@ -96,13 +104,14 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
+app.MapControllers();
 
-app.MapPost("/callback", async (context) =>
+/*app.MapPost("/callback", async (context) =>
 {
     var controller = new CallbackController(app.Services,context);
-    await controller.ProcessCallback();
+    await controller.ProcessCallbackAsync();
     context.Response.StatusCode = StatusCodes.Status200OK;
     await context.Response.WriteAsync("ok");
-});
+});*/
 
 await app.RunAsync(cancellationSource.Token);
