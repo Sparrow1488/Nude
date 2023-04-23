@@ -1,4 +1,6 @@
 using Nude.API.Contracts.Images.Responses;
+using Nude.API.Infrastructure.Constants;
+using Nude.API.Infrastructure.Extensions;
 using Nude.API.Models.Messages;
 using Nude.API.Models.Messages.Details;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
@@ -29,7 +31,9 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
         _messagesStore = messagesStore;
     }
     
-    public override bool CanHandle() => Update.Message?.Photo != null;
+    public override bool CanHandle() => 
+        Update.Message?.Photo != null &&
+        Identity.GetRoleRequired() == NudeClaims.Roles.Administrator;
     
     public override async Task HandleAsync()
     {

@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Nude.Bot.Tg.Services.Resolvers;
@@ -13,6 +15,7 @@ public class TelegramHandler : ITelegramHandler
     private readonly IServiceProvider _services;
     private readonly EndpointsResolver _endpointsResolver;
     private readonly ILogger<TelegramHandler> _logger;
+    private readonly JwtSecurityTokenHandler _jwtHandler;
 
     public TelegramHandler(
         IServiceProvider services,
@@ -22,6 +25,7 @@ public class TelegramHandler : ITelegramHandler
         _services = services;
         _endpointsResolver = endpointsResolver;
         _logger = logger;
+        _jwtHandler = new JwtSecurityTokenHandler();
     }
     
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken ctk)
@@ -48,7 +52,11 @@ public class TelegramHandler : ITelegramHandler
                 {
                     var session = result.Result!;
                     
-                    var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient, session);
+                    var token = _jwtHandler.ReadJwtToken(session.User.AccessToken);
+                    var identity = new ClaimsIdentity(token.Claims);
+                    
+                    // TODO: endpoint requirements (check identity.role)
+                    var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient, session, identity);
                     await endpoint.HandleAsync();
                 }
                 else
