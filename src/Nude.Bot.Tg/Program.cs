@@ -62,7 +62,6 @@ builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 
 builder.Services.AddSingleton<EndpointsResolver>();
 builder.Services.AddScoped<ICallbackHandler,CallbackHandler>();
-builder.Services.AddScoped<CallbackController>();
 
 #endregion
 
@@ -100,7 +99,7 @@ var app = builder.Build();
 
 app.MapPost("/callback", async (context) =>
 {
-    var controller = app.Services.GetRequiredService<CallbackController>();
+    var controller = new CallbackController(app.Services,context);
     await controller.ProcessCallback();
     context.Response.StatusCode = StatusCodes.Status200OK;
     await context.Response.WriteAsync("ok");
