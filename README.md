@@ -56,4 +56,4 @@ docker run --name Nude.DB -p 5432:5432 -e POSTGRES_PASSWORD=secret -d postgres
 # Production
 
 - [ ] AutoMigrations
-- [ ] Database connection string (password, port)
+- [x] Database connection string (password, port)

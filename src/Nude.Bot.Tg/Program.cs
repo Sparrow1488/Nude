@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Nude.API.Infrastructure.Constants.Defaults;
 using Nude.API.Infrastructure.Extensions;
+using Nude.API.Infrastructure.Initializers;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Background;
@@ -67,6 +68,7 @@ builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 
 void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
 {
+    var config = provider.GetRequiredService<IConfiguration>();
     var connection = provider.GetRequiredService<IConfiguration>()
         .GetConnectionString("Database");
     opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
@@ -92,6 +94,11 @@ Console.CancelKeyPress += (_, _) =>
 };
 
 var app = builder.Build();
+
+if (app.Environment.IsProduction())
+{
+    await DatabaseInitializer.InitializeAsync<BotDbContext>(app.Services);
+}
 
 app.MapControllers();
 

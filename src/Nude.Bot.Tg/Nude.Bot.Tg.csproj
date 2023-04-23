@@ -54,11 +54,13 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include="appsettings.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
       <None Remove="appsettings.json" />
-      <Content Include="appsettings.json" />
       <None Remove="appsettings.Development.json" />
       <Content Include="appsettings.Development.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 
