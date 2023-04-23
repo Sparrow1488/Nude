@@ -29,19 +29,19 @@ public class CallbackHandler : ICallbackHandler
         _messageService = messageService;
     }
     
-    public async Task OnCallbackAsync(Notification subject)
+    public async Task HandleAsync(Notification notification)
     {
-        var contentKey = (subject.Details as ContentNotificationDetails)!.ContentKey;
+        var contentKey = (notification.Details as ContentNotificationDetails)!.ContentKey;
         var messages = await _messageService.FindByContentKeyAsync(contentKey);
         
         // Прогресс форматирования
-        if (subject.Details is FormattingProgressDetails progress)
+        if (notification.Details is FormattingProgressDetails progress)
         {
             await EditMessagesAsync(messages, $"Загрузка {progress.CurrentImage} из {progress.TotalImages}");
             return;
         }
 
-        if (subject.Details is ContentTicketChangedDetails ticketDetails)
+        if (notification.Details is ContentTicketChangedDetails ticketDetails)
         {
             switch (ticketDetails.Status)
             {
@@ -68,7 +68,7 @@ public class CallbackHandler : ICallbackHandler
         }
 
         // Все готово, лови ссылку
-        if (subject.Details is FormattingStatusDetails formatDetails)
+        if (notification.Details is FormattingStatusDetails formatDetails)
         {
             if (formatDetails.Status == FormattingStatus.Success)
             {

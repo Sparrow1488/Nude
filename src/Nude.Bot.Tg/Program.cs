@@ -1,22 +1,14 @@
-﻿using System.Net.Http;
-using System.Reflection;
+﻿using System.Reflection;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
-using Nude.API.Infrastructure.Configurations.Json;
 using Nude.API.Infrastructure.Constants;
-using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
-using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Background;
-using Nude.Bot.Tg.Services.Controllers;
 using Nude.Bot.Tg.Services.Handlers;
 using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
@@ -34,6 +26,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.ConfigureHostConfiguration(
     x => x.AddUserSecrets(Assembly.GetExecutingAssembly()));
+
+#endregion
+
+#region Routing
+
+builder.Services.AddSingleton<EndpointsResolver>();
+builder.Services.AddScoped<ICallbackHandler, CallbackHandler>();
+
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson(options => options.BindOptions());
 
 #endregion
 
@@ -57,19 +60,6 @@ builder.Services.AddSingleton<ITelegramBotClient>(x =>
 
 builder.Services.AddHostedService<BotBgService>();
 builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
-
-#endregion
-
-#region Endpoints & Routes
-
-builder.Services.AddSingleton<EndpointsResolver>();
-builder.Services.AddScoped<ICallbackHandler, CallbackHandler>();
-builder.Services
-    .AddControllers(opt =>
-    {
-        opt.Conventions.Add(new RoutePrefixConvention(new RouteAttribute("/callback")));
-    })
-    .AddNewtonsoftJson(options => options.BindOptions());
 
 #endregion
 
@@ -105,13 +95,5 @@ Console.CancelKeyPress += (_, _) =>
 var app = builder.Build();
 
 app.MapControllers();
-
-/*app.MapPost("/callback", async (context) =>
-{
-    var controller = new CallbackController(app.Services,context);
-    await controller.ProcessCallbackAsync();
-    context.Response.StatusCode = StatusCodes.Status200OK;
-    await context.Response.WriteAsync("ok");
-});*/
 
 await app.RunAsync(cancellationSource.Token);

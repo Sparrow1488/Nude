@@ -1,5 +1,4 @@
-﻿using System.Net.Sockets;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Nude.API.Contracts.Images.Responses;
 using Nude.API.Models.Enums;
 using Nude.API.Models.Media;
