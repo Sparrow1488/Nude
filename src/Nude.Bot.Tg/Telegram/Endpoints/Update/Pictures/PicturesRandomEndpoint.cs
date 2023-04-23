@@ -16,7 +16,8 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _client;
     private readonly BotDbContext _context;
-    private List<ImageResponse> _notCachedPhotos = new List<ImageResponse>();
+    private List<ImageResponse> _uncachedImages = new();
+    private List<InputMedia> _inputMedia = new();
 
     public PicturesRandomEndpoint(
         INudeClient client,
@@ -29,17 +30,10 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
 
     public override async Task HandleAsync()
     {
-
         var result = await _client.GetRandomImagesAsync();
         if (result.IsSuccess)
         {
-            var imagesKeys = result.ResultValue.Select(x => x.ContentKey);
-            var cachedMedia = _context.Medias.Where(x => imagesKeys.Contains(x.ContentKey));
-
-            var cachedKeys = cachedMedia.Select(x => x.ContentKey);
-            _notCachedPhotos = (result.ResultValue.Where(x => !cachedKeys.Contains(x.ContentKey))).ToList();
-
-            //var cachedMedia = await GetCachedMediaAsync(result);
+            var cachedMedia = await GetCachedMediaAsync(result.ResultValue);
             var inputMedia = new List<InputMedia>();
 
             cachedMedia.ToList().ForEach(x => {
@@ -50,7 +44,7 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
             using var client = new HttpClient();
             var fileStreamsList = new List<Stream>();
             
-            foreach (var image in _notCachedPhotos)
+            foreach (var image in _uncachedImages)
             {
                 var stream = await client.GetStreamAsync(image.Url);
                 fileStreamsList.Add(stream);
@@ -68,7 +62,7 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         }
     }
     
-    private async Task<TelegramMedia> CacheMediaAsync(string fileId, ImageResponse image)
+    private async Task CacheMediaAsync(string fileId, ImageResponse image)
     {
         var mediaEntity = new TelegramMedia
         {
@@ -79,30 +73,19 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         
         await _context.AddAsync(mediaEntity);
         await _context.SaveChangesAsync();
-        
-        return mediaEntity;
     }
 
-    private async Task<List<TelegramMedia>> GetCachedMediaAsync(ApiResult<ImageResponse[]> result)
+    private async Task<List<TelegramMedia>> GetCachedMediaAsync(ImageResponse[] images)
     {
-        var media = new List<TelegramMedia>();
-        
-        foreach (var image in result.ResultValue)
-        {
-            var dbImage = await _context.Medias
-                .FirstOrDefaultAsync(x => x.ContentKey == image.ContentKey);
+        var imagesKeys = images.Select(x => x.ContentKey);
+        var cachedMedia = await _context.Medias
+            .Where(x => imagesKeys.Contains(x.ContentKey))
+            .ToListAsync();
 
-            if (dbImage != null)
-            {
-                media.Add(dbImage);
-            }
-            else
-            {
-                _notCachedPhotos.Add(image);
-            }
-        }
-        
-        return media;
+        var cachedKeys = cachedMedia.Select(x => x.ContentKey);
+        _uncachedImages = images.Where(x => !cachedKeys.Contains(x.ContentKey)).ToList();
+
+        return cachedMedia;
     }
 
     private async Task SendMediaAsync(List<InputMedia> media)
@@ -116,15 +99,15 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
             media: mediaList
         );
 
-        var idList = (messages.ToList().Select(x => 
-            x.Photo!.Last().FileId))
-            .ToList();
+        var fileIds = messages.Select(
+            x => x.Photo!.Last().FileId
+        ).ToList();
 
-        for (int i = _notCachedPhotos.Count; i > 0; i--)
+        for (var i = _uncachedImages.Count; i > 0; i--)
         {
-            string fileId = idList.Last();
-            await CacheMediaAsync(fileId, _notCachedPhotos[i - 1]);
-            idList.Remove(fileId);
+            var fileId = fileIds.Last();
+            await CacheMediaAsync(fileId, _uncachedImages[i - 1]);
+            fileIds.Remove(fileId);
         }
     }
 }
