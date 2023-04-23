@@ -10,6 +10,7 @@ using Nude.Data.Infrastructure.Contexts;
 using Nude.API.Infrastructure.Constants.Defaults;
 using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
+using Nude.API.Infrastructure.Initializers;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Keys;
@@ -169,6 +170,11 @@ builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(Forma
 #endregion
 
 var app = builder.Build();
+
+if (app.Environment.IsProduction())
+{
+    await DatabaseInitializer.InitializeAsync<AppDbContext>(app.Services);
+}
 
 app.UseStaticFiles();
 
