@@ -4,7 +4,6 @@ using Nude.API.Models.Enums;
 using Nude.API.Models.Media;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Constants;
-using Nude.Bot.Tg.Models.Api;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot;
@@ -34,11 +33,11 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         if (result.IsSuccess)
         {
             var cachedMedia = await GetCachedMediaAsync(result.ResultValue);
-            var inputMedia = new List<InputMedia>();
+            _inputMedia = new List<InputMedia>();
 
             cachedMedia.ToList().ForEach(x => {
                 var media = new InputMedia(x.FileId);
-                inputMedia.Add(media);
+                _inputMedia.Add(media);
             });
 
             using var client = new HttpClient();
@@ -48,31 +47,18 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
             {
                 var stream = await client.GetStreamAsync(image.Url);
                 fileStreamsList.Add(stream);
-                inputMedia.Add(
+                _inputMedia.Add(
                     new InputMedia(stream, image.GetHashCode() + "-nude-bot-image.png")        
                 );
             }
 
-            await SendMediaAsync(inputMedia);
+            await SendMediaAsync();
             fileStreamsList.ForEach(x => x.Close());
         }
         else
         {
             await MessageAsync(result.Status + ": " + result.Message);
         }
-    }
-    
-    private async Task CacheMediaAsync(string fileId, ImageResponse image)
-    {
-        var mediaEntity = new TelegramMedia
-        {
-            FileId = fileId,
-            ContentKey = image.ContentKey,
-            MediaType = TelegramMediaType.Photo
-        };
-        
-        await _context.AddAsync(mediaEntity);
-        await _context.SaveChangesAsync();
     }
 
     private async Task<List<TelegramMedia>> GetCachedMediaAsync(ImageResponse[] images)
@@ -88,9 +74,9 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         return cachedMedia;
     }
 
-    private async Task SendMediaAsync(List<InputMedia> media)
+    private async Task SendMediaAsync()
     {
-        var mediaList = media.Select(
+        var mediaList = _inputMedia.Select(
             x => new InputMediaPhoto(x)
         );
 
@@ -99,15 +85,32 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
             media: mediaList
         );
 
+        await CacheMediaAsync(messages);
+    }
+
+    private async Task CacheMediaAsync(Message[] messages)
+    {
         var fileIds = messages.Select(
             x => x.Photo!.Last().FileId
         ).ToList();
 
+        var telegramMedia = new List<TelegramMedia>();
         for (var i = _uncachedImages.Count; i > 0; i--)
         {
             var fileId = fileIds.Last();
-            await CacheMediaAsync(fileId, _uncachedImages[i - 1]);
+            telegramMedia.Add(new TelegramMedia
+            {
+                FileId = fileId,
+                ContentKey = _uncachedImages[i - 1].ContentKey,
+                MediaType = TelegramMediaType.Photo
+            });
             fileIds.Remove(fileId);
+        }
+
+        if (telegramMedia.Any())
+        {
+            await _context.AddRangeAsync(telegramMedia);
+            await _context.SaveChangesAsync();
         }
     }
 }

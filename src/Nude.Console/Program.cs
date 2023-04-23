@@ -1,14 +1,10 @@
 ﻿using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
-using Nude.Authorization.Handlers;
 using Nude.Constants;
 using Nude.Creators;
 using Nude.Models;
-using Nude.Navigation.Browser;
 using Nude.Parsers;
-using Nude.Parsers.HentaiChan;
-using Nude.Parsers.NudeMoon;
 using Serilog;
 
 #region Configuration
