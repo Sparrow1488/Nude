@@ -52,7 +52,7 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
                     new InputMedia(stream, image.GetHashCode() + "-nude-bot-image.png")        
                 );
             }
-            
+
             await SendMediaAsync(inputMedia);
             fileStreamsList.ForEach(x => x.Close());
         }
@@ -62,11 +62,11 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         }
     }
     
-    private async Task<TelegramMedia> CacheMediaAsync(ImageResponse image)
+    private async Task<TelegramMedia> CacheMediaAsync(string fileId, ImageResponse image)
     {
         var mediaEntity = new TelegramMedia
         {
-            FileId = image.Url,
+            FileId = fileId,
             ContentKey = image.ContentKey,
             MediaType = TelegramMediaType.Photo
         };
@@ -104,9 +104,21 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         var mediaList = media.Select(
             x => new InputMediaPhoto(x)
         );
+
         var messages = await BotClient.SendMediaGroupAsync(
             ChatId,
             media: mediaList
         );
+
+        var idList = (messages.ToList().Select(x => 
+            x.Photo!.Last().FileId))
+            .ToList();
+
+        for (int i = _notCachedPhotos.Count; i > 0; i--)
+        {
+            string fileId = idList.Last();
+            await CacheMediaAsync(fileId, _notCachedPhotos[i - 1]);
+            idList.Remove(fileId);
+        }
     }
 }
