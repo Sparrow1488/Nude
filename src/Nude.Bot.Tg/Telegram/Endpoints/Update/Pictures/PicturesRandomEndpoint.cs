@@ -33,10 +33,16 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         var result = await _client.GetRandomImagesAsync();
         if (result.IsSuccess)
         {
-            var cachedMedia = await GetCachedMediaAsync(result);
+            var imagesKeys = result.ResultValue.Select(x => x.ContentKey);
+            var cachedMedia = _context.Medias.Where(x => imagesKeys.Contains(x.ContentKey));
+
+            var cachedKeys = cachedMedia.Select(x => x.ContentKey);
+            _notCachedPhotos = (result.ResultValue.Where(x => !cachedKeys.Contains(x.ContentKey))).ToList();
+
+            //var cachedMedia = await GetCachedMediaAsync(result);
             var inputMedia = new List<InputMedia>();
 
-            cachedMedia.ForEach(x => {
+            cachedMedia.ToList().ForEach(x => {
                 var media = new InputMedia(x.FileId);
                 inputMedia.Add(media);
             });
