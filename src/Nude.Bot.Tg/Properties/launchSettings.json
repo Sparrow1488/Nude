@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Nude.Bot.Tg": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

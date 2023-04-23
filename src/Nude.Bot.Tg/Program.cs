@@ -70,7 +70,6 @@ void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
     var connection = provider.GetRequiredService<IConfiguration>()
         .GetConnectionString("Database");
     opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
-    // opt.UseInMemoryDatabase("Nude.Bot.Tg");
 }
 
 builder.Services.AddDbContext<BotDbContext>(ConfigureDatabase);

@@ -33,9 +33,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="appsettings.Development.json">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Resources\Messages\PicByTagInfo.md">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
@@ -54,6 +51,15 @@
       <None Update="Resources\Messages\Profile.md">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="appsettings.json" />
+      <Content Include="appsettings.json" />
+      <None Remove="appsettings.Development.json" />
+      <Content Include="appsettings.Development.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>
