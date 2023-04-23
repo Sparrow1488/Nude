@@ -4,8 +4,6 @@ using Nude.API.Models.Enums;
 using Nude.API.Models.Media;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Constants;
-using Nude.Bot.Tg.Models.Api;
-using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Nude.Data.Infrastructure.Contexts;
 using Telegram.Bot;
@@ -17,17 +15,16 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _client;
     private readonly BotDbContext _context;
-    private readonly IMessagesStore _messages;
+    private List<ImageResponse> _uncachedImages = new();
+    private List<InputMedia> _inputMedia = new();
 
     public PicturesRandomEndpoint(
         INudeClient client,
-        BotDbContext context,
-        IMessagesStore messages) 
+        BotDbContext context)
     : base(NavigationCommands.RandomPicture)
     {
         _client = client;
         _context = context;
-        _messages = messages;
     }
 
     public override async Task HandleAsync()
@@ -35,68 +32,85 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         var result = await _client.GetRandomImagesAsync();
         if (result.IsSuccess)
         {
-            var mediaList = await GetCachedMediaAsync(result);
-            
+            var cachedMedia = await GetCachedMediaAsync(result.ResultValue);
+            _inputMedia = new List<InputMedia>();
+
+            cachedMedia.ToList().ForEach(x => {
+                var media = new InputMedia(x.FileId);
+                _inputMedia.Add(media);
+            });
+
             using var client = new HttpClient();
             var fileStreamsList = new List<Stream>();
             
-            foreach (var image in mediaList)
+            foreach (var image in _uncachedImages)
             {
-                var stream = await client.GetStreamAsync(image.FileId);
+                var stream = await client.GetStreamAsync(image.Url);
                 fileStreamsList.Add(stream);
+                _inputMedia.Add(
+                    new InputMedia(stream, image.GetHashCode() + "-nude-bot-image.png")        
+                );
             }
 
-            await SendMedia(fileStreamsList);
+            await SendMediaAsync();
+            fileStreamsList.ForEach(x => x.Close());
         }
         else
         {
-            var badMessage = await _messages.GetErrorResponseMessageAsync(result.ErrorValue);
-            await MessageAsync(badMessage);
+            await MessageAsync(result.Status + ": " + result.Message);
         }
     }
-    
-    private async Task<TelegramMedia> CacheMediaAsync(ImageResponse image)
+
+    private async Task<List<TelegramMedia>> GetCachedMediaAsync(ImageResponse[] images)
     {
-        var mediaEntity = new TelegramMedia
-        {
-            FileId = image.Url,
-            ContentKey = image.ContentKey,
-            MediaType = TelegramMediaType.Photo
-        };
-        
-        await _context.AddAsync(mediaEntity);
-        await _context.SaveChangesAsync();
-        
-        return mediaEntity;
+        var imagesKeys = images.Select(x => x.ContentKey);
+        var cachedMedia = await _context.Medias
+            .Where(x => imagesKeys.Contains(x.ContentKey))
+            .ToListAsync();
+
+        var cachedKeys = cachedMedia.Select(x => x.ContentKey);
+        _uncachedImages = images.Where(x => !cachedKeys.Contains(x.ContentKey)).ToList();
+
+        return cachedMedia;
     }
 
-    private async Task<List<TelegramMedia>> GetCachedMediaAsync(ApiResult<ImageResponse[]> result)
+    private async Task SendMediaAsync()
     {
-        var media = new List<TelegramMedia>();
-        
-        foreach (var image in result.ResultValue)
-        {
-            var dbImage = await _context.Medias
-                .FirstOrDefaultAsync(x => x.ContentKey == image.ContentKey);
-
-            var mediaEntity = dbImage ?? await CacheMediaAsync(image);
-            media.Add(mediaEntity);
-        }
-        
-        return media;
-    }
-
-    private async Task SendMedia(List<Stream> fileStreamsList)
-    {
-        var mediaList = fileStreamsList.Select(
-            x => new InputMediaPhoto(new InputMedia(x, x.GetHashCode() + "-nude-bot-image.png")
-        ));
+        var mediaList = _inputMedia.Select(
+            x => new InputMediaPhoto(x)
+        );
 
         var messages = await BotClient.SendMediaGroupAsync(
             ChatId,
             media: mediaList
         );
 
-        fileStreamsList.ForEach(x => x.Close());
+        await CacheMediaAsync(messages);
+    }
+
+    private async Task CacheMediaAsync(Message[] messages)
+    {
+        var fileIds = messages.Select(
+            x => x.Photo!.Last().FileId
+        ).ToList();
+
+        var telegramMedia = new List<TelegramMedia>();
+        for (var i = _uncachedImages.Count; i > 0; i--)
+        {
+            var fileId = fileIds.Last();
+            telegramMedia.Add(new TelegramMedia
+            {
+                FileId = fileId,
+                ContentKey = _uncachedImages[i - 1].ContentKey,
+                MediaType = TelegramMediaType.Photo
+            });
+            fileIds.Remove(fileId);
+        }
+
+        if (telegramMedia.Any())
+        {
+            await _context.AddRangeAsync(telegramMedia);
+            await _context.SaveChangesAsync();
+        }
     }
 }

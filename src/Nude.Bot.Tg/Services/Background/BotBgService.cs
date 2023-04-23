@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Nude.Bot.Tg.Telegram;
 using Nude.Bot.Tg.Telegram.Handlers;
 using Telegram.Bot;
 using Telegram.Bot.Polling;

@@ -1,5 +1,3 @@
-using Nude.API.Infrastructure.Abstractions;
-
 namespace Nude.API.Services.Limits.Results;
 
 public class LimitResult
