@@ -7,7 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Nude.API.Infrastructure.Configurations.Json;
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Constants.Defaults;
+using Nude.API.Infrastructure.Extensions;
 using Nude.API.Models.Notifications;
 using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
@@ -32,6 +34,17 @@ builder.Host.ConfigureHostConfiguration(
 
 #endregion
 
+#region Routing
+
+builder.Services.AddScoped<EndpointsResolver>();
+builder.Services.AddScoped<ICallbackHandler, CallbackHandler>();
+
+builder.Services
+    .AddControllers()
+    .AddNewtonsoftJson(options => options.BindOptions());
+
+#endregion
+
 #region Logger
 
 Log.Logger = new LoggerConfiguration()
@@ -52,13 +65,6 @@ builder.Services.AddSingleton<ITelegramBotClient>(x =>
 
 builder.Services.AddHostedService<BotBgService>();
 builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
-
-#endregion
-
-#region Endpoints & Routes
-
-builder.Services.AddScoped<EndpointsResolver>();
-builder.Services.AddScoped<CallbackHandler>();
 
 #endregion
 
@@ -93,21 +99,6 @@ Console.CancelKeyPress += (_, _) =>
 
 var app = builder.Build();
 
-app.MapPost("/callback", async ctx =>
-{
-    using var content = new StreamContent(ctx.Request.Body);
-    var subjectJson = await content.ReadAsStringAsync();
-
-    var subject = JsonConvert.DeserializeObject<Notification>(
-        subjectJson, 
-        JsonSettingsProvider.CreateDefault()
-    );
-
-    var callbackRoute = app.Services.GetRequiredService<CallbackHandler>();
-    await callbackRoute.OnCallbackAsync(subject!);
-    
-    ctx.Response.StatusCode = StatusCodes.Status200OK;
-    await ctx.Response.WriteAsync("ok");
-});
+app.MapControllers();
 
 await app.RunAsync(cancellationSource.Token);
