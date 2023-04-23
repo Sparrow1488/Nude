@@ -7,5 +7,6 @@ public interface IUserManager
 {
     Task<UserSessionResult> GetUserSessionAsync(long userId, string username);
     Task<UserCreationResult> CreateAsync(long userId, string username, string accessToken);
+    Task UpdateTokenAsync(TelegramUser user, string accessToken);
     Task<TelegramUser?> FindByUserIdAsync(long userId);
 }

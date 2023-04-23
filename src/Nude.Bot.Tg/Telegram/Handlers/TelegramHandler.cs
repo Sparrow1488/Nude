@@ -13,17 +13,14 @@ namespace Nude.Bot.Tg.Telegram.Handlers;
 public class TelegramHandler : ITelegramHandler
 {
     private readonly IServiceProvider _services;
-    private readonly EndpointsResolver _endpointsResolver;
     private readonly ILogger<TelegramHandler> _logger;
     private readonly JwtSecurityTokenHandler _jwtHandler;
 
     public TelegramHandler(
         IServiceProvider services,
-        EndpointsResolver endpointsResolver,
         ILogger<TelegramHandler> logger)
     {
         _services = services;
-        _endpointsResolver = endpointsResolver;
         _logger = logger;
         _jwtHandler = new JwtSecurityTokenHandler();
     }
@@ -36,6 +33,7 @@ public class TelegramHandler : ITelegramHandler
             update.Message?.Chat.Username);
 
         await using var scope = _services.CreateAsyncScope();
+        var endpointsResolver = scope.ServiceProvider.GetRequiredService<EndpointsResolver>();
         var userManager = scope.ServiceProvider.GetRequiredService<IUserManager>();
         
         if(update.Type == UpdateType.Message)
@@ -56,7 +54,7 @@ public class TelegramHandler : ITelegramHandler
                     var identity = new ClaimsIdentity(token.Claims);
                     
                     // TODO: endpoint requirements (check identity.role)
-                    var endpoint = _endpointsResolver.GetUpdateHandler(update, botClient, session, identity);
+                    var endpoint = endpointsResolver.GetUpdateHandler(update, botClient, session, identity);
                     await endpoint.HandleAsync();
                 }
                 else

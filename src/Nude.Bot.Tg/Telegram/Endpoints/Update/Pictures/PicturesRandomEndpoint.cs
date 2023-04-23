@@ -23,7 +23,7 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         INudeClient client,
         BotDbContext context,
         IMessagesStore messages) 
-    : base(NavigationDefaults.RandomPicture)
+    : base(NavigationCommands.RandomPicture)
     {
         _client = client;
         _context = context;

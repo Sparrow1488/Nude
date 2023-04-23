@@ -57,7 +57,7 @@ builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 
 #region Endpoints & Routes
 
-builder.Services.AddSingleton<EndpointsResolver>();
+builder.Services.AddScoped<EndpointsResolver>();
 builder.Services.AddScoped<CallbackHandler>();
 
 #endregion

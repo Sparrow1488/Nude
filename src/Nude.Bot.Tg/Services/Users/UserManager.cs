@@ -55,6 +55,12 @@ public class UserManager : IUserManager
         return new UserCreationResult(user);
     }
 
+    public async Task UpdateTokenAsync(TelegramUser user, string accessToken)
+    {
+        user.AccessToken = accessToken;
+        await _context.SaveChangesAsync();
+    }
+
     public Task<TelegramUser?> FindByUserIdAsync(long userId)
     {
         return _context.Users

@@ -7,7 +7,15 @@ public static class KeyboardsStore
 {
     public static readonly IReplyMarkup MainKeyboard = new ReplyKeyboardMarkup(new[]
     {
-        new KeyboardButton[] { NavigationDefaults.PicturesChapter, NavigationDefaults.MangaChapter },
+        new KeyboardButton[]
+        {
+            NavigationCommands.PicturesChapter, 
+            NavigationCommands.MangaChapter
+        },
+        new KeyboardButton[]
+        {
+            NavigationCommands.ProfileChapter
+        }
     })
     {
         ResizeKeyboard = true
@@ -15,8 +23,8 @@ public static class KeyboardsStore
 
     public static readonly IReplyMarkup MangaKeyboard = new ReplyKeyboardMarkup(new[]
     {
-        new KeyboardButton[] { NavigationDefaults.RandomManga },
-        new KeyboardButton[] { NavigationDefaults.HomeChapter }
+        new KeyboardButton[] { NavigationCommands.RandomManga },
+        new KeyboardButton[] { NavigationCommands.HomeChapter }
     })
     {
         ResizeKeyboard = true
@@ -24,9 +32,17 @@ public static class KeyboardsStore
 
     public static readonly IReplyMarkup PictureKeyboard = new ReplyKeyboardMarkup(new[]
     {
-        new KeyboardButton[] { NavigationDefaults.RandomPicture },
-        // new KeyboardButton[] { "/pictag" },
-        new KeyboardButton[] { NavigationDefaults.HomeChapter }
+        new KeyboardButton[] { NavigationCommands.RandomPicture },
+        new KeyboardButton[] { NavigationCommands.HomeChapter }
+    })
+    {
+        ResizeKeyboard = true
+    };
+    
+    public static readonly IReplyMarkup ProfileKeyboard = new ReplyKeyboardMarkup(new[]
+    {
+        new KeyboardButton[] { NavigationCommands.UpdateToken },
+        new KeyboardButton[] { NavigationCommands.HomeChapter }
     })
     {
         ResizeKeyboard = true
