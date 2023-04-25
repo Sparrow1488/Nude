@@ -11,7 +11,7 @@ git clone https://github.com/Sparrow1488/Nude.git
 3. Добавить секреты в проекты
 
 ```powershell
-dotnet user-secrets init --porject {project-name}
+dotnet user-secrets init --project {project-name}
 ```
 
 **Nude.API**
@@ -50,10 +50,3 @@ dotnet user-secrets set "{path}" "{value}"
 ```powershell
 docker run --name Nude.DB -p 5432:5432 -e POSTGRES_PASSWORD=secret -d postgres
 ```
-
-
-
-# Production
-
-- [ ] AutoMigrations
-- [x] Database connection string (password, port)
