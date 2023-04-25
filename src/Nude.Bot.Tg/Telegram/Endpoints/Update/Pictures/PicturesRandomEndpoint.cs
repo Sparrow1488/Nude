@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Nude.API.Contracts.Images.Responses;
 using Nude.API.Models.Enums;
 using Nude.API.Models.Media;
@@ -15,16 +16,20 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
 {
     private readonly INudeClient _client;
     private readonly BotDbContext _context;
+    private readonly ILogger<PicturesRandomEndpoint> _logger;
     private List<ImageResponse> _uncachedImages = new();
     private List<InputMedia> _inputMedia = new();
+    private List<HttpResponseMessage> _httpResponses = new();
 
     public PicturesRandomEndpoint(
         INudeClient client,
-        BotDbContext context)
+        BotDbContext context,
+        ILogger<PicturesRandomEndpoint> logger)
     : base(NavigationCommands.RandomPicture)
     {
         _client = client;
         _context = context;
+        _logger = logger;
     }
 
     public override async Task HandleAsync()
@@ -45,15 +50,32 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
             
             foreach (var image in _uncachedImages)
             {
-                var stream = await client.GetStreamAsync(image.Url);
-                fileStreamsList.Add(stream);
-                _inputMedia.Add(
-                    new InputMedia(stream, image.GetHashCode() + "-nude-bot-image.png")        
-                );
+                var response = await client.GetAsync(image.Url);
+                if (response.IsSuccessStatusCode)
+                {
+                    var stream = await response.Content.ReadAsStreamAsync();
+                    fileStreamsList.Add(stream);
+                    _inputMedia.Add(
+                        new InputMedia(stream, image.GetHashCode() + "-nude-bot-image.png")
+                    );
+                    _httpResponses.Add(response);
+                }
+                else
+                {
+                    _logger.LogWarning(
+                        "HTTP {status} on get image from {url}",
+                        result.Status,
+                        image.Url
+                    );
+                    
+                    response.Dispose();
+                }
             }
 
             await SendMediaAsync();
+            
             fileStreamsList.ForEach(x => x.Close());
+            _httpResponses.ForEach(x => x.Dispose());
         }
         else
         {
