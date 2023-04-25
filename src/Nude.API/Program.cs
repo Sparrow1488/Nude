@@ -38,18 +38,21 @@ using Nude.Mapping.Utils;
 using Nude.Parsers.HentaiChan;
 using Nude.Parsers.NudeMoon;
 using Serilog;
-using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddUserSecrets(typeof(Program).Assembly, false);
+
 #region Logger
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
-    .CreateLogger();
+var config = new LoggerConfiguration().WriteTo.Console();
 
+if (builder.Environment.IsProduction())
+{
+    config.WriteTo.File("./log.txt");
+}
+
+Log.Logger = config.CreateLogger();
 builder.Host.UseSerilog(Log.Logger);
 
 #endregion
@@ -139,6 +142,11 @@ builder.Services.AddScoped<IRandomizer, CryptoRandomizer>();
 
 builder.Services.AddScoped<ILimitService, LimitService>();
 builder.Services.AddScoped<LimitHandler, ContentTicketCreationLimitHandler>();
+
+builder.Services.AddHttpClient("web_hook", config =>
+{
+    config.Timeout = TimeSpan.FromSeconds(10);
+});
 
 #endregion
 

@@ -18,10 +18,24 @@ using Nude.Bot.Tg.Services.Users;
 using Nude.Bot.Tg.Telegram.Handlers;
 using Nude.Data.Infrastructure.Contexts;
 using Serilog;
-using Serilog.Events;
 using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
+
+#region Logger
+
+// TODO: move to extension or factory
+var config = new LoggerConfiguration().WriteTo.Console();
+
+if (builder.Environment.IsProduction())
+{
+    config.WriteTo.File("./log.txt");
+}
+
+Log.Logger = config.CreateLogger();
+builder.Host.UseSerilog(Log.Logger);
+
+#endregion
 
 #region Configuration
 
@@ -38,16 +52,6 @@ builder.Services.AddScoped<ICallbackHandler, CallbackHandler>();
 builder.Services
     .AddControllers()
     .AddNewtonsoftJson(options => options.BindOptions());
-
-#endregion
-
-#region Logger
-
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console()
-    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore.Database.Command", LogEventLevel.Warning)
-    .CreateLogger();
 
 #endregion
 

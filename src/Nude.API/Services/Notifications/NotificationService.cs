@@ -33,4 +33,9 @@ public class NotificationService : INotificationService
             Exception = exception
         };
     }
+
+    public void Dispose()
+    {
+        _webHookService.Dispose();
+    }
 }

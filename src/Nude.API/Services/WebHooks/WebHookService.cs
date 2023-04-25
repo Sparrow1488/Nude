@@ -10,11 +10,16 @@ public class WebHookService : IWebHookService
 {
     private readonly ILogger<WebHookService> _logger;
     private readonly JsonSerializerSettings _settings;
+    private readonly HttpClient _client;
 
-    public WebHookService(ILogger<WebHookService> logger)
+    public WebHookService(
+        IHttpClientFactory clientFactory, 
+        ILogger<WebHookService> logger)
     {
         _logger = logger;
         _settings = JsonSettingsProvider.CreateDefault();
+
+        _client = clientFactory.CreateClient("web_hook");
     }
     
     public async Task<SendingResult> SendAsync<T>(string callbackUrl, T content)
@@ -25,13 +30,11 @@ public class WebHookService : IWebHookService
         
         if (Uri.TryCreate(callbackUrl, UriKind.Absolute, out _))
         {
-            using var client = new HttpClient();
-            client.Timeout = TimeSpan.FromSeconds(50);
 
             var json = JsonConvert.SerializeObject(content, _settings);
             using var request = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await PostAsync(client, callbackUrl, request);
+            var response = await PostAsync(_client, callbackUrl, request);
             _logger.LogInformation("Callback response status '{status}'", response?.StatusCode);
 
             exception = CreateExceptionByResponse(response);
@@ -73,5 +76,10 @@ public class WebHookService : IWebHookService
             return new BadServerResponseException($"Get {response.StatusCode} status code in web hook");
 
         return null;
+    }
+
+    public void Dispose()
+    {
+        _client.Dispose();
     }
 }

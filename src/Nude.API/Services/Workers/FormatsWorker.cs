@@ -24,23 +24,17 @@ public class FormatsWorker : IBackgroundWorker
     private readonly Stopwatch _stopwatch;
     private const string CurrentDiagnosticMethodName = nameof(FormatsWorker);
 
-    private readonly AppDbContext _context;
-    private readonly IMangaService _mangaService;
     private readonly IFormatQueue _queue;
     private readonly INotificationService _notificationService;
     private readonly IFormatterService _formatterService;
     private readonly ILogger<FormatsWorker> _logger;
 
     public FormatsWorker(
-        AppDbContext context,
-        IMangaService mangaService,
         IFormatQueue queue,
         INotificationService notificationService,
         IFormatterService formatterService,
         ILogger<FormatsWorker> logger)
     {
-        _context = context;
-        _mangaService = mangaService;
         _queue = queue;
         _notificationService = notificationService;
         _formatterService = formatterService;
@@ -53,7 +47,7 @@ public class FormatsWorker : IBackgroundWorker
         try
         {
             var agent = await _queue.DequeueAsync();
-            
+
             if (agent == null)
             {
                 _logger.LogDebug("No waiting format content");
@@ -86,6 +80,10 @@ public class FormatsWorker : IBackgroundWorker
         catch (Exception ex)
         {
             await HandleExceptionAsync(ex);
+        }
+        finally
+        {
+            _notificationService.Dispose();
         }
     }
 
