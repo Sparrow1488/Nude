@@ -20,6 +20,10 @@ public interface IMessagesStore
     Task<MessageItem> GetHelpMessageAsync();
     Task<MessageItem> GetErrorResponseMessageAsync(ErrorResponse errorResponse);
     Task<MessageItem> GetSourcesMessageAsync(List<string> sources);
-    Task<MessageItem> GetProfileChapterMessageAsync(TelegramUser user, ClaimsIdentity identity);
+    Task<MessageItem> GetProfileChapterMessageAsync(
+        TelegramUser user, 
+        ClaimsIdentity identity,
+        string profileCompliment = "невозмутимый"
+    );
     Task<MessageItem> GetImagesUploadMessageAsync(int currentImage, int totalImages);
 }
