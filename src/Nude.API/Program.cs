@@ -16,6 +16,7 @@ using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Infrastructure.Services.Resolvers;
+using Nude.API.Infrastructure.Services.Seeds;
 using Nude.API.Infrastructure.Services.Storages;
 using Nude.API.Services.Collections;
 using Nude.API.Services.Formatters;
@@ -25,6 +26,7 @@ using Nude.API.Services.Limits.Handlers;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
 using Nude.API.Services.Queues;
+using Nude.API.Services.Seeds;
 using Nude.API.Services.Stealers;
 using Nude.API.Services.Tickets;
 using Nude.API.Services.Users;
@@ -100,7 +102,7 @@ builder.Services.AddAuthorization(opt =>
     opt.AddPolicy(Policies.Admin, configure =>
     {
         configure.AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme);
-        configure.RequireClaim(NudeClaimTypes.Role, NudeClaims.Roles.Administrator);
+        configure.RequireClaim(NudeClaimTypes.Role, NudeClaims.Role.Administrator);
     });
 });
 
@@ -139,13 +141,14 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<ITelegraphClient, DefaultTelegraphClient>();
 
 builder.Services.AddScoped<IRandomizer, CryptoRandomizer>();
+builder.Services.AddScoped<IDataSeeder, DataSeeder>();
 
 builder.Services.AddScoped<ILimitService, LimitService>();
 builder.Services.AddScoped<LimitHandler, ContentTicketCreationLimitHandler>();
 
-builder.Services.AddHttpClient("web_hook", config =>
+builder.Services.AddHttpClient("web_hook", client =>
 {
-    config.Timeout = TimeSpan.FromSeconds(10);
+    client.Timeout = TimeSpan.FromSeconds(10);
 });
 
 #endregion
@@ -181,7 +184,8 @@ var app = builder.Build();
 
 if (app.Environment.IsProduction())
 {
-    await DatabaseInitializer.InitializeAsync<AppDbContext>(app.Services);
+    var seeder = app.Services.GetService<IDataSeeder>();
+    await DatabaseInitializer.InitializeAsync<AppDbContext>(app.Services, seeder);
 }
 
 app.UseStaticFiles();

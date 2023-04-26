@@ -33,7 +33,7 @@ public class PictureUploadEndpoint : TelegramUpdateEndpoint
     
     public override bool CanHandle() => 
         Update.Message?.Photo != null &&
-        Identity.GetRoleRequired() == NudeClaims.Roles.Administrator;
+        Identity.GetRoleRequired() == NudeClaims.Role.Administrator;
     
     public override async Task HandleAsync()
     {

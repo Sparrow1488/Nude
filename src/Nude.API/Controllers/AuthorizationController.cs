@@ -44,7 +44,7 @@ public class AuthorizationController : ApiController
             await _usersService.SetClaimAsync(
                 existsUser, 
                 NudeClaimTypes.Role,
-                NudeClaims.Roles.User,
+                NudeClaims.Role.User,
                 issuer: null
             );
         }

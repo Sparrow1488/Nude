@@ -37,6 +37,12 @@ public class PicturesRandomEndpoint : TelegramUpdateCommandEndpoint
         var result = await _client.GetRandomImagesAsync();
         if (result.IsSuccess)
         {
+            if (result.ResultValue.Length == 0)
+            {
+                await MessageAsync("Упс! Кажется здесь ничего нет");
+                return;
+            }
+            
             var cachedMedia = await GetCachedMediaAsync(result.ResultValue);
             _inputMedia = new List<InputMedia>();
 

@@ -8,8 +8,8 @@ public static class RoleUtils
     {
         return claimRole switch
         {
-            NudeClaims.Roles.Administrator => "Administrator",
-            NudeClaims.Roles.User => "User",
+            NudeClaims.Role.Administrator => "Administrator",
+            NudeClaims.Role.User => "User",
             _ => "Unknown"
         };
     }

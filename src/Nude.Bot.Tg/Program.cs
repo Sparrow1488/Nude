@@ -22,6 +22,8 @@ using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddUserSecrets(typeof(Program).Assembly, false);
+
 #region Logger
 
 // TODO: move to extension or factory
@@ -72,7 +74,6 @@ builder.Services.AddSingleton<ITelegramHandler, TelegramHandler>();
 
 void ConfigureDatabase(IServiceProvider provider, DbContextOptionsBuilder opt)
 {
-    var config = provider.GetRequiredService<IConfiguration>();
     var connection = provider.GetRequiredService<IConfiguration>()
         .GetConnectionString("Database");
     opt.UseNpgsql(connection, x => x.MigrationsAssembly("Nude.Bot.Tg"));
