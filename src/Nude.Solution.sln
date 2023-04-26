@@ -8,17 +8,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API", "Nude.API\Nude.A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Contracts", "Nude.API.Contracts\Nude.API.Contracts.csproj", "{72B21714-4AD8-498C-8A1A-F3C1690245FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Models", "Nude.Models\Nude.Models.csproj", "{418C0287-FA2E-4D36-8006-22097206F605}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Data", "Nude.API.Data\Nude.API.Data.csproj", "{E8E47ABA-7805-4F54-903E-C77F5A85D243}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Data.Infrastructure", "Nude.Data.Infrastructure\Nude.Data.Infrastructure.csproj", "{E8E47ABA-7805-4F54-903E-C77F5A85D243}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Infrastructure", "Nude.API.Infrastructure\Nude.API.Infrastructure.csproj", "{5CC02743-B560-45CC-B7B3-D204BB281B68}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Mappers", "Nude.Mappers\Nude.Mappers.csproj", "{D42E1761-9E9D-486B-881A-6ACC6D481B25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Tg.Bot", "Nude.Tg.Bot\Nude.Tg.Bot.csproj", "{AF6414B7-E0EE-43AE-9F42-B4518FC9843E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.Bot.Tg", "Nude.Bot.Tg\Nude.Bot.Tg.csproj", "{AF6414B7-E0EE-43AE-9F42-B4518FC9843E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utility.ChromeKiller", "Utility.ChromeKiller\Utility.ChromeKiller.csproj", "{04400F74-B0D2-486D-B9CA-9A156A43468B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.API.Models", "Nude.API.Models\Nude.API.Models.csproj", "{313EA46B-C086-4497-A5B6-BC2B12726F02}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nude.KeysGenerator", "Nude.KeysGenerator\Nude.KeysGenerator.csproj", "{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,10 +44,6 @@ Global
 		{72B21714-4AD8-498C-8A1A-F3C1690245FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{72B21714-4AD8-498C-8A1A-F3C1690245FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{72B21714-4AD8-498C-8A1A-F3C1690245FB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{418C0287-FA2E-4D36-8006-22097206F605}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{418C0287-FA2E-4D36-8006-22097206F605}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{418C0287-FA2E-4D36-8006-22097206F605}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{418C0287-FA2E-4D36-8006-22097206F605}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E8E47ABA-7805-4F54-903E-C77F5A85D243}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E8E47ABA-7805-4F54-903E-C77F5A85D243}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8E47ABA-7805-4F54-903E-C77F5A85D243}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -66,5 +64,13 @@ Global
 		{04400F74-B0D2-486D-B9CA-9A156A43468B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04400F74-B0D2-486D-B9CA-9A156A43468B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04400F74-B0D2-486D-B9CA-9A156A43468B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{313EA46B-C086-4497-A5B6-BC2B12726F02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{313EA46B-C086-4497-A5B6-BC2B12726F02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{313EA46B-C086-4497-A5B6-BC2B12726F02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{313EA46B-C086-4497-A5B6-BC2B12726F02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6CAA9E7-31FE-4559-8C1B-5A50AE107697}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

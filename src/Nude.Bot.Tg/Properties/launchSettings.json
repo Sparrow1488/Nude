@@ -1,0 +1,18 @@
+{
+  "profiles": {
+    "Nude.Bot.Tg": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    },
+    "Nude.Bot.Tg:Production": {
+      "commandName": "Project",
+      "applicationUrl": "http://localhost:5000",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+    }
+  }
+}

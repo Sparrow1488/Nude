@@ -1,86 +1,52 @@
-# Nude
+# How to get started
 
-## Infrastructure
+1. Скачать последнюю версию **.NET SDK** ([.NET 6](https://dotnet.microsoft.com/en-us/download/dotnet/6.0))
 
-```asciidoc
-                 ┌──────────────┐
-                 │              │
-                 │   Database   │
-                 │              │
-                 └────▲─────────┘
-                      │
-   ┌──────────┐       │    ┌─────────────────┐
-   │          │       │    │                 │
-   │ Nude.API ├───────┴────►  Nude-Moon.org  │
-   │          │            │                 │
-   └──┬───▲───┘            └─────────────────┘
-      │   │
-┌─────▼───┴──────┐
-│                └────► Convert manga images
-│  Nude.Tg.Bot   ◄────┘ to Telegraph article
-│                │
-└───────┬────────┘
-        │
-        │
-   ┌────▼─────────────┐
-   │ Telegram Client  │
-   └──────────────────┘
+2. Клонировать репозиторий `Nude` solution
+
+```git
+git clone https://github.com/Sparrow1488/Nude.git
 ```
 
-## TODO
+3. Добавить секреты в проекты
 
-**Fix**
-
-* ~~Available domains in configuration~~
-
-* ~~Telegraph article source~~
-
-* Check images format before upload to Telegraph (.*webp*)
-
-* Can connect to callback url
-
-**Nude**
-
-* PuppeterSharp optimization requests
-
-* Handle exceptions and retry requests
-
-* More searching patterns (by name, tags, author)
-
-* Search all linked manga
+```powershell
+dotnet user-secrets init --project {project-name}
+```
 
 **Nude.API**
 
-* (feature) TagNormalizeConfiguration
+```json
+{
+    "Credentials": {
+        "NudeMoon": {
+            "Login": "{login}",
+            "Password": "{password}"
+        },
+        "HentaiChan": {
+            "Login": "{login}",
+            "Password": "{password}"
+        }
+    }
+}
+```
 
-* (feature) RuntimeQueryableFilter
+**Nude.Bot.Tg**
 
-* Users
+ ```json
+ {
+     "Credentials": {
+         "Telegram": "{token}"
+     }
+ }
+ ```
 
-**Nude.Tg.Bot**
+```powershell
+dotnet user-secrets set "{path}" "{value}"
+```
 
-* TelegramUsers
+4. Запустить БД PostgreSQL
 
-**CI/CD**
-
-* Buy VPS
-
-* Install Docker
-
-* Configure Docker Compose
-
-Claims
-
-1. `nude.user.default`
-   
-   * Max 3 parallel processing requests
-
-2. `nude.user.premium`
-   
-   * Max 10 parallel processing requests
-   
-   * Create manga
-
-3. `nude.user.admin` 
-   
-   * No limit parallel processing requests
+```powershell
+docker run --name Nude.DB -p 5432:5432 -e POSTGRES_PASSWORD=secret -d postgres
+```
