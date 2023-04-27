@@ -11,6 +11,7 @@ using Nude.Bot.Tg.Clients.Nude;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Background;
 using Nude.Bot.Tg.Services.Handlers;
+using Nude.Bot.Tg.Services.Limits;
 using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Resolvers;
@@ -89,6 +90,7 @@ builder.Services.AddScoped<INudeClient, NudeClient>();
 builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddSingleton<IMessagesStore, MessageStore>();
+builder.Services.AddSingleton<IRequestsLimitService, RequestsLimitService>();
 
 #endregion
 

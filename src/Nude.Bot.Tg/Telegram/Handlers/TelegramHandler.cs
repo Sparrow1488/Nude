@@ -2,8 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Nude.Bot.Tg.Services.Limits;
+using Nude.Bot.Tg.Services.Limits.Results;
+using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Services.Resolvers;
 using Nude.Bot.Tg.Services.Users;
+using Nude.Bot.Tg.Services.Utils;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -13,14 +17,17 @@ namespace Nude.Bot.Tg.Telegram.Handlers;
 public class TelegramHandler : ITelegramHandler
 {
     private readonly IServiceProvider _services;
+    private readonly IRequestsLimitService _requestLimits;
     private readonly ILogger<TelegramHandler> _logger;
     private readonly JwtSecurityTokenHandler _jwtHandler;
 
     public TelegramHandler(
         IServiceProvider services,
+        IRequestsLimitService requestLimits,
         ILogger<TelegramHandler> logger)
     {
         _services = services;
+        _requestLimits = requestLimits;
         _logger = logger;
         _jwtHandler = new JwtSecurityTokenHandler();
     }
@@ -49,6 +56,20 @@ public class TelegramHandler : ITelegramHandler
                 if (result.IsSuccess)
                 {
                     var session = result.Result!;
+
+                    var limitStatus = _requestLimits.CheckRequestsLimit(session.User);
+                    if (limitStatus == LimitStatus.LimitIsReached)
+                    {
+                        await BotUtils.MessageAsync(
+                            botClient,
+                            update.Message.Chat.Id,
+                            new MessageItem(
+                                "Превышен лимит запросов, пожалуста, подождите", 
+                                ParseMode.Html
+                            )
+                        );
+                        return;
+                    }
                     
                     var token = _jwtHandler.ReadJwtToken(session.User.AccessToken);
                     var identity = new ClaimsIdentity(token.Claims);
@@ -56,6 +77,8 @@ public class TelegramHandler : ITelegramHandler
                     // TODO: endpoint requirements (check identity.role)
                     var endpoint = endpointsResolver.GetUpdateHandler(update, botClient, session, identity);
                     await endpoint.HandleAsync();
+                    
+                    _requestLimits.AddCompletedRequest(session.User);
                 }
                 else
                 {
