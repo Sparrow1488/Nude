@@ -5,10 +5,10 @@ namespace Nude.API.Services.Users;
 
 public class UserSession : IUserSession
 {
-    private readonly IUsersService _service;
+    private readonly IUserService _service;
     private readonly HttpContext _httpContext;
 
-    public UserSession(IUsersService service, IHttpContextAccessor accessor)
+    public UserSession(IUserService service, IHttpContextAccessor accessor)
     {
         _service = service;
         _httpContext = accessor.HttpContext ?? throw new ApiException(
@@ -22,9 +22,7 @@ public class UserSession : IUserSession
             ?? throw new ApiException("User has no 'sub' claim");
 
         var userId = int.Parse(userIdClaim.Value);
-        var user = await _service.GetByIdAsync(userId)
-            ?? throw new ApiException("User not found in session by 'sub' claim");
-
-        return user;
+        return await _service.GetByIdAsync(userId)
+            ?? throw new ApiException("User not found by 'sub' claim");
     }
 }

@@ -3,9 +3,13 @@ using Nude.API.Models.Images;
 
 namespace Nude.API.Services.Images.Results;
 
-public class ImageRangeCreationResult : IServiceResult<IEnumerable<ImageEntry>>
+public class ImageRangeCreationResult : ServiceResult<IEnumerable<ImageEntry>>
 {
-    public bool IsSuccess { get; set; }
-    public Exception? Exception { get; set; }
-    public IEnumerable<ImageEntry>? Result { get; set; }
+    public ImageRangeCreationResult(Exception exception) : base(exception)
+    {
+    }
+
+    public ImageRangeCreationResult(IEnumerable<ImageEntry> result) : base(result)
+    {
+    }
 }

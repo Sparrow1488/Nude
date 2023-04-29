@@ -34,6 +34,7 @@ public class FormatterService : IFormatterService
     {
         var imagesList = images.ToList();
         
+        // TODO: Format Handlers
         if (type == FormatType.Telegraph)
         {
             var tghImages = await UploadTelegraphImagesAsync(imagesList);
@@ -57,7 +58,9 @@ public class FormatterService : IFormatterService
         for (var i = 0; i < images.Count; i++)
         {
             var tghImage = await _telegraph.UploadFileAsync(images[i]);
-            convertedImages.Add(tghImage); // TODO: add error to progress variables
+            if (string.IsNullOrWhiteSpace(tghImage)) continue;
+            
+            convertedImages.Add(tghImage);
 
             var currentImage = i + 1;
             LogUploadingProgress(totalImages, currentImage);
@@ -88,8 +91,8 @@ public class FormatterService : IFormatterService
     {
         return new Dictionary<string, object>
         {
-            { FormatProgressVariables.TotalImages, totalImages },
-            { FormatProgressVariables.CurrentImageProcessing, currentImage }
+            { FormattingVariables.TotalImages, totalImages },
+            { FormattingVariables.CurrentImageProcessing, currentImage }
         };
     }
 }

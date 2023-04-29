@@ -12,7 +12,7 @@ using Nude.API.Services.Users;
 
 namespace Nude.API.Controllers;
 
-[Route("content-tickets")]
+[Route("content-tickets")]  
 public class ContentTicketController : ApiController
 {
     private readonly IMapper _mapper;

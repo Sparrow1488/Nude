@@ -5,7 +5,7 @@ using Nude.API.Services.Users.Results;
 
 namespace Nude.API.Services.Users;
 
-public interface IUsersService
+public interface IUserService
 {
     Task<UserCreationResult> CreateAsync(Account account);
     Task<ClaimEntry> SetClaimAsync(User user, string type, string value, string? issuer = null);

@@ -15,11 +15,11 @@ namespace Nude.API.Services.Collections;
 
 #endregion
 
-public class ImageCollectionsService : IImageCollectionsService
+public class ImageCollectionService : IImageCollectionService
 {
     private readonly AppDbContext _context;
 
-    public ImageCollectionsService(AppDbContext context)
+    public ImageCollectionService(AppDbContext context)
     {
         _context = context;
     }
@@ -32,13 +32,14 @@ public class ImageCollectionsService : IImageCollectionsService
     {
         var exists = await _context.ImageCollections
             .FirstOrDefaultAsync(x => x.ContentKey == contentKey);
+        
         if (exists != null)
         {
             var exception = new ContentKeyExistsException(
                 "Similar collection already exists",
                 exists.ContentKey,
                 entityId: exists.Id.ToString(),
-                 entityType: nameof(ImageCollection)
+                entityType: nameof(ImageCollection)
             );
             return new CollectionCreationResult(exception);
         }

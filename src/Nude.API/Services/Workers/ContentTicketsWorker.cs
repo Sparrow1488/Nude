@@ -51,10 +51,10 @@ public class ContentTicketsWorker : IBackgroundWorker
             }
 
             var existsContent = await _mangaService.FindByContentKeyAsync(Ticket.ContentKey);
-            if (existsContent != null)
+            if (existsContent is not null)
             {
                 _logger.LogInformation(
-                    "Content already exists, key:{url}",
+                    "Content already exists, key:{contentKey}",
                     existsContent.ContentKey
                 );
                 

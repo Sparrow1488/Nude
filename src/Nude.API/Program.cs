@@ -117,13 +117,13 @@ builder.Services.AddScoped<IAuthHandler<IHentaiChanParser>, HentaiChanAuthHandle
 builder.Services.AddScoped<ICredentialsSecureStore, CredentialsSecureStore>();
 
 builder.Services.AddScoped<IMangaService, MangaService>();
-builder.Services.AddScoped<IImagesService, ImagesService>();
+builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
-builder.Services.AddScoped<IImageCollectionsService, ImageCollectionsService>();
+builder.Services.AddScoped<IImageCollectionService, ImageCollectionService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, UserSession>();
-builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IFileStorage, FileLocalStorage>();
 

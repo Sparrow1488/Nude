@@ -4,5 +4,5 @@ namespace Nude.API.Models.Notifications;
 
 public class Notification
 {
-    public NotificationDetails? Details { get; set; }
+    public NotificationDetails? Details { get; init; }
 }

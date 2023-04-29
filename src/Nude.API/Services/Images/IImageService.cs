@@ -4,7 +4,7 @@ using Nude.API.Services.Images.Results;
 
 namespace Nude.API.Services.Images;
 
-public interface IImagesService
+public interface IImageService
 {
     Task<ImageCreationResult> CreateAsync(ImageCreationModel model);
     Task<ImageRangeCreationResult> CreateRangeAsync(IEnumerable<ImageCreationModel> models);

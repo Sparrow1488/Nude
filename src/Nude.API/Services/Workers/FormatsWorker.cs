@@ -6,10 +6,9 @@ using Nude.API.Models.Notifications.Details;
 using Nude.API.Models.Tickets.States;
 using Nude.API.Services.Formatters;
 using Nude.API.Services.Formatters.Variables;
-using Nude.API.Services.Mangas;
 using Nude.API.Services.Notifications;
 using Nude.API.Services.Queues;
-using Nude.Data.Infrastructure.Contexts;
+using Nude.API.Services.Queues.Models;
 
 #region Rider annotations
 
@@ -41,14 +40,16 @@ public class FormatsWorker : IBackgroundWorker
         _logger = logger;
         _stopwatch = new Stopwatch();
     }
+
+    private FormatModelAgent? Agent { get; set; }
     
     public async Task ExecuteAsync(BackgroundServiceContext ctx, CancellationToken ctk)
     {
         try
         {
-            var agent = await _queue.DequeueAsync();
+            Agent = await _queue.DequeueAsync();
 
-            if (agent == null)
+            if (Agent == null)
             {
                 _logger.LogDebug("No waiting format content");
                 return;
@@ -56,22 +57,21 @@ public class FormatsWorker : IBackgroundWorker
 
             StartStopwatchDiagnostics();
 
-            _formatterService.FormatProgressUpdated +=
-                variables => OnFormatProgressUpdatedAsync(agent.ContentKey, variables);
+            _formatterService.FormatProgressUpdated += FormatProgressUpdated;
 
             var format = await _formatterService.FormatAsync(
-                agent.Title,
-                agent.Description ?? string.Empty,
-                agent.Images,
-                agent.Type
+                Agent.Title,
+                Agent.Description ?? string.Empty,
+                Agent.Images,
+                Agent.Type
             );
 
-            await agent.ReleaseAsync(format);
+            await Agent.ReleaseAsync(format);
 
             var resultDetails = new FormattingStatusDetails
             {
                 Status = FormattingStatus.Success,
-                ContentKey = agent.ContentKey
+                ContentKey = Agent.ContentKey
             };
             await NotifySubscribersAsync(resultDetails);
 
@@ -84,6 +84,7 @@ public class FormatsWorker : IBackgroundWorker
         finally
         {
             _notificationService.Dispose();
+            _formatterService.FormatProgressUpdated -= FormatProgressUpdated;
         }
     }
 
@@ -92,6 +93,9 @@ public class FormatsWorker : IBackgroundWorker
         return Task.CompletedTask;
     }
 
+    private Task FormatProgressUpdated(IDictionary variables)
+        => OnFormatProgressUpdatedAsync(Agent!.ContentKey, variables);
+
     private async Task OnFormatProgressUpdatedAsync(string contentKey, IDictionary variables)
     {
         var details = new FormattingProgressDetails
@@ -99,8 +103,8 @@ public class FormatsWorker : IBackgroundWorker
             ContentKey = contentKey
         };
         
-        var totalImages = variables[FormatProgressVariables.TotalImages]?.ToString();
-        var currentImage = variables[FormatProgressVariables.CurrentImageProcessing]?.ToString();
+        var totalImages = variables[FormattingVariables.TotalImages]?.ToString();
+        var currentImage = variables[FormattingVariables.CurrentImageProcessing]?.ToString();
 
         if (!string.IsNullOrWhiteSpace(totalImages))
             details.TotalImages = int.Parse(totalImages);

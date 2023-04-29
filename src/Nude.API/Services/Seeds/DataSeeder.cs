@@ -7,14 +7,14 @@ namespace Nude.API.Services.Seeds;
 
 public class DataSeeder : IDataSeeder
 {
-    private readonly IUsersService _users;
+    private readonly IUserService _user;
     private readonly ILogger<DataSeeder> _logger;
 
     public DataSeeder(
-        IUsersService users,
+        IUserService user,
         ILogger<DataSeeder> logger)
     {
-        _users = users;
+        _user = user;
         _logger = logger;
     }
     
@@ -27,8 +27,8 @@ public class DataSeeder : IDataSeeder
     {
         _logger.LogInformation("Seeding default admin users");
         
-        var sparrowUser = await _users.FindByTelegramAsync("sprw1488");
-        var webDevUser = await _users.FindByTelegramAsync("WebDevO");
+        var sparrowUser = await _user.FindByTelegramAsync("sprw1488");
+        var webDevUser = await _user.FindByTelegramAsync("WebDevO");
 
         var admins = new List<User>();
         if (sparrowUser != null)
@@ -44,7 +44,7 @@ public class DataSeeder : IDataSeeder
 
         foreach (var admin in admins)
         {
-            await _users.SetClaimAsync(
+            await _user.SetClaimAsync(
                 admin, 
                 NudeClaimTypes.Role, 
                 NudeClaims.Role.Administrator
