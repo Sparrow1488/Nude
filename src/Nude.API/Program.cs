@@ -12,7 +12,6 @@ using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Initializers;
 using Nude.API.Infrastructure.Managers;
-using Nude.API.Infrastructure.Middlewares;
 using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Infrastructure.Services.Resolvers;
@@ -64,7 +63,7 @@ builder.Host.UseSerilog(Log.Logger);
 builder.Services
     .AddControllers(opt =>
     {
-        opt.Conventions.Add(new RoutePrefixConvention(new RouteAttribute(ApiDefaults.CurrentVersion)));
+        opt.Conventions.Add(new RouteApiVersionPrefixConvention(new RouteAttribute(ApiDefaults.CurrentVersion)));
     })
     .AddNewtonsoftJson(options => options.BindOptions());
 
@@ -76,7 +75,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         var rsa = RSA.Create();
-        var key = KeysProvider.GetPrivateKey();
+        var key = SecurityKeysProvider.GetPrivateKey();
         rsa.ImportRSAPrivateKey(key, out _);
 
         options.Configuration = new OpenIdConnectConfiguration
@@ -192,8 +191,6 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseMiddleware<ErrorsMiddleware>();
 
 app.MapControllers();
 

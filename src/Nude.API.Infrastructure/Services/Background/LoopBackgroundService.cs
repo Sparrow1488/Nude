@@ -7,16 +7,16 @@ namespace Nude.API.Infrastructure.Services.Background;
 public class LoopBackgroundService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly BackgroundWorkersBuffer _workersBuffer;
+    private readonly BackgroundWorkerTypesProvider _workerTypesProvider;
     private readonly ILogger<LoopBackgroundService> _logger;
 
     public LoopBackgroundService(
         IServiceProvider serviceProvider,
-        BackgroundWorkersBuffer workersBuffer,
+        BackgroundWorkerTypesProvider workerTypesProvider,
         ILogger<LoopBackgroundService> logger)
     {
         _serviceProvider = serviceProvider;
-        _workersBuffer = workersBuffer;
+        _workerTypesProvider = workerTypesProvider;
         _logger = logger;
     }
     
@@ -32,7 +32,7 @@ public class LoopBackgroundService : BackgroundService
             var scopes = new List<AsyncServiceScope>();
             var workers = new List<IBackgroundWorker>();
             
-            foreach (var type in _workersBuffer.WorkersTypes)
+            foreach (var type in _workerTypesProvider.WorkerTypes)
             {
                 var scope = _serviceProvider.CreateAsyncScope();
                 var worker = (IBackgroundWorker) ActivatorUtilities.CreateInstance(scope.ServiceProvider, type);

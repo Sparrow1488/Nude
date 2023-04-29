@@ -77,7 +77,7 @@ public class AuthorizationController : ApiController
     private static SecurityKey CreateSecurityKey()
     {
         var rsa = RSA.Create();
-        rsa.ImportRSAPrivateKey(KeysProvider.GetPrivateKey(), out _);
+        rsa.ImportRSAPrivateKey(SecurityKeysProvider.GetPrivateKey(), out _);
         return new RsaSecurityKey(rsa);
     }
 

@@ -6,22 +6,14 @@ namespace Nude.API.Infrastructure.Extensions;
 
 public static class BackgroundServiceExtensions
 {
-    public static IServiceCollection AddBackgroundWorker<TWorker>(this IServiceCollection services)
-        where TWorker : class, IBackgroundWorker
-    {
-        services.TryAddSingleton<BackgroundWorkersBuffer>();
-        services.AddHostedService<LoopBackgroundService>();
-        return services.AddScoped<IBackgroundWorker, TWorker>();
-    }
-    
     public static IServiceCollection AddBackgroundWorkers(
         this IServiceCollection services, params Type[] workers)
     {
         services.AddHostedService<LoopBackgroundService>();
-        services.TryAddSingleton<BackgroundWorkersBuffer>(_ =>
+        services.TryAddSingleton<BackgroundWorkerTypesProvider>(_ =>
         {
-            var buffer = new BackgroundWorkersBuffer();
-            buffer.WorkersTypes.AddRange(workers);
+            var buffer = new BackgroundWorkerTypesProvider();
+            buffer.WorkerTypes.AddRange(workers);
 
             return buffer;
         });

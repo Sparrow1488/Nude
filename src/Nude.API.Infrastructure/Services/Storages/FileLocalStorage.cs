@@ -8,6 +8,7 @@ public class FileLocalStorage : IFileStorage
     private readonly string _basePath;
     private readonly string _baseUrl;
 
+    // TODO: IOptions<LocalStorageConfig>
     public FileLocalStorage(IConfiguration configuration)
     {
         _basePath = configuration["Storage:BasePath"];
@@ -24,7 +25,6 @@ public class FileLocalStorage : IFileStorage
 
         return new FileSavingResult
         {
-            IsSuccess = true,
             Url = GetFileUrl(fileName)
         };
     }
