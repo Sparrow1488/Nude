@@ -42,6 +42,7 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Directory.SetCurrentDirectory("./");
 builder.Configuration.AddUserSecrets(typeof(Program).Assembly, false);
 
 #region Logger
