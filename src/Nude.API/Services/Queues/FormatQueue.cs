@@ -20,16 +20,16 @@ public class FormatQueue : IFormatQueue
 {
     private readonly AppDbContext _context;
     private readonly IMangaService _mangaService;
-    private readonly IImageCollectionsService _collectionsService;
+    private readonly IImageCollectionService _collectionService;
 
     public FormatQueue(
         AppDbContext context,
         IMangaService mangaService,
-        IImageCollectionsService collectionsService)
+        IImageCollectionService collectionService)
     {
         _context = context;
         _mangaService = mangaService;
-        _collectionsService = collectionsService;
+        _collectionService = collectionService;
     }
     
     public async Task<FormatModelAgent?> DequeueAsync()
@@ -58,7 +58,7 @@ public class FormatQueue : IFormatQueue
                 ContentKey = collection.ContentKey,
                 Images = collection.Images.Select(x => x.Entry.Url).ToList(),
                 Type = GetMissingFormatType(collection.Formats),
-                ReleaseFunc = format => _collectionsService.AddFormatAsync(collection, format)
+                ReleaseFunc = format => _collectionService.AddFormatAsync(collection, format)
             };
         }
 
@@ -85,7 +85,7 @@ public class FormatQueue : IFormatQueue
             .FirstOrDefaultAsync();
         
         return collectionKey != null
-            ? await _collectionsService.FindByContentKeyAsync(collectionKey)
+            ? await _collectionService.FindByContentKeyAsync(collectionKey)
             : null;
     }
 

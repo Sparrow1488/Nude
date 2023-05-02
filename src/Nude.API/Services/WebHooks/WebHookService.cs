@@ -30,11 +30,10 @@ public class WebHookService : IWebHookService
         
         if (Uri.TryCreate(callbackUrl, UriKind.Absolute, out _))
         {
-
             var json = JsonConvert.SerializeObject(content, _settings);
             using var request = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await PostAsync(_client, callbackUrl, request);
+            using var response = await PostAsync(_client, callbackUrl, request);
             _logger.LogInformation("Callback response status '{status}'", response?.StatusCode);
 
             exception = CreateExceptionByResponse(response);
@@ -44,11 +43,7 @@ public class WebHookService : IWebHookService
             _logger.LogWarning("Cannot create uri");
         }
 
-        return new SendingResult
-        {
-            IsSuccess = exception == null,
-            Exception = exception
-        };
+        return new SendingResult { Exception = exception };
     }
     
     private async Task<HttpResponseMessage?> PostAsync(HttpClient client, string url, HttpContent content)
@@ -56,7 +51,7 @@ public class WebHookService : IWebHookService
         HttpResponseMessage? message = null;
         try
         {
-            message = await client.PostAsync(url, content)!;
+            message = await client.PostAsync(url, content);
         }
         catch (Exception ex)
         {

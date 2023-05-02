@@ -6,26 +6,18 @@ namespace Nude.API.Infrastructure.Utility;
 
 public static class ContentAware
 {
-    private static readonly List<string> _domains;
-    private static readonly List<SourceAssociationEntry> SourceEntries;
+    private static readonly string[] _domains;
+    private static readonly IReadOnlyList<SourceAssociationEntry> SourceEntries;
     
     static ContentAware()
     {
         SourceEntries = new List<SourceAssociationEntry>
         {
-            new()
-            {
-                SourceType = SourceType.NudeMoon,
-                AssociationDomains = new List<string> { NudeMoonDefaults.Domain }
-            },
-            new()
-            {
-                SourceType = SourceType.HentaiChan,
-                AssociationDomains = new List<string>(HentaiChanDefaults.Domains)
-            },
+            new(SourceType.NudeMoon, new List<string> { NudeMoonDefaults.Domain }),
+            new(SourceType.HentaiChan, new List<string>(HentaiChanDefaults.Domains))
         };
 
-        _domains = SourceEntries.SelectMany(x => x.AssociationDomains).ToList();
+        _domains = SourceEntries.SelectMany(x => x.AssociationDomains).ToArray();
     }
 
     public static IEnumerable<string> Domains => _domains;
@@ -51,17 +43,16 @@ public static class ContentAware
     {
         return SourceEntries.FirstOrDefault(
             x => x.AssociationDomains.Contains(GetDomain(url) ?? "")
-        ).SourceType;
+        )?.SourceType;
     }
 
     private static string? GetDomain(string siteUrl)
     {
         return Uri.TryCreate(siteUrl, UriKind.Absolute, out var uri) ? uri.Host : null;
     }
-    
-    private struct SourceAssociationEntry
-    {
-        public SourceType SourceType { get; set; }
-        public List<string> AssociationDomains { get; set; }
-    }
+
+    private record SourceAssociationEntry(
+        SourceType SourceType,
+        List<string> AssociationDomains
+    );
 }

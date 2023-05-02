@@ -27,7 +27,7 @@ public class LimitService : ILimitService
             if (withinLimitResult.Ok) continue;
             
             var limitException = new LimitExceededException(
-                limit.GetType().Name,
+                nameof(limit),
                 limit.Target.ToString(),
                 withinLimitResult.Description,
                 "Limit exceeded. Check Data body to get more details"

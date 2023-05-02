@@ -15,11 +15,11 @@ namespace Nude.API.Services.Users;
 
 #endregion
 
-public class UsersService : IUsersService
+public class UserService : IUserService
 {
     private readonly AppDbContext _context;
 
-    public UsersService(AppDbContext context)
+    public UserService(AppDbContext context)
     {
         _context = context;
     }

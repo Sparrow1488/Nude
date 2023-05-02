@@ -1,3 +1,4 @@
+using Nude.API.Infrastructure.Constants;
 using Nude.API.Services.Limits.Results;
 using Nude.API.Services.Tickets;
 using Nude.API.Services.Users;
@@ -22,17 +23,24 @@ public class ContentTicketCreationLimitHandler : LimitHandler
     public override async Task<LimitResult> WithinLimitAsync()
     {
         var user = await _session.GetUserAsync();
+
+        var roleClaim = user.Claims.FirstOrDefault(x => x.Type == NudeClaimTypes.Role);
+        if (roleClaim?.Value == NudeClaims.Role.Administrator)
+        {
+            return new LimitResult();
+        }
+        
         var userTickets = await _ticketService.GetUserTicketsAsync(user.Id);
 
-        const int maxParallelProcessCount = 2;
+        const int maxParallelProcessCount = 1;
         if (userTickets.Count < maxParallelProcessCount)
         {
             return new LimitResult();
         }
 
         return new LimitResult(
-            $"Превышен лимит на параллельную обработку содержимого: '{maxParallelProcessCount}'. " +
-            "Дождитесь завершения обработки ваших запросов и после повторите снова"
+            $"Превышен лимит на обработку содержимого: '{maxParallelProcessCount}'. " +
+            "Дождитесь завершения обработки предыдущих запросов"
         );
     }
 }

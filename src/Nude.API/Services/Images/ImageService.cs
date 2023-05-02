@@ -13,13 +13,13 @@ using Nude.Data.Infrastructure.Extensions;
 
 namespace Nude.API.Services.Images;
 
-public class ImagesService : IImagesService
+public class ImageService : IImageService
 {
     private readonly AppDbContext _context;
     private readonly IRandomizer _randomizer;
     private readonly ITagManager _tagManager;
 
-    public ImagesService(
+    public ImageService(
         AppDbContext context,
         IRandomizer randomizer,
         ITagManager tagManager)
@@ -32,12 +32,7 @@ public class ImagesService : IImagesService
     public async Task<ImageCreationResult> CreateAsync(ImageCreationModel model)
     {
         var result = await CreateRangeAsync(new[] { model });
-        return new ImageCreationResult
-        {
-            IsSuccess = true, 
-            Exception = result.Exception,
-            Result = result.Result?.FirstOrDefault() 
-        };
+        return new ImageCreationResult(result.Result!.First());
     }
 
     public async Task<ImageRangeCreationResult> CreateRangeAsync(IEnumerable<ImageCreationModel> models)
@@ -71,11 +66,7 @@ public class ImagesService : IImagesService
             await _context.SaveChangesAsync();
         }
 
-        return new ImageRangeCreationResult
-        {
-            IsSuccess = true,
-            Result = images
-        };
+        return new ImageRangeCreationResult(images);
     }
 
     public Task<bool> ExistsAsync(string contentKey)
@@ -141,7 +132,5 @@ public class ImagesService : IImagesService
     }
 
     public Task<ICollection<ImageEntry>> FindByTagsAsync(IEnumerable<string> tags)
-    {
-        throw new NotImplementedException();
-    }
+        => throw new NotImplementedException();
 }

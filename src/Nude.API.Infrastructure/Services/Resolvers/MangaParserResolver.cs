@@ -41,7 +41,9 @@ public class MangaParserResolver : IMangaParserResolver
         throw new BadRequestException("Request manga source not supported (parser not resolved)");
     }
     
-    private Task<IMangaParser> ResolveParserAsync(string name, Func<string, string, Task<IMangaParser>> resolver)
+    private Task<IMangaParser> ResolveParserAsync(
+        string name, 
+        Func<string, string, Task<IMangaParser>> resolver)
     {
         var (login, password) = GetCredentials(name);
         return resolver.Invoke(login, password);

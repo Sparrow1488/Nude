@@ -3,9 +3,13 @@ using Nude.API.Models.Mangas;
 
 namespace Nude.API.Services.Mangas.Results;
 
-public class MangaCreationResult : IServiceResult<MangaEntry>
+public class MangaCreationResult : ServiceResult<MangaEntry>
 {
-    public bool IsSuccess { get; set; }
-    public MangaEntry? Result { get; set; }
-    public Exception? Exception { get; set; }
+    public MangaCreationResult(Exception exception) : base(exception)
+    {
+    }
+
+    public MangaCreationResult(MangaEntry result) : base(result)
+    {
+    }
 }

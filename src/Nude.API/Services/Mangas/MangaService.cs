@@ -78,7 +78,7 @@ public class MangaService : IMangaService
             await AddTagsAsync(entry, combinedTags);
         }
         
-        return new MangaCreationResult { IsSuccess = true, Result = entry };
+        return new MangaCreationResult(entry);
     }
 
     private async Task<IEnumerable<Tag>> CombineTagsAsync(string? author, IEnumerable<string>? tags)
@@ -120,12 +120,16 @@ public class MangaService : IMangaService
 
     public async Task<MangaEntry?> GetRandomAsync(FormatType? format = null)
     {
-        var queryable = _context.Mangas.AsQueryable();
+        IQueryable<MangaEntry>? queryable = null;
+        var dbSet = _context.Mangas;
+        
         if (format != null)
         {
-            queryable = queryable.Where(x => x.Formats.Any(x => x.Type == format));
+            queryable = dbSet.Where(x => x.Formats.Any(f => f.Type == format));
         }
 
+        queryable ??= dbSet.AsQueryable();
+        
         var ids = await queryable.Select(x => x.Id).ToListAsync();
         _randomizer.Shuffle(ids);
         
@@ -148,7 +152,7 @@ public class MangaService : IMangaService
 
         if (format != null)
         {
-            queryable = queryable.Where(x => x.Formats.Any(x => x.Type == format));
+            queryable = queryable.Where(x => x.Formats.Any(f => f.Type == format));
         }
 
         return queryable.FirstOrDefaultAsync();
@@ -162,7 +166,7 @@ public class MangaService : IMangaService
 
         if (format != null)
         {
-            queryable = queryable.Where(x => x.Formats.Any(x => x.Type == format));
+            queryable = queryable.Where(x => x.Formats.Any(f => f.Type == format));
         }
         
         return queryable.FirstOrDefaultAsync();

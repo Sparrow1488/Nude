@@ -20,13 +20,13 @@ public class ImageController : ApiController
     private readonly IMapper _mapper;
     private readonly IUserSession _session;
     private readonly IFileStorage _storage;
-    private readonly IImagesService _service;
+    private readonly IImageService _service;
 
     public ImageController(
         IMapper mapper,
         IUserSession session,
         IFileStorage storage,
-        IImagesService service)
+        IImageService service)
     {
         _mapper = mapper;
         _session = session;

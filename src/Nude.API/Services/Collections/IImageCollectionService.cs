@@ -5,7 +5,7 @@ using Nude.API.Services.Collections.Results;
 
 namespace Nude.API.Services.Collections;
 
-public interface IImageCollectionsService
+public interface IImageCollectionService
 {
     Task<CollectionCreationResult> CreateAsync(
         string title,

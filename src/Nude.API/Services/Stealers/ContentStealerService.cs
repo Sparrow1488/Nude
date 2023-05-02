@@ -31,7 +31,7 @@ public class ContentStealerService : IContentStealerService
 
     private async Task<ContentStealingResult> StealMangaAsync(string mangaUrl)
     {
-        var parser = await _mangaParserResolver.ResolveByUrlAsync(mangaUrl);
+        using var parser = await _mangaParserResolver.ResolveByUrlAsync(mangaUrl);
         var result = await parser.GetByUrlAsync(mangaUrl);
 
         var creationResult = await _mangaService.CreateAsync(
@@ -54,7 +54,7 @@ public class ContentStealerService : IContentStealerService
         return new ContentStealingResult
         {
             IsSuccess = exception == null,
-            ContentKey = creationResult?.Result?.ContentKey,
+            ContentKey = creationResult.Result?.ContentKey!,
             Exception = exception
         };
     }

@@ -17,22 +17,22 @@ namespace Nude.API.Controllers;
 [Route("auth")]
 public class AuthorizationController : ApiController
 {
-    private readonly IUsersService _usersService;
+    private readonly IUserService _userService;
 
-    public AuthorizationController(IUsersService usersService) =>
-        _usersService = usersService;
+    public AuthorizationController(IUserService userService) =>
+        _userService = userService;
     
     [HttpPost]
     public async Task<IActionResult> SignInTelegram(string username)
     {
         var handler = new JsonWebTokenHandler();
 
-        var existsUser = await _usersService.FindByTelegramAsync(username);
+        var existsUser = await _userService.FindByTelegramAsync(username);
 
         if (existsUser is null)
         {
             var account = new TelegramAccount { Username = username };
-            var result = await _usersService.CreateAsync(account);
+            var result = await _userService.CreateAsync(account);
             
             if (!result.IsSuccess)
             {
@@ -41,7 +41,7 @@ public class AuthorizationController : ApiController
             
             existsUser = result.Result!;
 
-            await _usersService.SetClaimAsync(
+            await _userService.SetClaimAsync(
                 existsUser, 
                 NudeClaimTypes.Role,
                 NudeClaims.Role.User,
@@ -50,7 +50,7 @@ public class AuthorizationController : ApiController
         }
         
         var credentials = new SigningCredentials(CreateSecurityKey(), SecurityAlgorithms.RsaSha256);
-        var telegramAccount = (TelegramAccount) existsUser.Accounts.First(x => x is TelegramAccount);
+        var telegramAccount = existsUser.Accounts.OfType<TelegramAccount>().First();
         var token = handler.CreateToken(new SecurityTokenDescriptor
         {
             Issuer = "http://127.0.0.1:3001",
@@ -77,7 +77,7 @@ public class AuthorizationController : ApiController
     private static SecurityKey CreateSecurityKey()
     {
         var rsa = RSA.Create();
-        rsa.ImportRSAPrivateKey(KeysProvider.GetPrivateKey(), out _);
+        rsa.ImportRSAPrivateKey(SecurityKeysProvider.GetPrivateKey(), out _);
         return new RsaSecurityKey(rsa);
     }
 

@@ -16,23 +16,23 @@ namespace Nude.API.Controllers;
 public class CollectionController : ApiController
 {
     private readonly IMapper _mapper;
-    private readonly IImagesService _imagesService;
-    private readonly IImageCollectionsService _service;
+    private readonly IImageService _imageService;
+    private readonly IImageCollectionService _service;
 
     public CollectionController(
         IMapper mapper,
-        IImagesService imagesService,
-        IImageCollectionsService service)
+        IImageService imageService,
+        IImageCollectionService service)
     {
         _mapper = mapper;
-        _imagesService = imagesService;
         _service = service;
+        _imageService = imageService;
     }
 
     [HttpPost, Authorize(Policies.Admin)]
     public async Task<IActionResult> Create(ImageCollectionCreateRequest request)
     {
-        var images = await _imagesService.FindAsync(request.Images);
+        var images = await _imageService.FindAsync(request.Images);
         
         if (images.Count != request.Images.Length)
         {
@@ -46,8 +46,7 @@ public class CollectionController : ApiController
             );
         }
         
-        var imagesIdSum = images.Sum(x => x.Id);
-        var contentKeyRow = imagesIdSum + "+" + images.Count;
+        var contentKeyRow = images.Sum(x => x.Id) + "+" + images.Count;
         var contentKey = ContentKeyGenerator.Generate(nameof(ImageCollection), contentKeyRow);
 
         var result = await _service.CreateAsync(
