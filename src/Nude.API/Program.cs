@@ -12,6 +12,7 @@ using Nude.API.Infrastructure.Conventions;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Initializers;
 using Nude.API.Infrastructure.Managers;
+using Nude.API.Infrastructure.Services.Background;
 using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Infrastructure.Services.Resolvers;
@@ -176,7 +177,8 @@ builder.Services.AddAutoMapper(x => x.AddMaps(profilesAssembly));
 
 #region Background Service
 
-builder.Services.AddBackgroundWorkers(typeof(ContentTicketsWorker), typeof(FormatsWorker));
+builder.Services.AddHostedService<ScopedLoopBackgroundService<FormatsWorker>>();
+builder.Services.AddHostedService<ScopedLoopBackgroundService<ContentTicketsWorker>>();
 
 #endregion
 
