@@ -38,7 +38,9 @@ public class MangaController : ApiController
 
         if (manga != null)
         {
-            await _viewService.CreateViewAsync(await _userSession.GetUserAsync(), manga);
+            if (_userSession.IsAuthorized())
+                await _viewService.CreateViewAsync(await _userSession.GetUserAsync(), manga);
+            
             return Ok(_mapper.Map<MangaResponse>(manga));
         }
 
@@ -48,8 +50,14 @@ public class MangaController : ApiController
     [HttpGet("random")]
     public async Task<IActionResult> GetRandom(FormatType? format)
     {
-        var user = await _userSession.GetUserAsync();
-        var viewedIds = await GetViewedIdsAsync(user);
+        User? user = null;
+        var viewedIds = Array.Empty<int>();
+        
+        if (_userSession.IsAuthorized())
+        {
+            user = await _userSession.GetUserAsync();
+            viewedIds = await GetViewedIdsAsync(user);
+        }
         
         var filter = new SearchMangaFilter
         {
@@ -61,7 +69,9 @@ public class MangaController : ApiController
 
         if (manga != null)
         {
-            await _viewService.CreateViewAsync(user, manga);
+            if (user is not null)
+                await _viewService.CreateViewAsync(user, manga);
+            
             return Ok(_mapper.Map<MangaResponse>(manga));
         }
 
@@ -96,7 +106,9 @@ public class MangaController : ApiController
 
         if (manga != null)
         {
-            await _viewService.CreateViewAsync(await _userSession.GetUserAsync(), manga);
+            if (_userSession.IsAuthorized())
+                await _viewService.CreateViewAsync(await _userSession.GetUserAsync(), manga);
+            
             return Ok(_mapper.Map<MangaResponse>(manga));
         }
 

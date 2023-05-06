@@ -7,6 +7,7 @@ using Nude.API.Models.Tickets.States;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
+using Nude.Bot.Tg.Services.Users;
 using Nude.Bot.Tg.Services.Utils;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -36,7 +37,7 @@ public class CallbackHandler : ICallbackHandler
     {
         var contentKey = (notification.Details as ContentNotificationDetails)!.ContentKey;
         var messages = await _messageService.FindByContentKeyAsync(contentKey);
-        
+
         // Прогресс форматирования
         if (notification.Details is FormattingProgressDetails progress)
         {

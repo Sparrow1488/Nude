@@ -4,5 +4,6 @@ namespace Nude.API.Services.Users;
 
 public interface IUserSession
 {
+    bool IsAuthorized();
     Task<User> GetUserAsync();
 }

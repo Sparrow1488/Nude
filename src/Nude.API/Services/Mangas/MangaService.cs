@@ -125,23 +125,20 @@ public class MangaService : IMangaService
 
     public async Task<MangaEntry?> GetRandomAsync(SearchMangaFilter? filter = null)
     {
-        IQueryable<MangaEntry>? queryable = null;
-        var dbSet = _context.Mangas;
+        IQueryable<MangaEntry> queryable = _context.Mangas.OrderBy(x => x.Id);
         
         if (filter?.Format is not null)
         {
             var format = filter.Format;
-            queryable = dbSet.Where(x => x.Formats.Any(f => f.Type == format));
+            queryable = queryable.Where(x => x.Formats.Any(f => f.Type == format));
         }
         
         if (filter?.ExceptIds.Any() ?? false)
         {
             var except = filter.ExceptIds;
-            queryable = dbSet.Where(x => !except.Contains(x.Id));
+            queryable = queryable.Where(x => !except.Contains(x.Id));
         }
 
-        queryable ??= dbSet.AsQueryable();
-        
         var ids = await queryable.Select(x => x.Id).ToListAsync();
         _randomizer.Shuffle(ids);
         
@@ -151,7 +148,7 @@ public class MangaService : IMangaService
     public Task<MangaEntry?> FindBySourceIdAsync(string id)
     {
         return _context.Mangas
-            .AsQueryable()
+            .IncludeDependencies()
             .FirstOrDefaultAsync(x =>
                 x.ExternalMeta != null && x.ExternalMeta.SourceId == id);
     }
