@@ -9,6 +9,7 @@ using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Keys;
 using Nude.API.Models.Users;
 using Nude.API.Models.Users.Accounts;
+using Nude.API.Services.Blacklists;
 using Nude.API.Services.Users;
 using Nude.Data.Infrastructure.Extensions;
 
@@ -18,9 +19,15 @@ namespace Nude.API.Controllers;
 public class AuthorizationController : ApiController
 {
     private readonly IUserService _userService;
+    private readonly IBlacklistService _blacklistService;
 
-    public AuthorizationController(IUserService userService) =>
+    public AuthorizationController(
+        IUserService userService,
+        IBlacklistService blacklistService)
+    {
         _userService = userService;
+        _blacklistService = blacklistService;
+    }
     
     [HttpPost]
     public async Task<IActionResult> SignInTelegram(string username)
@@ -47,6 +54,9 @@ public class AuthorizationController : ApiController
                 NudeClaims.Role.User,
                 issuer: null
             );
+
+            var defaultBlacklist = await _blacklistService.GetDefaultAsync();
+            await _blacklistService.CreateAsync(existsUser, defaultBlacklist.Tags);
         }
         
         var credentials = new SigningCredentials(CreateSecurityKey(), SecurityAlgorithms.RsaSha256);

@@ -1,7 +1,9 @@
+using AngleSharp.Text;
 using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Services.Randomizers;
+using Nude.API.Models.Blacklists;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;
@@ -123,9 +125,24 @@ public class MangaService : IMangaService
         return _context.Mangas.Select(x => x.Id).ToArrayAsync();
     }
 
-    public async Task<MangaEntry?> GetRandomAsync(SearchMangaFilter? filter = null)
+    public async Task<MangaEntry?> GetRandomAsync(
+        SearchMangaFilter? filter = null, 
+        Blacklist? blacklist = null)
     {
         IQueryable<MangaEntry> queryable = _context.Mangas.OrderBy(x => x.Id);
+
+        // TODO: TEST!!!
+        queryable = queryable.Where(x => x.Tags.Any(x => x.NormalizeValue == "ФУРРИ"));
+        
+        if (blacklist is not null)
+        {
+            var blacklisted = blacklist.Tags.Select(x => x.NormalizeValue).ToArray();
+            queryable = queryable.Where(manga => 
+                blacklisted.Any(tag => 
+                    manga.Tags.Select(x => x.NormalizeValue).Contains(tag)
+                )
+            );
+        }
         
         if (filter?.Format is not null)
         {

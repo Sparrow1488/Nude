@@ -52,6 +52,14 @@ public class TagManager : ITagManager
         return created;
     }
 
+    public Task<Tag[]> FindAsync(params string[] search)
+    {
+        var normalized = search.Select(NormalizeTag);
+        return _context.Tags
+            .Where(x => normalized.Contains(x.NormalizeValue))
+            .ToArrayAsync();
+    }
+
     public string NormalizeTag(string tag)
     {
         var normalize = tag.Where(s => char.IsDigit(s) || char.IsLetter(s));
