@@ -18,7 +18,8 @@ public interface IMangaService
         string? externalSourceUrl = null);
 
     Task<MangaEntry?> GetByIdAsync(int id);
-    Task<MangaEntry?> GetRandomAsync(FormatType? format = null);
+    Task<int[]> GetAllAsync();
+    Task<MangaEntry?> GetRandomAsync(SearchMangaFilter? filter = null);
     Task<MangaEntry?> FindBySourceIdAsync(string id);
     Task<MangaEntry?> FindBySourceUrlAsync(string url, FormatType? format = null);
     Task<MangaEntry?> FindByContentKeyAsync(string contentKey, FormatType? format = null);

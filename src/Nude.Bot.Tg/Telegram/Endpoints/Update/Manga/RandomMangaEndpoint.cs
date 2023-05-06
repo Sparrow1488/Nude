@@ -17,7 +17,8 @@ public class RandomMangaEndpoint : TelegramUpdateCommandEndpoint
     
     public override async Task HandleAsync()
     {
-        var mangaResult = await _client.GetRandomMangaAsync(FormatType.Telegraph);
+        var authClient = _client.AuthorizeClient(UserSession);
+        var mangaResult = await authClient.GetRandomMangaAsync(FormatType.Telegraph);
         if (mangaResult.IsSuccess)
         {
             var telegraph = (TelegraphFormatResponse) mangaResult.ResultValue.Formats.First(

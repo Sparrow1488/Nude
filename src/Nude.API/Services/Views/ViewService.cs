@@ -6,6 +6,7 @@ using Nude.API.Models.Mangas;
 using Nude.API.Models.Users;
 using Nude.API.Models.Views;
 using Nude.Data.Infrastructure.Contexts;
+using Nude.Data.Infrastructure.Extensions;
 
 namespace Nude.API.Services.Views;
 
@@ -29,6 +30,14 @@ public class ViewService : IViewService
     public Task<View> CreateViewAsync(User user, ImageCollection imageCollection) =>
         CreateAsync(user, v => v.ImageCollection = imageCollection, 
             v => v.ImageCollection!.Id == imageCollection.Id);
+
+    public Task<View[]> FindByAsync(Expression<Func<View, bool>> filter)
+    {
+        return _context.Views
+            .IncludeDependencies()
+            .Where(filter)
+            .ToArrayAsync();
+    }
 
     private async Task<View> CreateAsync(
         User user, 

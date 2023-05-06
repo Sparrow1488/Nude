@@ -3,8 +3,10 @@ using System.Net.Http.Headers;
 using System.Net.Mime;
 using Microsoft.Extensions.Configuration;
 using Nude.API.Contracts.Images.Responses;
+using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
+using Nude.API.Models.Formats;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Models.Api;
 using Nude.Bot.Tg.Services.Users;
@@ -36,6 +38,11 @@ public class AuthorizedNudeClient : NudeClient, IAuthorizedNudeClient
         content.Add(image, "file", filePath);
 
         return PostAsync<ImageResponse>("/images/new", content);
+    }
+
+    Task<ApiResult<MangaResponse>> IAuthorizedNudeClient.GetRandomMangaAsync(FormatType? format)
+    {
+        return GetRandomMangaAsync(format);
     }
 
     protected override HttpClient CreateHttpClient()

@@ -4,6 +4,7 @@ using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Infrastructure.Exceptions.Client;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
+using Nude.API.Models.Users;
 using Nude.API.Services.Mangas;
 using Nude.API.Services.Users;
 using Nude.API.Services.Views;
@@ -47,15 +48,40 @@ public class MangaController : ApiController
     [HttpGet("random")]
     public async Task<IActionResult> GetRandom(FormatType? format)
     {
-        var manga = await _service.GetRandomAsync(format);
+        var user = await _userSession.GetUserAsync();
+        var viewedIds = await GetViewedIdsAsync(user);
+        
+        var filter = new SearchMangaFilter
+        {
+            Format = format,
+            ExceptIds = viewedIds
+        };
+        
+        var manga = await _service.GetRandomAsync(filter);
 
         if (manga != null)
         {
-            await _viewService.CreateViewAsync(await _userSession.GetUserAsync(), manga);
+            await _viewService.CreateViewAsync(user, manga);
             return Ok(_mapper.Map<MangaResponse>(manga));
         }
 
         return Exception(NotFoundException());
+    }
+
+    private async Task<int[]> GetViewedIdsAsync(User user)
+    {
+        var viewedIds = (await _viewService
+            .FindByAsync(x => x.Manga != null && x.User.Id == user.Id))
+            .Select(x => x.Manga!.Id);
+
+        var allIds = await _service.GetAllAsync();
+
+        if (viewedIds.Count() == allIds.Length)
+        {
+            viewedIds = Array.Empty<int>();
+        }
+
+        return viewedIds.ToArray();
     }
 
     [HttpGet]
