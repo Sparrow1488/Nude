@@ -51,7 +51,9 @@ public sealed class HentaiChanParser : IHentaiChanParser
 
     private static bool ValidateInputUrl(string url)
     {
-        return url.Contains(".hentaichan.");
+        return url.Contains(".hentaichan.")
+            && url.Contains("/manga/")
+            || url.Contains("/online/");
     }
 
     private static string GetValidPreviewUrl(string inputUrl)

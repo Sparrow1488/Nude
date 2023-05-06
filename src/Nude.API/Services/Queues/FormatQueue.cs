@@ -68,7 +68,10 @@ public class FormatQueue : IFormatQueue
     private async Task<MangaEntry?> GetMangaAsync()
     {
         var mangaKey = await _context.Mangas
-            .Where(x => !x.Formats.Any(x => x.Type == FormatType.Telegraph) && x.Images.Count <= ContentLimits.MaxFormatImagesCount)
+            .Where(x => 
+                !x.Formats.Any(x => x.Type == FormatType.Telegraph) && 
+                x.Images.Count <= ContentLimits.MaxFormatImagesCount &&
+                x.Images.Any())
             .Select(x => x.ContentKey)
             .FirstOrDefaultAsync();
 
@@ -80,7 +83,10 @@ public class FormatQueue : IFormatQueue
     private async Task<ImageCollection?> GetImageCollectionAsync()
     {
         var collectionKey = await _context.ImageCollections
-            .Where(x => !x.Formats.Any(x => x.Type == FormatType.Telegraph) && x.Images.Count <= ContentLimits.MaxFormatImagesCount)
+            .Where(x => 
+                !x.Formats.Any(x => x.Type == FormatType.Telegraph) && 
+                x.Images.Count <= ContentLimits.MaxFormatImagesCount &&
+                x.Images.Any())
             .Select(x => x.ContentKey)
             .FirstOrDefaultAsync();
         

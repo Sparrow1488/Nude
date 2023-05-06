@@ -49,7 +49,7 @@ public class ImageCollectionService : IImageCollectionService
             Title = title,
             Description = description,
             ContentKey = contentKey,
-            Images = images.Select(x => new CollectionImage { Entry = x }).ToList()
+            Images = images.Select(x => new CollectionImageEntry { Entry = x }).ToList()
         };
 
         await _context.AddAsync(collection);

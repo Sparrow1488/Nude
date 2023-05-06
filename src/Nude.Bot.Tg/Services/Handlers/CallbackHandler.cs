@@ -7,6 +7,7 @@ using Nude.API.Models.Tickets.States;
 using Nude.Bot.Tg.Clients.Nude.Abstractions;
 using Nude.Bot.Tg.Services.Messages.Service;
 using Nude.Bot.Tg.Services.Messages.Store;
+using Nude.Bot.Tg.Services.Users;
 using Nude.Bot.Tg.Services.Utils;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
@@ -17,15 +18,18 @@ public class CallbackHandler : ICallbackHandler
 {
     private readonly INudeClient _client;
     private readonly ITelegramBotClient _bot;
+    private readonly IMessagesStore _messageStore;
     private readonly IMessageService _messageService;
 
     public CallbackHandler(
         INudeClient client,
         ITelegramBotClient bot,
+        IMessagesStore messageStore,
         IMessageService messageService)
     {
         _client = client;
         _bot = bot;
+        _messageStore = messageStore;
         _messageService = messageService;
     }
     
@@ -33,7 +37,7 @@ public class CallbackHandler : ICallbackHandler
     {
         var contentKey = (notification.Details as ContentNotificationDetails)!.ContentKey;
         var messages = await _messageService.FindByContentKeyAsync(contentKey);
-        
+
         // Прогресс форматирования
         if (notification.Details is FormattingProgressDetails progress)
         {
@@ -75,7 +79,9 @@ public class CallbackHandler : ICallbackHandler
                 var manga = await _client.FindMangaByContentKeyAsync(formatDetails.ContentKey);
                 var tgh = manga.ResultValue.Formats.First(x => x is TelegraphFormatResponse);
                 var url = ((TelegraphFormatResponse) tgh).Url;
-                await EditMessagesAsync(messages, url, ParseMode.Html);
+                
+                var message = await _messageStore.GetReadMangaMessageAsync(url);
+                await EditMessagesAsync(messages, message.Text, message.ParseMode);
 
                 await _messageService.RemoveRangeAsync(messages);
             }
