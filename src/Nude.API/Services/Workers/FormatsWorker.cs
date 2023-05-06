@@ -74,8 +74,6 @@ public class FormatsWorker : IBackgroundWorker
                 ContentKey = Agent.ContentKey
             };
             await NotifySubscribersAsync(resultDetails);
-
-            EndStopwatchDiagnostics();
         }
         catch (Exception ex)
         {
@@ -85,6 +83,8 @@ public class FormatsWorker : IBackgroundWorker
         {
             _notificationService.Dispose();
             _formatterService.FormatProgressUpdated -= FormatProgressUpdated;
+            
+            EndStopwatchDiagnostics();
         }
     }
 
