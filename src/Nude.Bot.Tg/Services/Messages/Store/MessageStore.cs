@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
 using Nude.API.Contracts.Blacklists.Responses;
 using Nude.API.Contracts.Errors.Responses;
+using Nude.API.Contracts.Tags.Responses;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Models.Blacklists;
 using Nude.API.Models.Users;
@@ -106,18 +107,25 @@ public class MessageStore : IMessagesStore
         ));
     }
 
-    public Task<MessageItem> GetBlacklistTagsMessageAsync(BlacklistResponse blacklist)
+    public async Task<MessageItem> GetBlacklistChapterMessageAsync(BlacklistResponse blacklist)
     {
-        var text = "У вас нет тегов в списке";
-        if (blacklist.Tags.Any())
-        {
-            text = "Теги в черном списке: " + 
-                string.Join(" ", blacklist.Tags.Select(x => $"`{x.Value}`"));
-        }
+        var text = (await GetBlacklistTagsMessageAsync(blacklist.Tags)).Text;
 
         text += "\n\n" + _messages["blacklisthelp"];
 
-        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2, KeyboardsStore.BlacklistKeyboard));
+        return new MessageItem(text, ParseMode.MarkdownV2, KeyboardsStore.BlacklistKeyboard);
+    }
+
+    public Task<MessageItem> GetBlacklistTagsMessageAsync(TagResponse[] tags)
+    {
+        var text = "У вас нет тегов в списке";
+        if (tags.Any())
+        {
+            text = "Теги в черном списке: " + 
+                   string.Join(", ", tags.Select(x => $"`{x.Value}`"));
+        }
+
+        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2));
     }
 
     private void LoadMessages()

@@ -3,7 +3,7 @@ using Nude.Bot.Tg.Constants;
 using Nude.Bot.Tg.Services.Messages.Store;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 
-namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Profile;
+namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Blacklist;
 
 public class BlacklistEndpoint : TelegramUpdateCommandEndpoint
 {
@@ -29,7 +29,7 @@ public class BlacklistEndpoint : TelegramUpdateCommandEndpoint
             blacklistResult = await authClient.GetBlacklistAsync();
         }
 
-        var message = await _messagesStore.GetBlacklistTagsMessageAsync(blacklistResult.ResultValue);
+        var message = await _messagesStore.GetBlacklistChapterMessageAsync(blacklistResult.ResultValue);
         await MessageAsync(message);
     }
 }

@@ -57,7 +57,15 @@ public static class KeyboardsStore
     
     public static readonly IReplyMarkup BlacklistKeyboard = new ReplyKeyboardMarkup(new[]
     {
-        new KeyboardButton[] { NavigationCommands.HomeChapter }
+        new KeyboardButton[]
+        {
+            NavigationCommands.CleanBlacklist,
+            NavigationCommands.ResetBlacklist,
+        },
+        new KeyboardButton[]
+        {
+            NavigationCommands.HomeChapter
+        },
     })
     {
         ResizeKeyboard = true

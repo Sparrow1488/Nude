@@ -3,7 +3,7 @@ using Nude.Bot.Tg.Services.Utils;
 using Nude.Bot.Tg.Telegram.Endpoints.Base;
 using Telegram.Bot.Types.Enums;
 
-namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Profile;
+namespace Nude.Bot.Tg.Telegram.Endpoints.Update.Blacklist;
 
 public class BlacklistUpdateEndpoint : TelegramUpdateCommandEndpoint
 {
@@ -31,10 +31,14 @@ public class BlacklistUpdateEndpoint : TelegramUpdateCommandEndpoint
         if (tagsResult.IsSuccess)
         {
             var message = "Добавлены теги\\: " + string.Join(
-                " ", 
+                ", ", 
                 tagsResult.ResultValue.Select(x => $"`{x.Value}`")
             );
-            await MessageAsync(message, ParseMode.MarkdownV2);
+            
+            var blacklist = (await authClient.GetBlacklistAsync()).ResultValue;
+            var tagsMessage = await MessagesStore.GetBlacklistTagsMessageAsync(blacklist.Tags);
+            
+            await MessageAsync(message + "\n\n" + tagsMessage.Text, ParseMode.MarkdownV2);
             return;
         }
 
