@@ -1,7 +1,6 @@
 using System.Security.Claims;
 using Nude.API.Contracts.Blacklists.Responses;
 using Nude.API.Contracts.Errors.Responses;
-using Nude.API.Models.Blacklists;
 using Nude.API.Models.Users;
 
 namespace Nude.Bot.Tg.Services.Messages.Store;

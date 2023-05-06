@@ -115,6 +115,8 @@ public class MessageStore : IMessagesStore
                 string.Join(" ", blacklist.Tags.Select(x => $"`{x.Value}`"));
         }
 
+        text += "\n\n" + _messages["blacklisthelp"];
+
         return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2, KeyboardsStore.BlacklistKeyboard));
     }
 
