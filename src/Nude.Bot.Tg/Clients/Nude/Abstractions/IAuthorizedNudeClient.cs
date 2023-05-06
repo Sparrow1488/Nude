@@ -1,3 +1,4 @@
+using Nude.API.Contracts.Blacklists.Responses;
 using Nude.API.Contracts.Images.Responses;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
@@ -11,5 +12,7 @@ public interface IAuthorizedNudeClient : INudeClient
 {
     Task<ApiResult<ContentTicketResponse>> CreateContentTicketAsync(ContentTicketRequest request);
     Task<ApiResult<ImageResponse>> CreateImageAsync(byte[] data, string filePath);
-    new Task<ApiResult<MangaResponse>> GetRandomMangaAsync(FormatType? format = null);
+    Task<ApiResult<MangaResponse>> GetRandomMangaAsync(FormatType? format = null);
+    Task<ApiResult<BlacklistResponse>> GetBlacklistAsync();
+    Task<ApiResult<BlacklistResponse>> SetDefaultBlacklistAsync(params string[] tags);
 }

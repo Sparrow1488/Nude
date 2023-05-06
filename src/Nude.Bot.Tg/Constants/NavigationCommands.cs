@@ -11,4 +11,5 @@ public static class NavigationCommands
     public const string RandomPicture = "Рандомные Фотокарточки";
     
     public const string UpdateToken = "Обновить токен";
+    public const string Blacklist = "Черный список";
 }

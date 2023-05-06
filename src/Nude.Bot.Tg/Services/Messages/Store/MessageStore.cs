@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Microsoft.Extensions.Configuration;
+using Nude.API.Contracts.Blacklists.Responses;
 using Nude.API.Contracts.Errors.Responses;
 using Nude.API.Infrastructure.Extensions;
+using Nude.API.Models.Blacklists;
 using Nude.API.Models.Users;
 using Nude.Bot.Tg.Services.Keyboards;
 using Nude.Bot.Tg.Services.Utils;
@@ -102,6 +104,18 @@ public class MessageStore : IMessagesStore
             $"Загружаем украденную мангу в Telegraph ({currentImage}/{totalImages})",
             ParseMode.Html
         ));
+    }
+
+    public Task<MessageItem> GetBlacklistTagsMessageAsync(BlacklistResponse blacklist)
+    {
+        var text = "У вас нет тегов в списке";
+        if (blacklist.Tags.Any())
+        {
+            text = "Теги в черном списке: " + 
+                string.Join(" ", blacklist.Tags.Select(x => $"`{x.Value}`"));
+        }
+
+        return Task.FromResult(new MessageItem(text, ParseMode.MarkdownV2, KeyboardsStore.BlacklistKeyboard));
     }
 
     private void LoadMessages()

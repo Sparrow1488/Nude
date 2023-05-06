@@ -41,7 +41,22 @@ public static class KeyboardsStore
     
     public static readonly IReplyMarkup ProfileKeyboard = new ReplyKeyboardMarkup(new[]
     {
-        new KeyboardButton[] { NavigationCommands.UpdateToken },
+        new KeyboardButton[]
+        {
+            NavigationCommands.UpdateToken,
+            NavigationCommands.Blacklist
+        },
+        new KeyboardButton[]
+        {
+            NavigationCommands.HomeChapter
+        },
+    })
+    {
+        ResizeKeyboard = true
+    };
+    
+    public static readonly IReplyMarkup BlacklistKeyboard = new ReplyKeyboardMarkup(new[]
+    {
         new KeyboardButton[] { NavigationCommands.HomeChapter }
     })
     {

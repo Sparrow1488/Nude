@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using Microsoft.Extensions.Configuration;
+using Nude.API.Contracts.Blacklists.Responses;
 using Nude.API.Contracts.Images.Responses;
 using Nude.API.Contracts.Manga.Responses;
 using Nude.API.Contracts.Tickets.Requests;
@@ -40,10 +41,15 @@ public class AuthorizedNudeClient : NudeClient, IAuthorizedNudeClient
         return PostAsync<ImageResponse>("/images/new", content);
     }
 
-    Task<ApiResult<MangaResponse>> IAuthorizedNudeClient.GetRandomMangaAsync(FormatType? format)
-    {
-        return GetRandomMangaAsync(format);
-    }
+    Task<ApiResult<MangaResponse>> IAuthorizedNudeClient.GetRandomMangaAsync(FormatType? format) =>
+        GetRandomMangaAsync(format);
+
+    public Task<ApiResult<BlacklistResponse>> GetBlacklistAsync() =>
+        GetAsync<BlacklistResponse>("/users/me/blacklist");
+
+    public Task<ApiResult<BlacklistResponse>> SetDefaultBlacklistAsync(
+        params string[] tags
+    ) => PostAsync<EmptyRequest, BlacklistResponse>("/users/me/blacklist/reset", new EmptyRequest());
 
     protected override HttpClient CreateHttpClient()
     {

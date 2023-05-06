@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using Nude.API.Contracts.Blacklists.Responses;
 using Nude.API.Contracts.Errors.Responses;
+using Nude.API.Models.Blacklists;
 using Nude.API.Models.Users;
 
 namespace Nude.Bot.Tg.Services.Messages.Store;
@@ -26,4 +28,5 @@ public interface IMessagesStore
         string profileCompliment = "невозмутимый"
     );
     Task<MessageItem> GetImagesUploadMessageAsync(int currentImage, int totalImages);
+    Task<MessageItem> GetBlacklistTagsMessageAsync(BlacklistResponse blacklist);
 }
