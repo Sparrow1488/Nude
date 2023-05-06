@@ -2,8 +2,10 @@ using System.Globalization;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using Microsoft.Extensions.Configuration;
+using Nude.API.Contracts.Blacklists.Responses;
 using Nude.API.Contracts.Images.Responses;
 using Nude.API.Contracts.Manga.Responses;
+using Nude.API.Contracts.Tags.Responses;
 using Nude.API.Contracts.Tickets.Requests;
 using Nude.API.Contracts.Tickets.Responses;
 using Nude.API.Models.Formats;
@@ -40,10 +42,24 @@ public class AuthorizedNudeClient : NudeClient, IAuthorizedNudeClient
         return PostAsync<ImageResponse>("/images/new", content);
     }
 
-    Task<ApiResult<MangaResponse>> IAuthorizedNudeClient.GetRandomMangaAsync(FormatType? format)
-    {
-        return GetRandomMangaAsync(format);
-    }
+    Task<ApiResult<MangaResponse>> IAuthorizedNudeClient.GetRandomMangaAsync(FormatType? format) =>
+        GetRandomMangaAsync(format);
+
+    public Task<ApiResult<BlacklistResponse>> GetBlacklistAsync() =>
+        GetAsync<BlacklistResponse>("/users/me/blacklist");
+
+    public Task<ApiResult<BlacklistResponse>> SetDefaultBlacklistAsync() => 
+        PostAsync<EmptyRequest, BlacklistResponse>("/users/me/blacklist/reset", new EmptyRequest());
+
+    public Task<ApiResult<TagResponse[]>> SetBlacklistTagsAsync(
+        params string[] tags
+    ) => PutAsync<TagResponse[]>(
+            "/users/me/blacklist/tags?tags=" + string.Join("-", tags)
+        );
+
+    public Task<ApiResult<TagResponse[]>> DeleteBlacklistTagsAsync(
+        params string[] tags
+    ) => DeleteAsync<TagResponse[]>("/users/me/blacklist/tags?tags=" + string.Join("-", tags));
 
     protected override HttpClient CreateHttpClient()
     {

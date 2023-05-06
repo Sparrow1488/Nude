@@ -18,6 +18,7 @@ using Nude.API.Infrastructure.Services.Randomizers;
 using Nude.API.Infrastructure.Services.Resolvers;
 using Nude.API.Infrastructure.Services.Seeds;
 using Nude.API.Infrastructure.Services.Storages;
+using Nude.API.Services.Blacklists;
 using Nude.API.Services.Collections;
 using Nude.API.Services.Formatters;
 using Nude.API.Services.Images;
@@ -124,6 +125,7 @@ builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 builder.Services.AddScoped<IImageCollectionService, ImageCollectionService>();
 builder.Services.AddScoped<IViewService, ViewService>();
+builder.Services.AddScoped<IBlacklistService, BlacklistService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, UserSession>();

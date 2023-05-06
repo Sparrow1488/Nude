@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Nude.API.Models.Blacklists;
 using Nude.API.Models.Claims;
 using Nude.API.Models.Collections;
 using Nude.API.Models.Formats;
@@ -37,7 +38,7 @@ public class AppDbContext : DatabaseContext
     public DbSet<ClaimEntry> Claims => Set<ClaimEntry>();
     public DbSet<TelegramAccount> TelegramAccounts => Set<TelegramAccount>();
     public DbSet<View> Views => Set<View>();
-    
+    public DbSet<Blacklist> Blacklists => Set<Blacklist>();
     
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -56,6 +57,18 @@ public class AppDbContext : DatabaseContext
         builder.Entity<ImageEntry>()
             .HasOne(x => x.Owner)
             .WithMany(x => x.Images)
+            .OnDelete(DeleteBehavior.SetNull);
+        
+        builder.Entity<User>()
+            .HasOne(x => x.Blacklist)
+            .WithOne(x => x.User)
+            .HasForeignKey<Blacklist>(x => x.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<Blacklist>()
+            .HasOne(x => x.User)
+            .WithOne(x => x.Blacklist)
+            .HasForeignKey<User>(x => x.BlacklistId)
             .OnDelete(DeleteBehavior.SetNull);
     }
 }

@@ -1,26 +1,36 @@
+using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Constants;
 using Nude.API.Infrastructure.Services.Seeds;
 using Nude.API.Models.Users;
+using Nude.API.Services.Blacklists;
 using Nude.API.Services.Users;
+using Nude.Data.Infrastructure.Contexts;
 
 namespace Nude.API.Services.Seeds;
 
 public class DataSeeder : IDataSeeder
 {
+    private readonly AppDbContext _context;
+    private readonly IBlacklistService _blacklistService;
     private readonly IUserService _user;
     private readonly ILogger<DataSeeder> _logger;
 
     public DataSeeder(
+        AppDbContext context,
+        IBlacklistService blacklistService,
         IUserService user,
         ILogger<DataSeeder> logger)
     {
+        _context = context;
+        _blacklistService = blacklistService;
         _user = user;
         _logger = logger;
     }
     
-    public Task SeedDataAsync()
+    public async Task SeedDataAsync()
     {
-        return SeedAdminsAsync();
+        await SeedAdminsAsync();
+        await SetBlacklistsAsync();
     }
     
     private async Task SeedAdminsAsync()
@@ -49,6 +59,24 @@ public class DataSeeder : IDataSeeder
                 NudeClaimTypes.Role, 
                 NudeClaims.Role.Administrator
             );
+        }
+    }
+
+    /// <summary>
+    /// Нужно для добавления черного списка старым пользователям. Может быть удалено в будущем.
+    /// </summary>
+    private async Task SetBlacklistsAsync()
+    {
+        var usersWithoutBlacklists = await _context.Users
+            .Where(x => x.Blacklist == null)
+            .ToArrayAsync();
+        
+        _logger.LogInformation("Found {count} users without blacklists", usersWithoutBlacklists.Length);
+
+        foreach (var user in usersWithoutBlacklists)
+        {
+            var defaultBlacklist = await _blacklistService.GetDefaultAsync();
+            await _blacklistService.CreateAsync(user, defaultBlacklist.Tags);
         }
     }
 }

@@ -73,9 +73,24 @@ public class NudeClient : INudeClient
         var response = await client.GetAsync(_baseUrl + path);
         return await CreateResultByMessageAsync<TRes>(response);
     }
+    
+    protected async Task<ApiResult<TRes>> PutAsync<TRes>(string path)
+    {
+        using var client = CreateHttpClient();
+        
+        var response = await client.PutAsync(_baseUrl + path, content: null);
+        return await CreateResultByMessageAsync<TRes>(response);
+    }
+    
+    protected async Task<ApiResult<TRes>> DeleteAsync<TRes>(string path)
+    {
+        using var client = CreateHttpClient();
+        
+        var response = await client.DeleteAsync(_baseUrl + path);
+        return await CreateResultByMessageAsync<TRes>(response);
+    }
 
     protected async Task<ApiResult<TRes>> PostAsync<TReq, TRes>(string path, TReq request)
-        where TRes : struct
     {
         using var client = CreateHttpClient();
         var content = CreateContent(request);
@@ -128,4 +143,5 @@ public class NudeClient : INudeClient
     }
     
     protected struct EmptyRequest { }
+    protected struct EmptyResponse { }
 }

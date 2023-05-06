@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Nude.API.Infrastructure.Extensions;
 using Nude.API.Infrastructure.Managers;
 using Nude.API.Infrastructure.Services.Randomizers;
+using Nude.API.Models.Blacklists;
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
 using Nude.API.Models.Mangas.Meta;
@@ -118,14 +119,31 @@ public class MangaService : IMangaService
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public Task<int[]> GetAllAsync()
+    public Task<int[]> GetAllAsync(Blacklist? blacklist = null)
     {
-        return _context.Mangas.Select(x => x.Id).ToArrayAsync();
+        var blacklisted = GetBlacklistedTags(blacklist);
+        
+        return _context.Mangas
+            .Where(manga => 
+                !manga.Tags.Any(x => 
+                    blacklisted.Contains(x.NormalizeValue)))
+            .Select(x => x.Id)
+            .ToArrayAsync();
     }
 
-    public async Task<MangaEntry?> GetRandomAsync(SearchMangaFilter? filter = null)
+    public async Task<MangaEntry?> GetRandomAsync(
+        SearchMangaFilter? filter = null, 
+        Blacklist? blacklist = null)
     {
-        IQueryable<MangaEntry> queryable = _context.Mangas.OrderBy(x => x.Id);
+        IQueryable<MangaEntry> queryable = _context.Mangas
+            .OrderByDescending(x => x.CreatedAt);
+
+        if (blacklist is not null)
+        {
+            var blacklisted = GetBlacklistedTags(blacklist);
+            queryable = queryable
+                .Where(manga => !manga.Tags.Any(x => blacklisted.Contains(x.NormalizeValue)));
+        }
         
         if (filter?.Format is not null)
         {
@@ -140,10 +158,19 @@ public class MangaService : IMangaService
         }
 
         var ids = await queryable.Select(x => x.Id).ToListAsync();
-        _randomizer.Shuffle(ids);
+
+        if (!ids.Any())
+        {
+            return null;
+        }
         
+        _randomizer.Shuffle(ids);
         return await GetByIdAsync(ids.First());
     }
+
+    private static string[] GetBlacklistedTags(Blacklist? blacklist) =>
+        blacklist?.Tags.Select(x => x.NormalizeValue!).ToArray()
+        ?? Array.Empty<string>();
 
     public Task<MangaEntry?> FindBySourceIdAsync(string id)
     {

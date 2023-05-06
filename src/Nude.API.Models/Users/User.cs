@@ -1,4 +1,5 @@
 using Nude.API.Models.Abstractions;
+using Nude.API.Models.Blacklists;
 using Nude.API.Models.Claims;
 using Nude.API.Models.Images;
 using Nude.API.Models.Tickets;
@@ -13,4 +14,6 @@ public class User : IEntity
     public ICollection<ContentTicket> ContentTickets { get; set; } = null!;
     public ICollection<ImageEntry> Images { get; set; } = null!;
     public ICollection<ClaimEntry> Claims { get; set; } = null!;
+    public Blacklist? Blacklist { get; set; } = null!;
+    public int? BlacklistId { get; set; }
 }
