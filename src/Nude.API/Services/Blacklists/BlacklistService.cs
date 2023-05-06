@@ -5,6 +5,7 @@ using Nude.API.Models.Blacklists;
 using Nude.API.Models.Tags;
 using Nude.API.Models.Users;
 using Nude.Data.Infrastructure.Contexts;
+using Nude.Data.Infrastructure.Extensions;
 
 namespace Nude.API.Services.Blacklists;
 
@@ -43,12 +44,14 @@ public class BlacklistService : IBlacklistService
 
     public Task<Blacklist?> GetAsync(User user)
     {
-        return _context.Blacklists.FirstOrDefaultAsync(x => x.User.Id == user.Id);
+        return _context.Blacklists
+            .IncludeDependencies()
+            .FirstOrDefaultAsync(x => x.User.Id == user.Id);
     }
 
     public async Task<Blacklist> GetDefaultAsync()
     {
-        var tags = await _tagManager.FindAsync("gay", "furry", "trap", "фурри", "трап", "футанари", "futa", "яой");
+        var tags = await _tagManager.FindAsync("яой", "трап", "фурри", "футанари");
         return new Blacklist
         {
             Tags = tags

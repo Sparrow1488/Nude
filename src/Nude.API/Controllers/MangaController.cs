@@ -74,7 +74,13 @@ public class MangaController : ApiController
         
         var manga = await _service.GetRandomAsync(filter, blacklist);
 
-        if (manga != null)
+        if (manga is null)
+        {
+            filter.ExceptIds = Array.Empty<int>();
+            manga = await _service.GetRandomAsync(filter, blacklist);
+        }
+        
+        if (manga is not null)
         {
             if (user is not null)
                 await _viewService.CreateViewAsync(user, manga);
@@ -89,14 +95,8 @@ public class MangaController : ApiController
     {
         var viewedIds = (await _viewService
             .FindByAsync(x => x.Manga != null && x.User.Id == user.Id))
-            .Select(x => x.Manga!.Id);
-
-        var allIds = await _service.GetAllAsync();
-
-        if (viewedIds.Count() == allIds.Length)
-        {
-            viewedIds = Array.Empty<int>();
-        }
+            .Select(x => x.Manga!.Id)
+            .ToArray();
 
         return viewedIds.ToArray();
     }

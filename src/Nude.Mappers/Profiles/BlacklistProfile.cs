@@ -8,6 +8,7 @@ public class BlacklistProfile : Profile
 {
     public BlacklistProfile()
     {
-        CreateMap<Blacklist, BlacklistResponse>();
+        CreateMap<Blacklist, BlacklistResponse>()
+            .ForMember(x => x.UserId, opt => opt.MapFrom(x => x.User.Id));
     }
 }
