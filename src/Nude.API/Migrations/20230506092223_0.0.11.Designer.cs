@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Nude.Data.Infrastructure.Contexts;
@@ -11,9 +12,10 @@ using Nude.Data.Infrastructure.Contexts;
 namespace Nude.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230506092223_0.0.11")]
+    partial class _0011
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -488,21 +490,21 @@ namespace Nude.API.Migrations
                         .HasColumnName("user_id");
 
                     b.HasKey("Id")
-                        .HasName("pk_views");
+                        .HasName("pk_view");
 
                     b.HasIndex("ImageCollectionId")
-                        .HasDatabaseName("ix_views_image_collection_id");
+                        .HasDatabaseName("ix_view_image_collection_id");
 
                     b.HasIndex("ImageId")
-                        .HasDatabaseName("ix_views_image_id");
+                        .HasDatabaseName("ix_view_image_id");
 
                     b.HasIndex("MangaId")
-                        .HasDatabaseName("ix_views_manga_id");
+                        .HasDatabaseName("ix_view_manga_id");
 
                     b.HasIndex("UserId")
-                        .HasDatabaseName("ix_views_user_id");
+                        .HasDatabaseName("ix_view_user_id");
 
-                    b.ToTable("views", (string)null);
+                    b.ToTable("view", (string)null);
                 });
 
             modelBuilder.Entity("Nude.API.Models.Formats.TelegraphFormat", b =>
@@ -693,24 +695,24 @@ namespace Nude.API.Migrations
                     b.HasOne("Nude.API.Models.Collections.ImageCollection", "ImageCollection")
                         .WithMany("Views")
                         .HasForeignKey("ImageCollectionId")
-                        .HasConstraintName("fk_views_image_collections_image_collection_id");
+                        .HasConstraintName("fk_view_image_collections_image_collection_id");
 
                     b.HasOne("Nude.API.Models.Images.ImageEntry", "Image")
                         .WithMany("Views")
                         .HasForeignKey("ImageId")
-                        .HasConstraintName("fk_views_images_image_id");
+                        .HasConstraintName("fk_view_images_image_id");
 
                     b.HasOne("Nude.API.Models.Mangas.MangaEntry", "Manga")
                         .WithMany("Views")
                         .HasForeignKey("MangaId")
-                        .HasConstraintName("fk_views_mangas_manga_id");
+                        .HasConstraintName("fk_view_mangas_manga_id");
 
                     b.HasOne("Nude.API.Models.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_views_users_user_id");
+                        .HasConstraintName("fk_view_users_user_id");
 
                     b.Navigation("Image");
 

@@ -10,6 +10,7 @@ using Nude.API.Models.Tickets;
 using Nude.API.Models.Urls;
 using Nude.API.Models.Users;
 using Nude.API.Models.Users.Accounts;
+using Nude.API.Models.Views;
 
 namespace Nude.Data.Infrastructure.Contexts;
 
@@ -35,6 +36,8 @@ public class AppDbContext : DatabaseContext
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<ClaimEntry> Claims => Set<ClaimEntry>();
     public DbSet<TelegramAccount> TelegramAccounts => Set<TelegramAccount>();
+    public DbSet<View> Views => Set<View>();
+    
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

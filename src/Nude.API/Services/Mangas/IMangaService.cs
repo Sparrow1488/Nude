@@ -1,5 +1,6 @@
 using Nude.API.Models.Formats;
 using Nude.API.Models.Mangas;
+using Nude.API.Models.Views;
 using Nude.API.Services.Mangas.Results;
 
 namespace Nude.API.Services.Mangas;
