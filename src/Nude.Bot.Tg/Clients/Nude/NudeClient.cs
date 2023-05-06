@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
@@ -126,8 +127,5 @@ public class NudeClient : INudeClient
         return new HttpClient();
     }
     
-    protected struct EmptyRequest
-    {
-        
-    }
+    protected struct EmptyRequest { }
 }

@@ -30,6 +30,7 @@ using Nude.API.Services.Seeds;
 using Nude.API.Services.Stealers;
 using Nude.API.Services.Tickets;
 using Nude.API.Services.Users;
+using Nude.API.Services.Views;
 using Nude.API.Services.WebHooks;
 using Nude.API.Services.Workers;
 using Nude.Authorization.Handlers;
@@ -122,6 +123,7 @@ builder.Services.AddScoped<IMangaService, MangaService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IContentTicketService, ContentTicketService>();
 builder.Services.AddScoped<IImageCollectionService, ImageCollectionService>();
+builder.Services.AddScoped<IViewService, ViewService>();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IUserSession, UserSession>();
